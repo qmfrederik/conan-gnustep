@@ -71,3 +71,6 @@ jobs:
       - name: Install libobjc2
         run: ../.python3/bin/conan create . --profile:a=$(pwd)/../profiles/linux-clang
         working-directory: libobjc2/
+      - name: Install gnustep-make
+        run: ../.python3/bin/conan create . --profile:a=$(pwd)/../profiles/linux-clang
+        working-directory: libobjc2/
