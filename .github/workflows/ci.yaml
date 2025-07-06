@@ -1,0 +1,73 @@
+name: Build packages
+
+on:
+  push: 
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  windows:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check LLVM version
+        # We need at least LLVM 18.0 for proper Objective C support.  Visual Studio 2022 ships with LLVM 17,
+        # so we need to make sure we pick up clang from C:\Program Files\LLVM\bin\
+        # For full-fledged support on Windows, we'll need https://github.com/llvm/llvm-project/pull/107604,
+        # which will is included in LLVM 20.0.  The windows-2025 GitHub Actions image has this version of clang;
+        # trust but verify
+        run: |
+          clang --version
+      - name: Install Conan
+        run: |
+          pip install conan==2.18.1
+          conan --version
+      - name: Install libobjc2
+        run: conan create . --profile:a=${{ github.workspace }}/profiles/windows-clang
+        working-directory: libobjc2/
+
+  linux:
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: ubuntu-22.04
+            image: ubuntu:22.04
+            family: ubuntu
+          - name: ubuntu-24.04
+            image: ubuntu:24.04
+            family: ubuntu
+          - name: rockylinux-9
+            image: rockylinux:9
+            family: rhel
+          - name: rockylinux-8
+            image: rockylinux:8
+            family: rhel
+            repos: powertools
+    steps:
+      - name: Install dependencies (Ubuntu)
+        run: |
+          apt-get update
+          apt-get install -y clang lld curl zip unzip tar git pkg-config make python3-venv cmake
+        if: matrix.family == 'ubuntu'
+      - name: Install dependencies (Enterprise Linux)
+        run: |
+          yum install -y clang lld zip unzip tar git pkg-config which findutils python3 cmake
+        if: matrix.family == 'rhel'
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install conan
+        run: |
+          python3 -m venv .python3/
+          .python3/bin/pip install conan==2.18.1
+          .python3/bin/conan --version
+      - name: Install libobjc2
+        run: ../.python3/bin/conan create . --profile:a=$(pwd)/../profiles/linux-clang
+        working-directory: libobjc2/
