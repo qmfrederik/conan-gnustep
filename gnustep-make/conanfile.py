@@ -44,7 +44,7 @@ class GnustepMakeRecipe(ConanFile):
         env = tc.environment()
         tc.configure_args.append("--with-library-combo=ng-gnu-gnu")
         tc.configure_args.append("--with-runtime-abi=gnustep-2.2")
-        tc.extra_ldflags = ["-fuse-ld=lld"]
+        env.append("LDFLAGS", "-fuse-ld=lld")
         
         # On Windows, the path to the the compiler may include spaces (e.g. C:\Program Files\LLVM\bin\clang.exe)
         # This creates issues in MSYS2.  Instead, set CC/CXX to the executable name only, and include the parent directly
