@@ -31,7 +31,10 @@ class GnustepBaseRecipe(ConanFile):
         self.requires("libffi/3.4.8")
         self.requires("libxml2/2.13.8")
         self.requires("libxslt/1.1.43")
-        self.requires("gnutls/3.8.7")
+
+        if self.settings.os != "Windows":
+            self.requires("gnutls/3.8.7")
+
         self.requires("icu/77.1")
         self.requires("libcurl/8.12.1")
         self.tool_requires("gnustep-make/2.9.3")
@@ -67,16 +70,24 @@ class GnustepBaseRecipe(ConanFile):
             tc.configure_args.append(f"CXX={os.path.basename(cxx)}")
             env.append_path("PATH", os.path.dirname(cc))
             env.append_path("PATH", os.path.dirname(cxx))
+            tc.configure_args.append("--disable-tls")
 
         gnustep_make_package_folder = self.dependencies.build["gnustep-make"].package_folder
         libdispatch_package_folder = self.dependencies["libdispatch"].package_folder
+
+        gnustep_makefiles_folder = f"{gnustep_make_package_folder}/share/GNUstep/Makefiles/"
+        
+        # There should be a more elegant way to handle these backwards slashes
+        if self.settings.os == "Windows":
+            gnustep_makefiles_folder = gnustep_makefiles_folder.replace('\\','/')
+            gnustep_makefiles_folder = gnustep_makefiles_folder.replace('C:','/c')
+            gnustep_makefiles_folder = f"{gnustep_makefiles_folder}"
 
         # Add gnustep-config to path
         env.append_path("PATH", os.path.join(gnustep_make_package_folder, "bin"))
 
         # Resolve GNUstep makefiles
-        tc.configure_args.append(f"GNUSTEP_MAKEFILES={gnustep_make_package_folder}/share/GNUstep/Makefiles/")
-        tc.make_args.append(f"GNUSTEP_MAKEFILES={gnustep_make_package_folder}/share/GNUstep/Makefiles/")
+        tc.configure_args.append(f"GNUSTEP_MAKEFILES={gnustep_makefiles_folder}")
         tc.configure_args.append("--disable-importing-config-file")
         env.append("LDFLAGS", f"-Wl,-rpath-link={libdispatch_package_folder}/libs/")
         tc.generate(env)
