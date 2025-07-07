@@ -1,7 +1,6 @@
 from conan import ConanFile
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
-from conan.tools.files import get
-from conan.tools.microsoft import unix_path
+from conan.tools.files import get, patch
 import os
 
 class GnustepBaseRecipe(ConanFile):
@@ -16,10 +15,15 @@ class GnustepBaseRecipe(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": True, "fPIC": True}
+    exports_sources = "*.patch"
 
     def source(self):
         get(self, "https://github.com/gnustep/libs-base/releases/download/base-1_31_1/gnustep-base-1.31.1.tar.gz",
                   strip_root=True)
+
+        # These patches are maintained at https://github.com/qmfrederik/libs-base/tree/base-1_31_1-PACKAGE
+        patch(self, patch_file=os.path.join(self.export_sources_folder, "0001-Support-libcurl-7.61.patch"))
+        patch(self, patch_file=os.path.join(self.export_sources_folder, "0002-expose-declarations-in-NSDebug.h-even-when-NDEBUG-is.patch"))
 
     def requirements(self):
         self.requires("libobjc2/2.2.1")
@@ -65,6 +69,7 @@ class GnustepBaseRecipe(ConanFile):
 
         # Resolve GNUstep makefiles
         tc.configure_args.append(f"GNUSTEP_MAKEFILES={gnustep_make_package_folder}/share/GNUstep/Makefiles/")
+        tc.make_args.append(f"GNUSTEP_MAKEFILES={gnustep_make_package_folder}/share/GNUstep/Makefiles/")
         tc.configure_args.append("--disable-importing-config-file")
         tc.generate(env)
 

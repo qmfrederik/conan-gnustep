@@ -1,0 +1,145 @@
+From baaeb2bd4c198bc7a10c8e1c46ba5ca7be43469e Mon Sep 17 00:00:00 2001
+From: Frederik Carlier <frederik.carlier@keysight.com>
+Date: Thu, 3 Jul 2025 22:24:46 +0200
+Subject: [PATCH 1/2] Support libcurl 7.61
+
+This version of libcurl ships with RHEL 8
+---
+ Source/NSURLSessionConfiguration.m | 10 ++++++++++
+ Source/NSURLSessionTask.m          |  4 ++++
+ configure                          | 12 ++++++------
+ configure.ac                       |  8 ++++----
+ 4 files changed, 24 insertions(+), 10 deletions(-)
+
+diff --git a/Source/NSURLSessionConfiguration.m b/Source/NSURLSessionConfiguration.m
+index 2f4172207..856dd87c1 100644
+--- a/Source/NSURLSessionConfiguration.m
++++ b/Source/NSURLSessionConfiguration.m
+@@ -27,9 +27,12 @@
+  * Software Foundation, Inc., 31 Milk Street #960789 Boston, MA 02196 USA.
+  */
+ 
++#import "Foundation/NSException.h"
+ #import "Foundation/NSURLSession.h"
+ #import "Foundation/NSHTTPCookie.h"
+ 
++#include <curl/curl.h>
++
+ // TODO: This is the old implementation. It requires a rewrite!
+ 
+ @implementation NSURLSessionConfiguration
+@@ -166,7 +169,14 @@ static NSURLSessionConfiguration * def = nil;
+ 
+ - (void) setHTTPMaximumConnectionLifetime: (NSInteger)n
+ {
++#if CURL_AT_LEAST_VERSION(7, 66, 0)
+   _HTTPMaximumConnectionLifetime = n;
++#else
++  [NSException raise: NSInternalInconsistencyException
++    format: @"-[%@ %@] not supported by the version of Curl"
++    @" this library was built with",
++    NSStringFromClass([self class]), NSStringFromSelector(_cmd)];
++#endif
+ }
+ 
+ - (BOOL) HTTPShouldUsePipelining
+diff --git a/Source/NSURLSessionTask.m b/Source/NSURLSessionTask.m
+index 0f0ccef62..820b2b287 100644
+--- a/Source/NSURLSessionTask.m
++++ b/Source/NSURLSessionTask.m
+@@ -174,7 +174,9 @@ errorForCURLcode(CURL *handle, CURLcode code, char errorBuffer[CURL_ERROR_SIZE])
+       case CURLE_COULDNT_RESOLVE_HOST:
+         urlError = NSURLErrorDNSLookupFailed;
+         break;
++#if CURL_AT_LEAST_VERSION(7, 69, 0)
+       case CURLE_QUIC_CONNECT_ERROR:
++#endif
+       case CURLE_COULDNT_CONNECT:
+         urlError = NSURLErrorCannotConnectToHost;
+         break;
+@@ -1048,10 +1050,12 @@ write_callback(char *ptr, size_t size, size_t nmemb, void *userdata)
+       /* Set to HTTP/3 if requested */
+       if ([request assumesHTTP3Capable])
+         {
++#if CURL_AT_LEAST_VERSION(7, 66, 0)
+           curl_easy_setopt(
+             _easyHandle,
+             CURLOPT_HTTP_VERSION,
+             CURL_HTTP_VERSION_3);
++#endif
+         }
+ 
+       /* Configure the custom CA certificate if available */
+diff --git a/configure b/configure
+index 4a0c042e5..db685622f 100755
+--- a/configure
++++ b/configure
+@@ -14628,9 +14628,9 @@ if eval $CURL_CONFIG --version 2>/dev/null >/dev/null && test "$SKIP_CURL_CONFIG
+   curl_ver=`$CURL_CONFIG --version | sed -e "s/libcurl //g"`
+   curl_maj=`echo $curl_ver | sed -e "s/^\(.*\)\.\(.*\)\.\(.*\)$/\1/"`
+   curl_min=`echo $curl_ver | sed -e "s/^\(.*\)\.\(.*\)\.\(.*\)$/\2/"`
+-  if test $curl_maj -lt 7 -o \( $curl_maj -eq 7 -a $curl_min -lt 66 \); then
+-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: FAILED (version too old to use" >&5
+-printf "%s\n" "FAILED (version too old to use" >&6; }
++  if test $curl_maj -lt 7 -o \( $curl_maj -eq 7 -a $curl_min -lt 61 \); then
++    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: FAILED (version $curl_ver too old to use, need at least 7.61)" >&5
++printf "%s\n" "FAILED (version $curl_ver too old to use, need at least 7.61)" >&6; }
+   else
+     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes ... version $curl_ver" >&5
+ printf "%s\n" "yes ... version $curl_ver" >&6; }
+@@ -14660,7 +14660,7 @@ else
+     if pkg-config --exists libcurl; then
+       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes ... via pkg-config" >&5
+ printf "%s\n" "yes ... via pkg-config" >&6; }
+-      if $PKG_CONFIG --atleast-version 2.66.0 libcurl; then
++      if $PKG_CONFIG --atleast-version 7.61.0 libcurl; then
+                for ac_header in curl/curl.h
+ do :
+   ac_fn_c_check_header_compile "$LINENO" "curl/curl.h" "ac_cv_header_curl_curl_h" "$ac_includes_default"
+@@ -14682,8 +14682,8 @@ done
+           curl_all=yes
+         fi
+         else
+-          { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: FAILED (version too old to use" >&5
+-printf "%s\n" "FAILED (version too old to use" >&6; }
++          { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: FAILED (version too old to use, need at least 7.61)" >&5
++printf "%s\n" "FAILED (version too old to use, need at least 7.61)" >&6; }
+           curl_all=no
+       fi
+     else
+diff --git a/configure.ac b/configure.ac
+index 691188e29..781c12040 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -3746,8 +3746,8 @@ if eval $CURL_CONFIG --version 2>/dev/null >/dev/null && test "$SKIP_CURL_CONFIG
+   curl_ver=`$CURL_CONFIG --version | sed -e "s/libcurl //g"`
+   curl_maj=`echo $curl_ver | sed -e "s/^\(.*\)\.\(.*\)\.\(.*\)$/\1/"`
+   curl_min=`echo $curl_ver | sed -e "s/^\(.*\)\.\(.*\)\.\(.*\)$/\2/"`
+-  if test $curl_maj -lt 7 -o \( $curl_maj -eq 7 -a $curl_min -lt 66 \); then
+-    AC_MSG_RESULT([FAILED (version too old to use])
++  if test $curl_maj -lt 7 -o \( $curl_maj -eq 7 -a $curl_min -lt 61 \); then
++    AC_MSG_RESULT([FAILED (version $curl_ver too old to use, need at least 7.61)])
+   else
+     AC_MSG_RESULT(yes ... version $curl_ver)
+     AC_CHECK_HEADERS(curl/curl.h, curl_ok=yes, curl_ok=no)
+@@ -3764,7 +3764,7 @@ else
+   if test -n "$PKG_CONFIG"; then
+     if pkg-config --exists libcurl; then
+       AC_MSG_RESULT(yes ... via pkg-config)
+-      if $PKG_CONFIG --atleast-version 2.66.0 libcurl; then
++      if $PKG_CONFIG --atleast-version 7.61.0 libcurl; then
+         AC_CHECK_HEADERS(curl/curl.h, curl_ok=yes, curl_ok=no)
+         if test "$curl_ok" = yes; then
+           HAVE_LIBCURL=1
+@@ -3775,7 +3775,7 @@ else
+           curl_all=yes
+         fi
+         else
+-          AC_MSG_RESULT([FAILED (version too old to use])
++          AC_MSG_RESULT([FAILED (version too old to use, need at least 7.61)])
+           curl_all=no
+       fi
+     else
+-- 
+2.43.0
+
