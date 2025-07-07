@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "libdispatch",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "conans.conan",
+            "justMyCode": false,
+            "args": [
+                "create",
+                "${workspaceFolder}/libdispatch/conanfile.py"
+            ],
+        }
+    ]
+}
