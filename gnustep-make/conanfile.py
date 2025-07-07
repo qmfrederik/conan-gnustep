@@ -21,6 +21,9 @@ class GnustepMakeRecipe(ConanFile):
         get(self, "https://github.com/gnustep/tools-make/releases/download/make-2_9_3/gnustep-make-2.9.3.tar.gz",
                   strip_root=True)
 
+    def requirements(self):
+        self.requires("libobjc2/2.2.1")
+
     def config_options(self):
         if self.settings.os == "Windows":
             self.options.rm_safe("fPIC")

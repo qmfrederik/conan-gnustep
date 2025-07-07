@@ -9,7 +9,20 @@
             "justMyCode": false,
             "args": [
                 "create",
-                "${workspaceFolder}/libdispatch/conanfile.py"
+                "${workspaceFolder}/libdispatch/conanfile.py",
+                "--profile:a=${workspaceFolder}/profiles/linux-clang"
+            ],
+        },
+        {
+            "name": "gnustep-make",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "conans.conan",
+            "justMyCode": false,
+            "args": [
+                "create",
+                "${workspaceFolder}/gnustep-make/conanfile.py",
+                "--profile:a=${workspaceFolder}/profiles/linux-clang"
             ],
         }
     ]
