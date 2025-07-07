@@ -22,9 +22,9 @@ class GnustepBaseRecipe(ConanFile):
                   strip_root=True)
 
     def requirements(self):
-        self.requires("gnustep-make/2.9.3")
         self.requires("libobjc2/2.2.1")
         self.requires("libdispatch/6.1.1")
+        self.tool_requires("gnustep-make/2.9.3")
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -58,7 +58,7 @@ class GnustepBaseRecipe(ConanFile):
             env.append_path("PATH", os.path.dirname(cc))
             env.append_path("PATH", os.path.dirname(cxx))
 
-        gnustep_make_package_folder = self.dependencies["gnustep-make"].package_folder
+        gnustep_make_package_folder = self.dependencies.build["gnustep-make"].package_folder
 
         # Add gnustep-config to path
         env.append_path("PATH", os.path.join(gnustep_make_package_folder, "bin"))
