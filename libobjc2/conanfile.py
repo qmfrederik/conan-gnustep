@@ -14,7 +14,7 @@ class libobjc2Recipe(ConanFile):
     # Binary configuration
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    default_options = {"shared": True, "fPIC": True}
 
     def source(self):
         get(self, "https://github.com/gnustep/libobjc2/archive/v2.2.1.zip",
