@@ -28,6 +28,9 @@ jobs:
       - name: Install libobjc2
         run: conan create . --profile:a=${{ github.workspace }}/profiles/windows-clang
         working-directory: libobjc2/
+      - name: Install gnustep-make
+        run: conan create . --profile:a=${{ github.workspace }}/profiles/windows-clang
+        working-directory: libobjc2/
 
   linux:
     runs-on: ubuntu-latest
@@ -69,5 +72,8 @@ jobs:
           .python3/bin/pip install conan==2.18.1
           .python3/bin/conan --version
       - name: Install libobjc2
+        run: ../.python3/bin/conan create . --profile:a=$(pwd)/../profiles/linux-clang
+        working-directory: libobjc2/
+      - name: Install gnustep-make
         run: ../.python3/bin/conan create . --profile:a=$(pwd)/../profiles/linux-clang
         working-directory: libobjc2/
