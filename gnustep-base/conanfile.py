@@ -28,6 +28,12 @@ class GnustepBaseRecipe(ConanFile):
     def requirements(self):
         self.requires("libobjc2/2.2.1")
         self.requires("libdispatch/6.1.1")
+        self.requires("libffi/3.4.8")
+        self.requires("libxml2/2.13.8")
+        self.requires("libxslt/1.1.43")
+        self.requires("gnutls/3.8.7")
+        self.requires("icu/77.1")
+        self.requires("libcurl/8.12.1")
         self.tool_requires("gnustep-make/2.9.3")
 
     def config_options(self):
