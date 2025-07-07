@@ -69,6 +69,7 @@ class GnustepBaseRecipe(ConanFile):
             env.append_path("PATH", os.path.dirname(cxx))
 
         gnustep_make_package_folder = self.dependencies.build["gnustep-make"].package_folder
+        libdispatch_package_folder = self.dependencies["libdispatch"].package_folder
 
         # Add gnustep-config to path
         env.append_path("PATH", os.path.join(gnustep_make_package_folder, "bin"))
@@ -77,6 +78,7 @@ class GnustepBaseRecipe(ConanFile):
         tc.configure_args.append(f"GNUSTEP_MAKEFILES={gnustep_make_package_folder}/share/GNUstep/Makefiles/")
         tc.make_args.append(f"GNUSTEP_MAKEFILES={gnustep_make_package_folder}/share/GNUstep/Makefiles/")
         tc.configure_args.append("--disable-importing-config-file")
+        env.append("LDFLAGS", f"-Wl,-rpath-link={libdispatch_package_folder}/libs/")
         tc.generate(env)
 
         deps = AutotoolsDeps(self)
