@@ -89,7 +89,29 @@ class GnustepBaseRecipe(ConanFile):
         # Resolve GNUstep makefiles
         tc.configure_args.append(f"GNUSTEP_MAKEFILES={gnustep_makefiles_folder}")
         tc.configure_args.append("--disable-importing-config-file")
+
+        # Force the use of a relative value for srcdir.  Some configure checks will inject
+        # the value of srcdir into a C source file, like this:
+        # #include "$srcdir/config/config.reuseaddr.c"
+        # If $srcdir contains a Unix-like path (e.g. /c/Users/...), this path will be passed
+        # through the compiler (clang) which is expecting Windows-like paths, resulting
+        # in build failures.
+        tc.configure_args.append("--srcdir=.")
         env.append("LDFLAGS", f"-Wl,-rpath-link={libdispatch_package_folder}/libs/")
+
+        if self.settings.os == "Windows":
+            # On Windows, force targetting native Windows, even when building in an MSYS2 shell (we're somewhat cross-compiling
+            # from MSYS2 to native Windows, even though we're using the _native_ tooling within MSYS2).
+            # If these variables are not set, gnustep-make will include -lm in the libs used when compiling, resulting in a
+            # compiler error when building gnustep-base.
+            #
+            # The output in configure logs for tools-make should be like this:
+            # checking build system type... x86_64-w64-mingw32
+            # checking host system type... x86_64-pc-windows
+            # checking target system type... x86_64-pc-windows
+            tc.configure_args.append(f"--host=x86_64-pc-windows")
+            tc.configure_args.append(f"--target=x86_64-pc-windows")
+
         tc.generate(env)
 
         deps = AutotoolsDeps(self)
