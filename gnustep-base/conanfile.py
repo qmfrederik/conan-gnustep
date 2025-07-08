@@ -50,6 +50,7 @@ class GnustepBaseRecipe(ConanFile):
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
+                self.tool_requires("pkgconf/[>=2.2]")
 
     def generate(self):
         tc = AutotoolsToolchain(self)
@@ -91,6 +92,10 @@ class GnustepBaseRecipe(ConanFile):
             # thing. (Plus, on Linux, it would be LD_LIBRARY_PATH)
             env.append_path("PATH", os.path.join(self.dependencies["libffi"].package_folder, "bin"))
             env.append_path("PATH", os.path.join(self.dependencies["libiconv"].package_folder, "bin"))
+
+            # The copy of MSYS2 in conancentral doesn't include pkg-config, but we acquired it as a built
+            # tool, so use that
+            env.define("PKG_CONFIG", os.path.join(self.dependencies.build["pkgconf"].package_folder, "bin", "pkgconf.exe"))
 
         # Resolve GNUstep makefiles
         tc.configure_args.append(f"GNUSTEP_MAKEFILES={gnustep_makefiles_folder}")
