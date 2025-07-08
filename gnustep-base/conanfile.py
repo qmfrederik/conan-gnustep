@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
-from conan.tools.files import get, patch
+from conan.tools.files import get, patch, replace_in_file
 import os
 
 class GnustepBaseRecipe(ConanFile):
@@ -111,6 +111,9 @@ class GnustepBaseRecipe(ConanFile):
             # checking target system type... x86_64-pc-windows
             tc.configure_args.append(f"--host=x86_64-pc-windows")
             tc.configure_args.append(f"--target=x86_64-pc-windows")
+
+            # This appears to be a Conan bug, the library name for libffi should be ffi.lib, not libffi.lib
+            replace_in_file(self, os.path.join(self.source_folder, "configure"), "ffi_LIBS=-lffi", "ffi_LIBS=-llibffi")
 
         tc.generate(env)
 
