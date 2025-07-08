@@ -34,6 +34,12 @@ jobs:
       - name: Install libdispatch
         run: conan create . --profile:a=${{ github.workspace }}/profiles/windows-clang
         working-directory: libdispatch/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: conan-gnustep-windows
+          path: |
+            ~/.conan2/p
 
   linux:
     runs-on: ubuntu-latest
@@ -83,3 +89,9 @@ jobs:
       - name: Install libdispatch
         run: ../.python3/bin/conan create . --profile:a=$(pwd)/../profiles/linux-clang
         working-directory: libdispatch/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: conan-gnustep-${{ matrix.name }}
+          path: |
+            ~/.conan2/p
