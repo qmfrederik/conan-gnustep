@@ -13,6 +13,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Remove conflicting copies of make
+        # The runners include a copy of mingw64, and explicitly add mingw64's copy of make.exe to PATH. This
+        # will cause the build to fail.  Remove mingw64 alltogether.
+        # See https://github.com/actions/runner-images/blob/main/images/windows/scripts/build/Install-Mingw64.ps1#L63-L67
+        # The same goes for C:\Strawberry\*\bin, which contains copy of make, pkg-config, and gdb
+        shell: cmd
+        run: |
+          rmdir /q /s C:\mingw64\bin\
+          rmdir /q /s C:\Strawberry\c\bin\
+          rmdir /q /s C:\Strawberry\perl\bin\
       - name: Check LLVM version
         # We need at least LLVM 18.0 for proper Objective C support.  Visual Studio 2022 ships with LLVM 17,
         # so we need to make sure we pick up clang from C:\Program Files\LLVM\bin\
