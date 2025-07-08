@@ -57,18 +57,8 @@ class GnustepBaseRecipe(ConanFile):
         tc = AutotoolsToolchain(self)
         env = tc.environment()
         
-        # On Windows, the path to the the compiler may include spaces (e.g. C:\Program Files\LLVM\bin\clang.exe)
-        # This creates issues in MSYS2.  Instead, set CC/CXX to the executable name only, and include the parent directly
-        # in PATH.
-        vars = self.buildenv.vars(self)
-        
+        # We don't have a gnutls build for Windows, yet
         if self.settings.os == "Windows":
-            cc = vars["CC"]
-            cxx = vars["CXX"]
-            tc.configure_args.append(f"CC={os.path.basename(cc)}")
-            tc.configure_args.append(f"CXX={os.path.basename(cxx)}")
-            env.append_path("PATH", os.path.dirname(cc))
-            env.append_path("PATH", os.path.dirname(cxx))
             tc.configure_args.append("--disable-tls")
 
         gnustep_make_package_folder = self.dependencies.build["gnustep-make"].package_folder
