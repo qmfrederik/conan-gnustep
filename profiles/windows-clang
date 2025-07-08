@@ -33,12 +33,6 @@ gnustep-*/*:compiler.runtime_version=v144
 [options]
 *:shared=True
 
-[options]
-libxml2/*:shared=True
-libxslt/*:shared=True
-libiconv/*:shared=True
-zlib/*:shared=True
-
 [conf]
 tools.cmake.cmaketoolchain:generator=Ninja
 tools.build:compiler_executables = {"c": "clang", "cpp": "clang++"}

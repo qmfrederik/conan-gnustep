@@ -44,13 +44,9 @@ class GnustepBaseRecipe(ConanFile):
         if self.settings.os == "Windows":
             self.options.rm_safe("fPIC")
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def build_requirements(self):
         # Require a MSYS2 shell on Windows (for Autotools support)
-        if self._settings_build.os == "Windows":
+        if self.settings.os == "Windows":
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
@@ -64,7 +60,7 @@ class GnustepBaseRecipe(ConanFile):
         # in PATH.
         vars = self.buildenv.vars(self)
         
-        if self._settings_build.os == "Windows":
+        if self.settings.os == "Windows":
             cc = vars["CC"]
             cxx = vars["CXX"]
             tc.configure_args.append(f"CC={os.path.basename(cc)}")
@@ -76,6 +72,7 @@ class GnustepBaseRecipe(ConanFile):
         gnustep_make_package_folder = self.dependencies.build["gnustep-make"].package_folder
         libdispatch_package_folder = self.dependencies["libdispatch"].package_folder
         iconv_package_folder = self.dependencies["libiconv"].package_folder
+        ffi_package_folder = self.dependencies["libffi"].package_folder
 
         gnustep_makefiles_folder = f"{gnustep_make_package_folder}/share/GNUstep/Makefiles/"
         
@@ -88,10 +85,11 @@ class GnustepBaseRecipe(ConanFile):
         # Add gnustep-config to path
         env.append_path("PATH", os.path.join(gnustep_make_package_folder, "bin"))
 
-        # Add the iconv bin folder to path.  The configure process will generate an
+        # Add the iconv and libffi bin folder to path.  The configure process will generate an
         # executable which uses iconv, and will try to launch it.  This results in
         # iconv-2.dll being loaded, hence the need for it to be in PATH
         env.append_path("PATH", os.path.join(iconv_package_folder, "bin"))
+        env.append_path("PATH", os.path.join(ffi_package_folder, "bin"))
 
         # Resolve GNUstep makefiles
         tc.configure_args.append(f"GNUSTEP_MAKEFILES={gnustep_makefiles_folder}")
