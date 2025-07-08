@@ -40,6 +40,7 @@ jobs:
           name: conan-gnustep-windows
           path: |
             ~/.conan2/p
+            !~/.conan2/p/msys2*
 
   linux:
     runs-on: ubuntu-latest
