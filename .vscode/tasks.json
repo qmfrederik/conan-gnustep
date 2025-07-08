@@ -1,0 +1,47 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+        "label": "Create libobjc2",
+        "type": "process",
+        "command": "C:\\Program Files\\Conan\\conan\\conan.exe",
+        "args": [
+            "create",
+            "${workspaceFolder}/libobjc2/",
+            "--profile:a=${workspaceFolder}/profiles/windows-clang"
+        ]
+    },
+    {
+        "label": "Create libdispatch",
+        "type": "process",
+        "command": "C:\\Program Files\\Conan\\conan\\conan.exe",
+        "args": [
+            "create",
+            "${workspaceFolder}/libdispatch/",
+            "--profile:a=${workspaceFolder}/profiles/windows-clang"
+        ]
+    },
+    {
+        "label": "Create gnustep-make",
+        "type": "process",
+        "command": "C:\\Program Files\\Conan\\conan\\conan.exe",
+        "args": [
+            "create",
+            "${workspaceFolder}/gnustep-make/",
+            "--profile:a=${workspaceFolder}/profiles/windows-clang"
+        ]
+    },
+    {
+        "label": "Create gnustep-base",
+        "type": "process",
+        "command": "C:\\Program Files\\Conan\\conan\\conan.exe",
+        "args": [
+            "create",
+            "${workspaceFolder}/gnustep-base/",
+            "--profile:a=${workspaceFolder}/profiles/windows-clang"
+        ]
+    }
+  ]
+}
