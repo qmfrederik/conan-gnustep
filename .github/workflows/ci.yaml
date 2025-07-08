@@ -13,6 +13,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Remove conflicting copies of make
+        # The runners include a copy of mingw64, and explicitly add mingw64's copy of make.exe to PATH. This
+        # will cause the build to fail.  Remove mingw64 alltogether.
+        # See https://github.com/actions/runner-images/blob/main/images/windows/scripts/build/Install-Mingw64.ps1#L63-L67
+        # The same goes for C:\Strawberry\*\bin, which contains copy of make, pkg-config, and gdb
+        shell: cmd
+        run: |
+          rmdir /q /s C:\mingw64\bin\
+          rmdir /q /s C:\Strawberry\c\bin\
+          rmdir /q /s C:\Strawberry\perl\bin\
       - name: Check LLVM version
         # We need at least LLVM 18.0 for proper Objective C support.  Visual Studio 2022 ships with LLVM 17,
         # so we need to make sure we pick up clang from C:\Program Files\LLVM\bin\
@@ -34,6 +44,9 @@ jobs:
       - name: Install libdispatch
         run: conan create . --profile:a=${{ github.workspace }}/profiles/windows-clang
         working-directory: libdispatch/
+      - name: Install gnustep-base
+        run: conan create . --profile:a=${{ github.workspace }}/profiles/windows-clang
+        working-directory: gnustep-base/
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -90,6 +103,18 @@ jobs:
       - name: Install libdispatch
         run: ../.python3/bin/conan create . --profile:a=$(pwd)/../profiles/linux-clang
         working-directory: libdispatch/
+      - name: Install gnustep-base dependencies (Ubuntu)
+        run: |
+          apt-get update
+          apt-get install -y libffi-dev libxml2-dev libxslt-dev gnutls-dev libicu-dev libcurl4-gnutls-dev
+        if: matrix.family == 'ubuntu'
+      - name: Install gnustep-base dependencies (Enterprise Linux)
+        run: |
+          yum install -y libffi-devel libxml2-devel libxslt-devel gnutls-devel libicu-devel libcurl-devel
+        if: matrix.family == 'rhel'
+      - name: Install gnustep-base
+        run: ../.python3/bin/conan create . --profile:a=$(pwd)/../profiles/linux-clang
+        working-directory: gnustep-base/
       - uses: actions/upload-artifact@v4
         if: always()
         with:

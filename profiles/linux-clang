@@ -9,3 +9,12 @@ compiler=clang
 compiler.cppstd=gnu17
 compiler.version=18
 os=Linux
+
+[platform_requires]
+libffi/3.4.8
+libxml2/2.13.8
+libxslt/1.1.43
+gnutls/3.8.7
+icu/77.1
+libcurl/8.12.1
+libiconv/1.17
