@@ -1,5 +1,5 @@
 from conan import ConanFile
-from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
+from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.files import get, patch, replace_in_file
 import os
 
@@ -37,6 +37,7 @@ class GnustepBaseRecipe(ConanFile):
 
         self.requires("icu/77.1")
         self.requires("libcurl/8.12.1")
+        self.requires("libiconv/1.17")
         self.tool_requires("gnustep-make/2.9.3")
 
     def config_options(self):
@@ -74,6 +75,7 @@ class GnustepBaseRecipe(ConanFile):
 
         gnustep_make_package_folder = self.dependencies.build["gnustep-make"].package_folder
         libdispatch_package_folder = self.dependencies["libdispatch"].package_folder
+        iconv_package_folder = self.dependencies["libiconv"].package_folder
 
         gnustep_makefiles_folder = f"{gnustep_make_package_folder}/share/GNUstep/Makefiles/"
         
@@ -85,6 +87,11 @@ class GnustepBaseRecipe(ConanFile):
 
         # Add gnustep-config to path
         env.append_path("PATH", os.path.join(gnustep_make_package_folder, "bin"))
+
+        # Add the iconv bin folder to path.  The configure process will generate an
+        # executable which uses iconv, and will try to launch it.  This results in
+        # iconv-2.dll being loaded, hence the need for it to be in PATH
+        env.append_path("PATH", os.path.join(iconv_package_folder, "bin"))
 
         # Resolve GNUstep makefiles
         tc.configure_args.append(f"GNUSTEP_MAKEFILES={gnustep_makefiles_folder}")
@@ -112,8 +119,11 @@ class GnustepBaseRecipe(ConanFile):
             tc.configure_args.append(f"--host=x86_64-pc-windows")
             tc.configure_args.append(f"--target=x86_64-pc-windows")
 
-            # This appears to be a Conan bug, the library name for libffi should be ffi.lib, not libffi.lib
-            replace_in_file(self, os.path.join(self.source_folder, "configure"), "ffi_LIBS=-lffi", "ffi_LIBS=-llibffi")
+            # Generate pkg-config data for dependencies, which we can inject into the configure process.
+            print(f"Generating pkg-config data in {self.generators_folder}")
+            deps = PkgConfigDeps(self)
+            deps.generate()
+            env.define("PKG_CONFIG_PATH", self.generators_folder)
 
         tc.generate(env)
 
