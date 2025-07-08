@@ -24,6 +24,7 @@ class GnustepBaseRecipe(ConanFile):
         # These patches are maintained at https://github.com/qmfrederik/libs-base/tree/base-1_31_1-PACKAGE
         patch(self, patch_file=os.path.join(self.export_sources_folder, "0001-Support-libcurl-7.61.patch"))
         patch(self, patch_file=os.path.join(self.export_sources_folder, "0002-expose-declarations-in-NSDebug.h-even-when-NDEBUG-is.patch"))
+        patch(self, patch_file=os.path.join(self.export_sources_folder, "0003-Use-PKG_CONFIG-to-invoke-pkg-config.patch"))
 
     def requirements(self):
         self.requires("libobjc2/2.2.1")
