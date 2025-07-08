@@ -95,6 +95,7 @@ class GnustepBaseRecipe(ConanFile):
 
         # Resolve GNUstep makefiles
         tc.configure_args.append(f"GNUSTEP_MAKEFILES={gnustep_makefiles_folder}")
+        tc.make_args.append(f"GNUSTEP_MAKEFILES={gnustep_makefiles_folder}")
         tc.configure_args.append("--disable-importing-config-file")
 
         # Force the use of a relative value for srcdir.  Some configure checks will inject
