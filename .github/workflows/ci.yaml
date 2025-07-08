@@ -34,6 +34,9 @@ jobs:
       - name: Install libdispatch
         run: conan create . --profile:a=${{ github.workspace }}/profiles/windows-clang
         working-directory: libdispatch/
+      - name: Install gnustep-base
+        run: conan create . --profile:a=${{ github.workspace }}/profiles/windows-clang
+        working-directory: gnustep-base/
       - uses: actions/upload-artifact@v4
         if: always()
         with:
