@@ -71,8 +71,6 @@ class GnustepBaseRecipe(ConanFile):
 
         gnustep_make_package_folder = self.dependencies.build["gnustep-make"].package_folder
         libdispatch_package_folder = self.dependencies["libdispatch"].package_folder
-        iconv_package_folder = self.dependencies["libiconv"].package_folder
-        ffi_package_folder = self.dependencies["libffi"].package_folder
 
         gnustep_makefiles_folder = f"{gnustep_make_package_folder}/share/GNUstep/Makefiles/"
         
@@ -85,11 +83,14 @@ class GnustepBaseRecipe(ConanFile):
         # Add gnustep-config to path
         env.append_path("PATH", os.path.join(gnustep_make_package_folder, "bin"))
 
-        # Add the iconv and libffi bin folder to path.  The configure process will generate an
-        # executable which uses iconv, and will try to launch it.  This results in
-        # iconv-2.dll being loaded, hence the need for it to be in PATH
-        env.append_path("PATH", os.path.join(iconv_package_folder, "bin"))
-        env.append_path("PATH", os.path.join(ffi_package_folder, "bin"))
+        if self.settings.os == "Windows":
+            # Add the iconv and libffi bin folder to path.  The configure process will generate an
+            # executable which uses iconv, and will try to launch it.  This results in
+            # iconv-2.dll being loaded, hence the need for it to be in PATH.
+            # These dependencies are sourced from the OS on Linux, so this is a Windows-only
+            # thing. (Plus, on Linux, it would be LD_LIBRARY_PATH)
+            env.append_path("PATH", os.path.join(self.dependencies["libffi"].package_folder, "bin"))
+            env.append_path("PATH", os.path.join(self.dependencies["libiconv"].package_folder, "bin"))
 
         # Resolve GNUstep makefiles
         tc.configure_args.append(f"GNUSTEP_MAKEFILES={gnustep_makefiles_folder}")
