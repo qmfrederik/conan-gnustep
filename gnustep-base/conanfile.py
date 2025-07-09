@@ -129,3 +129,6 @@ class GnustepBaseRecipe(ConanFile):
     def package(self):
         autotools = Autotools(self)
         autotools.install()
+
+    def package_info(self):
+        self.cpp_info.libs = ["gnustep-base"]
