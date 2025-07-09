@@ -18,8 +18,7 @@ On Windows, you'll need to download the Windows SDK and the LLVM toolchain. Opti
 
 To get started, run the following commands:
 
-```
-bash
+```bash
 git clone https://github.com/qmfrederik/conan-gnustep/
 cd conan-gnustep
 conan create libobjc2 --profile:a=profiles/windows-clang
@@ -29,3 +28,20 @@ conan create gnustep-base --profile:a=profiles/windows-clang
 ```
 
 This will configure GNUstep Base and all of its dependencies.
+
+## Getting started on Linux
+
+```bash
+apt-get install -y clang lld curl zip unzip tar git pkg-config make python3-venv cmake libffi-dev libxml2-dev libxslt-dev gnutls-dev libicu-dev libcurl4-gnutls-dev
+
+git clone https://github.com/qmfrederik/conan-gnustep/
+cd conan-gnustep
+
+python3 -m venv .python3/
+.python3/bin/pip install conan==2.18.1
+. .python3/bin/activate
+conan create libobjc2 --profile:a=profiles/linux-clang
+conan create libdispatch --profile:a=profiles/linux-clang
+conan create gnustep-make --profile:a=profiles/linux-clang
+conan create gnustep-base --profile:a=profiles/linux-clang
+```

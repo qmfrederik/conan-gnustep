@@ -18,8 +18,7 @@ class GnustepMakeRecipe(ConanFile):
     default_options = {"shared": False, "fPIC": True}
 
     def source(self):
-        get(self, "https://github.com/gnustep/tools-make/releases/download/make-2_9_3/gnustep-make-2.9.3.tar.gz",
-                  strip_root=True)
+        get(self, **self.conan_data["sources"][self.version])
 
     def requirements(self):
         self.requires("libobjc2/2.2.1")

@@ -1,0 +1,11 @@
+sources:
+  "6.1.1":
+    url: "https://github.com/swiftlang/swift-corelibs-libdispatch/archive/refs/tags/swift-6.1.1-RELEASE.tar.gz"
+    sha256: "6fc6f8b1767a1348e1d960647b2bfbc52fd7074b7aeab97bd0f4b21af58baa47"
+    strip_root: true
+
+patches:
+  "6.1.1":
+    - patch_file: "0001-Use-CMAKE_C_COMPILER_FRONTEND_VARIANT-to-detect-msvc.patch"
+    - patch_file: "0002-Fix-Windows-compatibility.patch"
+    - patch_file: "0003-Use-external-BlocksRuntime.patch"

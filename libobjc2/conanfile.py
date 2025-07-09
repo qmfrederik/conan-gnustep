@@ -17,8 +17,7 @@ class libobjc2Recipe(ConanFile):
     default_options = {"shared": True, "fPIC": True}
 
     def source(self):
-        get(self, "https://github.com/gnustep/libobjc2/archive/v2.2.1.zip",
-                  strip_root=True)
+        get(self, **self.conan_data["sources"][self.version])
 
     def requirements(self):
         self.requires("tsl-robin-map/1.3.0")

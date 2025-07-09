@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
-from conan.tools.files import get, patch, replace_in_file
+from conan.tools.files import get, apply_conandata_patches
 import os
 
 class GnustepBaseRecipe(ConanFile):
@@ -18,13 +18,8 @@ class GnustepBaseRecipe(ConanFile):
     exports_sources = "*.patch"
 
     def source(self):
-        get(self, "https://github.com/gnustep/libs-base/releases/download/base-1_31_1/gnustep-base-1.31.1.tar.gz",
-                  strip_root=True)
-
-        # These patches are maintained at https://github.com/qmfrederik/libs-base/tree/base-1_31_1-PACKAGE
-        patch(self, patch_file=os.path.join(self.export_sources_folder, "0001-Support-libcurl-7.61.patch"))
-        patch(self, patch_file=os.path.join(self.export_sources_folder, "0002-expose-declarations-in-NSDebug.h-even-when-NDEBUG-is.patch"))
-        patch(self, patch_file=os.path.join(self.export_sources_folder, "0003-Use-PKG_CONFIG-to-invoke-pkg-config.patch"))
+        get(self, **self.conan_data["sources"][self.version])
+        apply_conandata_patches(self)
 
     def requirements(self):
         self.requires("libobjc2/2.2.1")
