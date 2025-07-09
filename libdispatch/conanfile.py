@@ -1,7 +1,7 @@
 import os
 from conan import ConanFile
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
-from conan.tools.files import get, patch
+from conan.tools.files import get, apply_conandata_patches
 
 class LibDispatchRecipe(ConanFile):
     name = "libdispatch"
@@ -18,13 +18,8 @@ class LibDispatchRecipe(ConanFile):
     exports_sources = "*.patch"
 
     def source(self):
-        get(self, "https://github.com/swiftlang/swift-corelibs-libdispatch/archive/refs/tags/swift-6.1.1-RELEASE.tar.gz",
-                  strip_root=True)
-        
-        # These patches are maintained at https://github.com/qmfrederik/swift-corelibs-libdispatch/tree/swift-6.1.1-PACKAGE
-        patch(self, patch_file=os.path.join(self.export_sources_folder, "0001-Use-CMAKE_C_COMPILER_FRONTEND_VARIANT-to-detect-msvc.patch"))
-        patch(self, patch_file=os.path.join(self.export_sources_folder, "0002-Fix-Windows-compatibility.patch"))
-        patch(self, patch_file=os.path.join(self.export_sources_folder, "0003-Use-external-BlocksRuntime.patch"))
+        get(self, **self.conan_data["sources"][self.version])
+        apply_conandata_patches(self)
 
     def requirements(self):
         self.requires("libobjc2/2.2.1")
