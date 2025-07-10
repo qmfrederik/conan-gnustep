@@ -10,7 +10,7 @@ Use the following script to build and run the tutorial application from the Liux
 - And finally runs the application
 
 ```bash
-conan install conanfile.txt --profile:a=../profiles/windows-clang --output-folder=build/
+conan install conanfile.txt --profile:a=../profiles/windows-clang --output-folder=build/ --conf="tools.env.virtualenv:powershell=pwsh.exe"
 cd build/
 cmake .. -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_POLICY_DEFAULT_CMP0091="NEW" -GNinja
 cmake --build .
