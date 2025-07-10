@@ -47,6 +47,18 @@ jobs:
       - name: Install gnustep-base
         run: conan create . --profile:a=${{ github.workspace }}/profiles/windows-clang
         working-directory: gnustep-base/
+      - name: Install gnustep-cmake
+        run: conan create . --profile:a=${{ github.workspace }}/profiles/windows-clang
+        working-directory: gnustep-cmake/
+      - name: Build tutorial
+        run: |
+          conan install conanfile.txt --profile:a=../profiles/windows-clang --output-folder=build/
+          cd build/
+          cmake .. -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_POLICY_DEFAULT_CMP0091="NEW" -GNinja
+          cmake --build .
+          ./conanrun.ps1
+          ./Tutorial.exe
+        working-directory: tutorial/
       - uses: actions/upload-artifact@v4
         if: always()
         with:

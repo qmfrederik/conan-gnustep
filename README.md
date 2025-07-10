@@ -25,6 +25,7 @@ conan create libobjc2 --profile:a=profiles/windows-clang
 conan create libdispatch --profile:a=profiles/windows-clang
 conan create gnustep-make --profile:a=profiles/windows-clang
 conan create gnustep-base --profile:a=profiles/windows-clang
+conan create gnustep-cmake --profile:a=profiles/windows-clang
 ```
 
 This will configure GNUstep Base and all of its dependencies.
@@ -44,4 +45,5 @@ conan create libobjc2 --profile:a=profiles/linux-clang
 conan create libdispatch --profile:a=profiles/linux-clang
 conan create gnustep-make --profile:a=profiles/linux-clang
 conan create gnustep-base --profile:a=profiles/linux-clang
+conan create gnustep-cmake --profile:a=profiles/linux-clang
 ```
