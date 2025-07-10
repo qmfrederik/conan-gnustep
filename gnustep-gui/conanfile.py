@@ -1,9 +1,10 @@
 from conan import ConanFile
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
-from conan.tools.files import get, apply_conandata_patches
+from conan.tools.files import get, apply_conandata_patches, mkdir
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualRunEnv
 import os
+import shutil
 
 class GnustepGuiRecipe(ConanFile):
     name = "gnustep-gui"
@@ -50,21 +51,21 @@ class GnustepGuiRecipe(ConanFile):
         tc = AutotoolsToolchain(self)
         env = tc.environment()
 
-        gnustep_make_package_folder = self.dependencies.build["gnustep-make"].package_folder
-        gnustep_makefiles_folder = f"{gnustep_make_package_folder}/share/GNUstep/Makefiles/"
-        
-        # There should be a more elegant way to handle these backwards slashes
-        if self.settings.os == "Windows":
-            gnustep_makefiles_folder = gnustep_makefiles_folder.replace('\\','/')
-            gnustep_makefiles_folder = gnustep_makefiles_folder.replace('C:','/c')
-            gnustep_makefiles_folder = f"{gnustep_makefiles_folder}"
-
-        # Add gnustep-config to path
-        env.append_path("PATH", os.path.join(gnustep_make_package_folder, "bin"))
+        # The GNUstep makefiles are stored in the gnustep-make and gnustep-base package (gnustep-base
+        # deploys a single makefile, but that contains additional preprocessor definitions which are
+        # needed).
+        # The GNUstep filesystem doesn't deal with this layout very well, so create a single directory
+        # into which we merge both file systems
+        gnustep_make_makefiles = os.path.join(self.dependencies.build["gnustep-make"].package_folder, "share/GNUstep/Makefiles/")
+        gnustep_base_makefiles = os.path.join(self.dependencies["gnustep-base"].package_folder, "share/GNUstep/Makefiles")
+        build_makefiles = os.path.join(self.build_folder, "build/Makefiles")
+        mkdir(self, build_makefiles)
+        shutil.copytree(gnustep_make_makefiles, build_makefiles, dirs_exist_ok=True)
+        shutil.copytree(gnustep_base_makefiles, build_makefiles, dirs_exist_ok=True)
 
         # Resolve GNUstep makefiles
-        tc.configure_args.append(f"GNUSTEP_MAKEFILES={gnustep_makefiles_folder}")
-        tc.make_args.append(f"GNUSTEP_MAKEFILES={gnustep_makefiles_folder}")
+        tc.configure_args.append(f"GNUSTEP_MAKEFILES={build_makefiles}")
+        tc.make_args.append(f"GNUSTEP_MAKEFILES={build_makefiles}")
         tc.configure_args.append("--disable-importing-config-file")
 
         # Force the use of a relative value for srcdir.  Some configure checks will inject
