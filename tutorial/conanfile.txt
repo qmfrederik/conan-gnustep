@@ -1,0 +1,8 @@
+[requires]
+gnustep-base/1.31.1
+gnustep-cmake/0.1.0
+
+[generators]
+CMakeDeps
+CMakeToolchain
+VirtualRunEnv

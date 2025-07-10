@@ -2,6 +2,18 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "libobjc2",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "conans.conan",
+            "justMyCode": false,
+            "args": [
+                "create",
+                "${workspaceFolder}/libobjc2/conanfile.py",
+                "--profile:a=${workspaceFolder}/profiles/linux-clang"
+            ],
+        },
+        {
             "name": "libdispatch",
             "type": "debugpy",
             "request": "launch",

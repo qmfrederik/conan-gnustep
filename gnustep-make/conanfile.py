@@ -1,8 +1,8 @@
 from conan import ConanFile
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.files import get
-from conan.tools.microsoft import unix_path
-import os
+from conan.tools.build import cross_building
+from conan.tools.env import VirtualRunEnv
 
 class GnustepMakeRecipe(ConanFile):
     name = "gnustep-make"
@@ -39,6 +39,12 @@ class GnustepMakeRecipe(ConanFile):
                 self.tool_requires("msys2/cci.latest")
 
     def generate(self):
+        if not cross_building(self):
+            # Expose LD_LIBRARY_PATH when there are shared dependencies,
+            # as configure tries to run a test executable (when not cross-building)
+            env = VirtualRunEnv(self)
+            env.generate(scope="build")
+
         tc = AutotoolsToolchain(self)
         env = tc.environment()
         tc.configure_args.append("--with-library-combo=ng-gnu-gnu")
