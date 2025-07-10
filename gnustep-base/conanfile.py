@@ -1,6 +1,8 @@
 from conan import ConanFile
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.files import get, apply_conandata_patches
+from conan.tools.build import cross_building
+from conan.tools.env import VirtualRunEnv
 import os
 
 class GnustepBaseRecipe(ConanFile):
@@ -49,6 +51,12 @@ class GnustepBaseRecipe(ConanFile):
                 self.tool_requires("pkgconf/[>=2.2]")
 
     def generate(self):
+        if not cross_building(self):
+            # Expose LD_LIBRARY_PATH when there are shared dependencies,
+            # as configure tries to run a test executable (when not cross-building)
+            env = VirtualRunEnv(self)
+            env.generate(scope="build")
+
         tc = AutotoolsToolchain(self)
         env = tc.environment()
         
@@ -66,19 +74,7 @@ class GnustepBaseRecipe(ConanFile):
             gnustep_makefiles_folder = gnustep_makefiles_folder.replace('\\','/')
             gnustep_makefiles_folder = gnustep_makefiles_folder.replace('C:','/c')
             gnustep_makefiles_folder = f"{gnustep_makefiles_folder}"
-
-        # Add gnustep-config to path
-        env.append_path("PATH", os.path.join(gnustep_make_package_folder, "bin"))
-
-        if self.settings.os == "Windows":
-            # Add the iconv and libffi bin folder to path.  The configure process will generate an
-            # executable which uses iconv, and will try to launch it.  This results in
-            # iconv-2.dll being loaded, hence the need for it to be in PATH.
-            # These dependencies are sourced from the OS on Linux, so this is a Windows-only
-            # thing. (Plus, on Linux, it would be LD_LIBRARY_PATH)
-            env.append_path("PATH", os.path.join(self.dependencies["libffi"].package_folder, "bin"))
-            env.append_path("PATH", os.path.join(self.dependencies["libiconv"].package_folder, "bin"))
-
+            
             # The copy of MSYS2 in conancentral doesn't include pkg-config, but we acquired it as a built
             # tool, so use that
             env.define("PKG_CONFIG", os.path.join(self.dependencies.build["pkgconf"].package_folder, "bin", "pkgconf.exe"))
