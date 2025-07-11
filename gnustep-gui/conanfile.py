@@ -77,6 +77,9 @@ class GnustepGuiRecipe(ConanFile):
         tc.make_args.append(f"OBJC_INCLUDE_PATH={gnustep_base_include}")
         tc.make_args.append(f"CONFIG_SYSTEM_LIB_DIR=-L{gnustep_base_lib} -L{dispatch_lib}")
 
+        # Force linking with libicu
+        tc.make_args.append("CONFIG_SYSTEM_LIBS=-licuuc")
+
         # Force the use of a relative value for srcdir.  Some configure checks will inject
         # the value of srcdir into a C source file, like this:
         # #include "$srcdir/config/config.reuseaddr.c"
