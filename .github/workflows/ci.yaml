@@ -103,7 +103,7 @@ jobs:
         if: matrix.family == 'ubuntu'
       - name: Install dependencies (Enterprise Linux)
         run: |
-          yum install -y clang lld zip unzip tar git pkg-config which findutils python3 cmake
+          yum install -y clang lld zip unzip tar git pkg-config which findutils python312 cmake
         if: matrix.family == 'rhel'
       - uses: actions/checkout@v4
         with:
