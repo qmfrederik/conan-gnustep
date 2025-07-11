@@ -20,3 +20,5 @@ libcurl/8.12.1
 libiconv/1.17
 libjpeg/9e
 libtiff/4.7.0
+libpng/1.6.50
+giflib/5.2.2
