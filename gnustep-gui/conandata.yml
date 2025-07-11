@@ -1,0 +1,10 @@
+sources:
+  "0.32.0":
+    url: "https://github.com/gnustep/libs-gui/releases/download/gui-0_32_0/gnustep-gui-0.32.0.tar.gz"
+    sha256: "0c03a1b6313babd592ec58fcb825091f77eb27429a4ce4306ec3a7cfa7f9a1f6"
+    strip_root: true
+
+patches:
+  "0.32.0":
+    - patch_file: "0001-Mark-PACKAGE_SCOPE-as-public-on-Windows.patch"
+    - patch_file: "0001-Only-include-unistd.h-if-it-exists.patch"

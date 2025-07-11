@@ -1,0 +1,29 @@
+From 0c8b6f7ef5bce130eb246dcef69522134f2873cc Mon Sep 17 00:00:00 2001
+From: Frederik Carlier <frederik.carlier@keysight.com>
+Date: Fri, 4 Jul 2025 11:52:01 +0200
+Subject: [PATCH] Only include unistd.h if it exists
+
+Most notably, Windows doesn't ship with unistd.h.  Generalize the current guard (`__WIN32__`) so it works on all Windows configurations.
+---
+ Source/tiff.m | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Source/tiff.m b/Source/tiff.m
+index fb9daacd7..44cec132c 100644
+--- a/Source/tiff.m
++++ b/Source/tiff.m
+@@ -71,9 +71,9 @@
+ #include <math.h>
+ #include <stdlib.h>
+ #include <string.h>
+-#ifndef __WIN32__
++#if defined(HAVE_UNISTD_H)
+ #include <unistd.h>		/* for L_SET, etc definitions */
+-#endif /* !__WIN32__ */
++#endif /* !HAVE_UNISTD_H */
+ 
+ #if !defined(TIFF_VERSION_CLASSIC)
+ // This only got added in version 4 of libtiff, but TIFFLIB_VERSION is unusable to differentiate here
+-- 
+2.47.0.windows.1
+
