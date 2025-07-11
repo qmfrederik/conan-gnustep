@@ -65,6 +65,10 @@ class GnustepGuiRecipe(ConanFile):
         shutil.copytree(gnustep_make_makefiles, build_makefiles, dirs_exist_ok=True)
         shutil.copytree(gnustep_base_makefiles, build_makefiles, dirs_exist_ok=True)
 
+        if self.settings.os == "Windows":
+            build_makefiles = build_makefiles.replace('\\','/')
+            build_makefiles = build_makefiles.replace('C:','/c')
+
         # Resolve GNUstep makefiles
         tc.configure_args.append(f"GNUSTEP_MAKEFILES={build_makefiles}")
         tc.make_args.append(f"GNUSTEP_MAKEFILES={build_makefiles}")
