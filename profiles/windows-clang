@@ -6,11 +6,15 @@ arch=x86_64
 build_type=Release
 
 compiler=msvc
+compiler.cppstd=14
 compiler.runtime=msvc
 compiler.version=194
 compiler.runtime=dynamic
 compiler.runtime_type=Release
 os=Windows
+
+# Conan doesn't have a copy of libtiff built with 194, so use 193 instead
+libtiff/4.7.0:compiler.version=193
 
 libobjc2/*:compiler=clang
 libobjc2/*:compiler.cppstd=17
