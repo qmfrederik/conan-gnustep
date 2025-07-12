@@ -74,17 +74,24 @@ class GnustepGuiRecipe(ConanFile):
         tc.make_args.append(f"GNUSTEP_MAKEFILES={build_makefiles}")
         tc.configure_args.append("--disable-importing-config-file")
 
-        # Similarly, because the headers are spread out in different packages (and not just in a central location), be explicit about
-        # the include paths.  Conan passes this data to the ./configure script, and libs-gui compiles correctly, but somehow this
-        # data is lost when starting to compile the libgmodel bundle.  Work around this using even more environment variables.
         gnustep_base_include = os.path.join(self.dependencies["gnustep-base"].package_folder, "include/")
-        gnustep_base_lib = os.path.join(self.dependencies["gnustep-base"].package_folder, "lib/")
-        dispatch_lib = os.path.join(self.dependencies["libdispatch"].package_folder, "lib/")
-        tc.make_args.append(f"OBJC_INCLUDE_PATH={gnustep_base_include}")
-        tc.make_args.append(f"CONFIG_SYSTEM_LIB_DIR=-L{gnustep_base_lib} -L{dispatch_lib}")
+        
+        if self.settings.os == "Windows":
+            gnustep_base_include = gnustep_base_include.replace('\\','/')
+            gnustep_base_include = gnustep_base_include.replace('C:','/c')
 
-        # Force linking with libicu
-        tc.make_args.append("CONFIG_SYSTEM_LIBS=-licuuc")
+        tc.make_args.append(f"OBJC_INCLUDE_PATH={gnustep_base_include}")
+
+        if self.settings.os != "Windows":
+            # Similarly, because the headers are spread out in different packages (and not just in a central location), be explicit about
+            # the include paths.  Conan passes this data to the ./configure script, and libs-gui compiles correctly, but somehow this
+            # data is lost when starting to compile the libgmodel bundle.  Work around this using even more environment variables.
+            gnustep_base_lib = os.path.join(self.dependencies["gnustep-base"].package_folder, "lib/")
+            dispatch_lib = os.path.join(self.dependencies["libdispatch"].package_folder, "lib/")
+            tc.make_args.append(f"CONFIG_SYSTEM_LIB_DIR=-L{gnustep_base_lib} -L{dispatch_lib}")
+
+            # Force linking with libicu
+            tc.make_args.append("CONFIG_SYSTEM_LIBS=-licuuc")
 
         # Force the use of a relative value for srcdir.  Some configure checks will inject
         # the value of srcdir into a C source file, like this:
