@@ -43,6 +43,15 @@ class GnustepGuiRecipe(ConanFile):
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
 
+    def get_package_folder(self, package_name, folder_path):
+        full_folder_path = os.path.join(self.dependencies[package_name].package_folder, folder_path)
+        
+        if self.settings.os == "Windows":
+            full_folder_path = full_folder_path.replace('\\','/')
+            full_folder_path = full_folder_path.replace('C:','/c')
+
+        return full_folder_path
+
     def generate(self):
         if not cross_building(self):
             # Expose LD_LIBRARY_PATH when there are shared dependencies,
@@ -74,22 +83,18 @@ class GnustepGuiRecipe(ConanFile):
         tc.make_args.append(f"GNUSTEP_MAKEFILES={build_makefiles}")
         tc.configure_args.append("--disable-importing-config-file")
 
-        gnustep_base_include = os.path.join(self.dependencies["gnustep-base"].package_folder, "include/")
-        
-        if self.settings.os == "Windows":
-            gnustep_base_include = gnustep_base_include.replace('\\','/')
-            gnustep_base_include = gnustep_base_include.replace('C:','/c')
-
+        gnustep_base_include = self.get_package_folder("gnustep-base", "include/")
         tc.make_args.append(f"OBJC_INCLUDE_PATH={gnustep_base_include}")
 
-        if self.settings.os != "Windows":
-            # Similarly, because the headers are spread out in different packages (and not just in a central location), be explicit about
-            # the include paths.  Conan passes this data to the ./configure script, and libs-gui compiles correctly, but somehow this
-            # data is lost when starting to compile the libgmodel bundle.  Work around this using even more environment variables.
-            gnustep_base_lib = os.path.join(self.dependencies["gnustep-base"].package_folder, "lib/")
-            dispatch_lib = os.path.join(self.dependencies["libdispatch"].package_folder, "lib/")
-            tc.make_args.append(f"CONFIG_SYSTEM_LIB_DIR=-L{gnustep_base_lib} -L{dispatch_lib}")
+        # Similarly, because the headers are spread out in different packages (and not just in a central location), be explicit about
+        # the include paths.  Conan passes this data to the ./configure script, and libs-gui compiles correctly, but somehow this
+        # data is lost when starting to compile the libgmodel bundle.  Work around this using even more environment variables.
+        gnustep_base_lib = self.get_package_folder("gnustep-base", "lib/")
+        dispatch_lib = self.get_package_folder("libdispatch", "lib/")
+        libobjc2_lib = self.get_package_folder("libobjc2", "lib/")
+        tc.make_args.append(f"ALL_LDFLAGS=-L{gnustep_base_lib} -L{dispatch_lib} -L{libobjc2_lib}")
 
+        if self.settings.os != "Windows":
             # Force linking with libicu
             tc.make_args.append("CONFIG_SYSTEM_LIBS=-licuuc")
 
