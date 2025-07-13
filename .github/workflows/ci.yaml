@@ -84,6 +84,9 @@ jobs:
           - name: ubuntu-24.04
             image: ubuntu:24.04
             family: ubuntu
+          - name: rockylinux-10
+            image: rockylinux/rockylinux:10
+            family: rhel
           - name: rockylinux-9
             image: rockylinux:9
             family: rhel
