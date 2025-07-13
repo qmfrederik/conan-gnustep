@@ -1,8 +1,9 @@
 from conan import ConanFile
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
-from conan.tools.files import get, apply_conandata_patches, mkdir, replace_in_file
+from conan.tools.files import get, apply_conandata_patches, mkdir, replace_in_file, copy, rmdir
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualRunEnv
+from pathlib import Path
 import os
 import shutil
 
@@ -149,3 +150,21 @@ class GnustepGuiRecipe(ConanFile):
     def package(self):
         autotools = Autotools(self)
         autotools.install()
+
+        # Make install copies the additional makefiles into $DESTDIR/${gnustep_make_package_folder}/share/GNUstep/Makefiles/,
+        # but gnustep_make_package_folder is a fully qualified path (/home/user/.conan/p/b/{package}/p/share/GNUstep/Makefiles/);
+        # we fix that here.  This always runs in a GNU-like context (Linux or MSYS), so we can assume Unix paths.
+        # There may be a prefix to /home (e.g. /github/home in GitHub Actions).  On Windows, there may be no 'home' in the path.
+        src = sorted(Path(self.package_folder).glob("**/.conan2/p/**/Makefiles/Additional"))[0]
+        dst = os.path.join(self.package_folder, "share/GNUstep/Makefiles/Additional/")
+
+        copy(
+            self,
+            "*.make",
+            src=src,
+            dst = dst)
+
+        if self.settings.os == "Windows":
+            rmdir(self, os.path.join(self.package_folder, "c"))
+        else:
+            rmdir(self, os.path.join(self.package_folder, "home"))

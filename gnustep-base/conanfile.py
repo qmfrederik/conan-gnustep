@@ -141,7 +141,11 @@ class GnustepBaseRecipe(ConanFile):
             "*.make",
             src=src,
             dst = dst)
-        rmdir(self, os.path.join(self.package_folder, "home"))
+        
+        if self.settings.os == "Windows":
+            rmdir(self, os.path.join(self.package_folder, "c"))
+        else:
+            rmdir(self, os.path.join(self.package_folder, "home"))
 
     def package_info(self):
         self.cpp_info.libs = ["gnustep-base"]
