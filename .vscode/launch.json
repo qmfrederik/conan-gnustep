@@ -48,6 +48,18 @@
                 "${workspaceFolder}/gnustep-base/conanfile.py",
                 "--profile:a=${workspaceFolder}/profiles/linux-clang"
             ],
+        },
+        {
+            "name": "gnustep-gui",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "conans.conan",
+            "justMyCode": false,
+            "args": [
+                "create",
+                "${workspaceFolder}/gnustep-gui/conanfile.py",
+                "--profile:a=${workspaceFolder}/profiles/linux-clang"
+            ],
         }
     ]
 }
