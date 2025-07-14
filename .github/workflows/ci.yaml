@@ -50,6 +50,9 @@ jobs:
       - name: Install gnustep-gui
         run: conan create . --profile:a=${{ github.workspace }}/profiles/windows-clang
         working-directory: gnustep-gui/
+      - name: Install gnustep-headless
+        run: conan create . --profile:a=${{ github.workspace }}/profiles/windows-clang
+        working-directory: gnustep-headless/
       - name: Install gnustep-cmake
         run: conan create . --profile:a=${{ github.workspace }}/profiles/windows-clang
         working-directory: gnustep-cmake/
@@ -150,6 +153,15 @@ jobs:
       - name: Install gnustep-gui
         run: ../.python3/bin/conan create . --profile:a=$(pwd)/../profiles/linux-clang
         working-directory: gnustep-gui/
+      - name: Install gnustep-headless dependencies (Ubuntu)
+        run: apt-get install -y libfreetype-dev
+        if: matrix.family == 'ubuntu'
+      - name: Install gnustep-headless dependencies (Enterprise Linux)
+        run: yum install --enablerepo=${{ matrix.repos}} -y freetype-devel
+        if: matrix.family == 'rhel'
+      - name: Install gnustep-headless
+        run: ../.python3/bin/conan create . --profile:a=$(pwd)/../profiles/linux-clang
+        working-directory: gnustep-headless/
       - name: Install gnustep-cmake
         run: ../.python3/bin/conan create . --profile:a=$(pwd)/../profiles/linux-clang
         working-directory: gnustep-cmake/

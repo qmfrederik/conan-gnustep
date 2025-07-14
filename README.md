@@ -26,6 +26,7 @@ conan create libdispatch --profile:a=profiles/windows-clang
 conan create gnustep-make --profile:a=profiles/windows-clang
 conan create gnustep-base --profile:a=profiles/windows-clang
 conan create gnustep-gui --profile:a=profiles/windows-clang
+conan create gnustep-headless --profile:a=profiles/windows-clang
 conan create gnustep-cmake --profile:a=profiles/windows-clang
 ```
 
@@ -47,5 +48,27 @@ conan create libdispatch --profile:a=profiles/linux-clang
 conan create gnustep-make --profile:a=profiles/linux-clang
 conan create gnustep-base --profile:a=profiles/linux-clang
 conan create gnustep-gui --profile:a=profiles/linux-clang
+conan create gnustep-headless --profile:a=profiles/windows-clang
 conan create gnustep-cmake --profile:a=profiles/linux-clang
 ```
+
+## Tips & Tricks
+
+There's a couple of tips & tricks which help when you're building GNUstep on a Windows platform:
+
+- libobjc2 works best when used with LLVM/clang on Windows and Linux.
+- The GNUstep build system relies on a bash shell.  On Windows, you can use MSYS2 to get a bash prompt.  There's support
+  for MSYS2 in both [Conan](https://docs.conan.io/2/examples/tools/autotools/create_your_first_package_windows.html) and
+  [vcpkg](https://learn.microsoft.com/en-us/vcpkg/maintainers/functions/vcpkg_acquire_msys).
+- The build tools will assume you're targetting an MSYS2 environment when running `./configure` in a MSYS2 environment.
+  To make it target a 'native' Windows environment, specify `--host=x86_64-pc-windows` and `--target=x86_64-pc-windows`.
+- You can aquire [`pkgconf`](https://github.com/pkgconf/pkgconf) as a build tool: `self.tool_requires("pkgconf/[>=2.2]")`.
+  Set the `PKG_CONFIG` variable to override the path to the `pkg-config` tool.
+
+These tips may help when debugging:
+
+- Conan recipes are Python scripts.  You can debug them using VS Code.
+- Because Conan copies scripts before executing them, breakpoints you've set may not be hit.  But you can add a `breakpoint()`
+  call to the script, forcing the debugger to pause.
+- If a build fails, you can enter an MSYS2 session by running `C:\Users\vagrant\.conan2\p\msys2f33247fcfc934\p\bin\msys64\usr\bin\bash.exe --login -i`.
+  From within that session, you can run `./configure`, `make`,... --- just make sure to environment variables such as `PATH`.
