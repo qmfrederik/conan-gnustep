@@ -1,10 +1,13 @@
 from conan import ConanFile
 from conan.tools.gnu import PkgConfigDeps
-import package_version
 import os
 
 def get_package_version(package):
-    return package_version.get_package_version(package)
+    try:
+        import package_version
+        return package_version.get_package_version(package)
+    except:
+        return package.version
 
 def configure_windows_host(pkg, autotools):
     if pkg.settings.os == "Windows":
