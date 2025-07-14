@@ -1,5 +1,5 @@
 from conan import ConanFile
-from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
+from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.files import get, apply_conandata_patches, copy, rmdir
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualRunEnv
@@ -82,11 +82,6 @@ class GnustepBaseRecipe(ConanFile):
 
         libdispatch_package_folder = self.dependencies["libdispatch"].package_folder
 
-        if self.settings.os == "Windows":
-            # The copy of MSYS2 in conancentral doesn't include pkg-config, but we acquired it as a built
-            # tool, so use that
-            env.define("PKG_CONFIG", os.path.join(self.dependencies.build["pkgconf"].package_folder, "bin", "pkgconf.exe"))
-
         # Resolve GNUstep makefiles
         gnustep_makefiles_folder = self.get_makefiles_folder()
         tc.configure_args.append(f"GNUSTEP_MAKEFILES={gnustep_makefiles_folder}")
@@ -105,12 +100,8 @@ class GnustepBaseRecipe(ConanFile):
         # On Windows, force targetting native Windows, even when building in an MSYS2 shell
         self.python_requires["gnustep-helpers"].module.configure_windows_host(self, tc)
 
-        if self.settings.os == "Windows":
-            # Generate pkg-config data for dependencies, which we can inject into the configure process.
-            print(f"Generating pkg-config data in {self.generators_folder}")
-            deps = PkgConfigDeps(self)
-            deps.generate()
-            env.define("PKG_CONFIG_PATH", self.generators_folder)
+        # On Windows, use a copy of pkgconf which ships via Conan
+        self.python_requires["gnustep-helpers"].module.configure_windows_pkgconf(self, env)
 
         tc.generate(env)
 

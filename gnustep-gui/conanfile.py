@@ -114,13 +114,10 @@ class GnustepGuiRecipe(ConanFile):
         # On Windows, force targetting native Windows, even when building in an MSYS2 shell
         self.python_requires["gnustep-helpers"].module.configure_windows_host(self, tc)
 
-        if self.settings.os == "Windows":
-            # Generate pkg-config data for dependencies, which we can inject into the configure process.
-            print(f"Generating pkg-config data in {self.generators_folder}")
-            deps = PkgConfigDeps(self)
-            deps.generate()
-            env.define("PKG_CONFIG_PATH", self.generators_folder)
+        # On Windows, use a copy of pkgconf which ships via Conan
+        self.python_requires["gnustep-helpers"].module.configure_windows_pkgconf(self, env)
 
+        if self.settings.os == "Windows":
             # The Conan packages for libjpeg ship with a library named libjpeg.lib (as opposed to jpeg.lib);
             # account for this by using -llibjpeg instead of -ljpeg.
             # Another approach for fixing this would be to patch the upstream configure script to use pkgconfig

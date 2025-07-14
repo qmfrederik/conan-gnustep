@@ -103,16 +103,8 @@ class GnustepHeadlessRecipe(ConanFile):
         # On Windows, force targetting native Windows, even when building in an MSYS2 shell
         self.python_requires["gnustep-helpers"].module.configure_windows_host(self, tc)
 
-        if self.settings.os == "Windows":
-            # Generate pkg-config data for dependencies, which we can inject into the configure process.
-            print(f"Generating pkg-config data in {self.generators_folder}")
-            deps = PkgConfigDeps(self)
-            deps.generate()
-            env.define("PKG_CONFIG_PATH", self.generators_folder)
-
-            # The copy of MSYS2 in conancentral doesn't include pkg-config, but we acquired it as a built
-            # tool, so use that
-            env.define("PKG_CONFIG", os.path.join(self.dependencies.build["pkgconf"].package_folder, "bin", "pkgconf.exe"))
+        # On Windows, use a copy of pkgconf which ships via Conan
+        self.python_requires["gnustep-helpers"].module.configure_windows_pkgconf(self, env)
 
         tc.generate(env)
 

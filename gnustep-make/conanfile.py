@@ -3,6 +3,7 @@ from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.files import get
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualRunEnv
+import os
 
 class GnustepMakeRecipe(ConanFile):
     name = "gnustep-make"
@@ -16,9 +17,13 @@ class GnustepMakeRecipe(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": False, "fPIC": True}
+    python_requires = "gnustep-helpers/0.1"
+
+    def set_version(self): 
+        self.version = self.python_requires["gnustep-helpers"].module.get_package_version(os.path.dirname(self.recipe_folder), self.name)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version])
+        get(self, **sorted(self.conan_data["sources"].values())[0])
 
     def requirements(self):
         self.requires("libobjc2/[^2.2.1]")

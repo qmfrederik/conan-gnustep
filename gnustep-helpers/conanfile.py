@@ -1,5 +1,7 @@
 from conan import ConanFile
+from conan.tools.gnu import PkgConfigDeps
 import package_version
+import os
 
 def get_package_version(repository, package_name):
     return package_version.get_package_version(repository, package_name)
@@ -17,6 +19,18 @@ def configure_windows_host(pkg, autotools):
         # checking target system type... x86_64-pc-windows
         autotools.configure_args.append(f"--host=x86_64-pc-windows")
         autotools.configure_args.append(f"--target=x86_64-pc-windows")
+
+def configure_windows_pkgconf(pkg, env):
+    if pkg.settings.os == "Windows":
+        # The copy of MSYS2 in conancentral doesn't include pkg-config, but we acquired it as a built
+        # tool, so use that
+        env.define("PKG_CONFIG", os.path.join(pkg.dependencies.build["pkgconf"].package_folder, "bin", "pkgconf.exe"))
+
+        # Generate pkg-config data for dependencies, which we can inject into the configure process.
+        print(f"Generating pkg-config data in {pkg.generators_folder}")
+        deps = PkgConfigDeps(pkg)
+        deps.generate()
+        env.define("PKG_CONFIG_PATH", pkg.generators_folder)
 
 class Pkg(ConanFile):
     name = "gnustep-helpers"
