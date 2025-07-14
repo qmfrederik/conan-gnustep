@@ -40,6 +40,7 @@ class GnustepHeadlessRecipe(ConanFile):
             self.win_bash = True
             if not self.conf.get("tools.microsoft.bash:path", check_type=str):
                 self.tool_requires("msys2/cci.latest")
+                self.tool_requires("pkgconf/[>=2.2]")
 
     def generate(self):
         if not cross_building(self):
@@ -110,16 +111,9 @@ class GnustepHeadlessRecipe(ConanFile):
             deps.generate()
             env.define("PKG_CONFIG_PATH", self.generators_folder)
 
-            # The Conan packages for libjpeg ship with a library named libjpeg.lib (as opposed to jpeg.lib);
-            # account for this by using -llibjpeg instead of -ljpeg.
-            # Another approach for fixing this would be to patch the upstream configure script to use pkgconfig
-            # to find libjpeg.
-            replace_in_file(
-                self,
-                os.path.join(self.source_folder, "configure"),
-                "-ljpeg",
-                "-llibjpeg",
-            )
+            # The copy of MSYS2 in conancentral doesn't include pkg-config, but we acquired it as a built
+            # tool, so use that
+            env.define("PKG_CONFIG", os.path.join(self.dependencies.build["pkgconf"].package_folder, "bin", "pkgconf.exe"))
 
         tc.generate(env)
 
