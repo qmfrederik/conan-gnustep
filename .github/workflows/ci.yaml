@@ -74,6 +74,13 @@ jobs:
           path: |
             ~/.conan2/p
             !~/.conan2/p/msys2*
+      - name: Upload packages
+        run: |
+          conan remote add cloudsmith https://conan.cloudsmith.io/qmfrederik/gnustep/
+          conan remote login -p ${{ secrets.CLOUDSMITH_API_KEY }} cloudsmith ${{ secrets.CLOUDSMITH_USER }}
+          conan upload libobjc2/* --confirm -r cloudsmith
+          conan upload libdispatch/* --confirm -r cloudsmith
+          conan upload gnustep-*/* --confirm -r cloudsmith
 
   linux:
     runs-on: ubuntu-latest
