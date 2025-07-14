@@ -87,12 +87,13 @@ jobs:
           - name: rockylinux-10
             image: rockylinux/rockylinux:10
             family: rhel
-          - name: rockylinux-9
-            image: rockylinux:9
-            family: rhel
             # Some packages, such as giflib-devel, are not in the base RHEL repos but in an additional repository;
             # which was named 'powertools' on RHEL8 and 'CodeReady Builder' on RHEL9.
             # See https://wiki.rockylinux.org/rocky/repo/#notes-on-crb
+            repos: crb
+          - name: rockylinux-9
+            image: rockylinux:9
+            family: rhel
             repos: crb
           - name: rockylinux-8
             image: rockylinux:8
