@@ -1,5 +1,5 @@
 from conan import ConanFile
-from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
+from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
 from conan.tools.files import get, apply_conandata_patches, copy, rmdir
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualRunEnv
@@ -48,11 +48,7 @@ class GnustepBaseRecipe(ConanFile):
 
     def build_requirements(self):
         # Require a MSYS2 shell on Windows (for Autotools support)
-        if self.settings.os == "Windows":
-            self.win_bash = True
-            if not self.conf.get("tools.microsoft.bash:path", check_type=str):
-                self.tool_requires("msys2/cci.latest")
-                self.tool_requires("pkgconf/[>=2.2]")
+        self.python_requires["gnustep-helpers"].module.windows_build_requirements(self)
 
     def get_makefiles_folder(self):
         gnustep_make_package_folder = self.dependencies.build["gnustep-make"].package_folder
@@ -82,11 +78,6 @@ class GnustepBaseRecipe(ConanFile):
 
         libdispatch_package_folder = self.dependencies["libdispatch"].package_folder
 
-        if self.settings.os == "Windows":
-            # The copy of MSYS2 in conancentral doesn't include pkg-config, but we acquired it as a built
-            # tool, so use that
-            env.define("PKG_CONFIG", os.path.join(self.dependencies.build["pkgconf"].package_folder, "bin", "pkgconf.exe"))
-
         # Resolve GNUstep makefiles
         gnustep_makefiles_folder = self.get_makefiles_folder()
         tc.configure_args.append(f"GNUSTEP_MAKEFILES={gnustep_makefiles_folder}")
@@ -102,24 +93,11 @@ class GnustepBaseRecipe(ConanFile):
         tc.configure_args.append("--srcdir=.")
         env.append("LDFLAGS", f"-Wl,-rpath-link={libdispatch_package_folder}/libs/")
 
-        if self.settings.os == "Windows":
-            # On Windows, force targetting native Windows, even when building in an MSYS2 shell (we're somewhat cross-compiling
-            # from MSYS2 to native Windows, even though we're using the _native_ tooling within MSYS2).
-            # If these variables are not set, gnustep-make will include -lm in the libs used when compiling, resulting in a
-            # compiler error when building gnustep-base.
-            #
-            # The output in configure logs for tools-make should be like this:
-            # checking build system type... x86_64-w64-mingw32
-            # checking host system type... x86_64-pc-windows
-            # checking target system type... x86_64-pc-windows
-            tc.configure_args.append(f"--host=x86_64-pc-windows")
-            tc.configure_args.append(f"--target=x86_64-pc-windows")
+        # On Windows, force targetting native Windows, even when building in an MSYS2 shell
+        self.python_requires["gnustep-helpers"].module.configure_windows_host(self, tc)
 
-            # Generate pkg-config data for dependencies, which we can inject into the configure process.
-            print(f"Generating pkg-config data in {self.generators_folder}")
-            deps = PkgConfigDeps(self)
-            deps.generate()
-            env.define("PKG_CONFIG_PATH", self.generators_folder)
+        # On Windows, use a copy of pkgconf which ships via Conan
+        self.python_requires["gnustep-helpers"].module.configure_windows_pkgconf(self, env)
 
         tc.generate(env)
 
