@@ -50,6 +50,9 @@ jobs:
       - name: Install gnustep-gui
         run: conan create . --profile:a=${{ github.workspace }}/profiles/windows-clang
         working-directory: gnustep-gui/
+      - name: Install gnustep-headless
+        run: conan create . --profile:a=${{ github.workspace }}/profiles/windows-clang
+        working-directory: gnustep-headless/
       - name: Install gnustep-cmake
         run: conan create . --profile:a=${{ github.workspace }}/profiles/windows-clang
         working-directory: gnustep-cmake/

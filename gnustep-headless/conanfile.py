@@ -77,7 +77,12 @@ class GnustepHeadlessRecipe(ConanFile):
         # Fix header paths
         gnustep_base_include = os.path.join(self.dependencies["gnustep-base"].package_folder, "include/")
         gnustep_gui_include = os.path.join(self.dependencies["gnustep-gui"].package_folder, "include/")
-        tc.make_args.append(f"OBJC_INCLUDE_PATH={gnustep_base_include}:{gnustep_gui_include}")
+        
+        if self .settings.os == "Windows":
+            tc.make_args.append(f"OBJC_INCLUDE_PATH='{gnustep_base_include};{gnustep_gui_include}'")
+        else:
+            tc.make_args.append(f"OBJC_INCLUDE_PATH={gnustep_base_include}:{gnustep_gui_include}")
+        
 
         # Resolve GNUstep makefiles
         tc.configure_args.append(f"GNUSTEP_MAKEFILES={build_makefiles}")
