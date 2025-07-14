@@ -26,6 +26,7 @@ conan create libdispatch --profile:a=profiles/windows-clang
 conan create gnustep-make --profile:a=profiles/windows-clang
 conan create gnustep-base --profile:a=profiles/windows-clang
 conan create gnustep-gui --profile:a=profiles/windows-clang
+conan create gnustep-headless --profile:a=profiles/windows-clang
 conan create gnustep-cmake --profile:a=profiles/windows-clang
 ```
 
@@ -47,5 +48,6 @@ conan create libdispatch --profile:a=profiles/linux-clang
 conan create gnustep-make --profile:a=profiles/linux-clang
 conan create gnustep-base --profile:a=profiles/linux-clang
 conan create gnustep-gui --profile:a=profiles/linux-clang
+conan create gnustep-headless --profile:a=profiles/windows-clang
 conan create gnustep-cmake --profile:a=profiles/linux-clang
 ```
