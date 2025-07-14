@@ -16,8 +16,8 @@ class GnustepCmakeRecipe(ConanFile):
     settings = "build_type"
 
     def requirements(self):
-        self.requires("libobjc2/2.2.1")
-        self.requires("gnustep-base/1.31.1")
+        self.requires("libobjc2/[^2.2.1]")
+        self.requires("gnustep-base/[^1.31.1]")
 
     def layout(self):
         cmake_layout(self)

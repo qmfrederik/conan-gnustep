@@ -5,8 +5,7 @@ sources:
     strip_root: true
 
 patches:
-  "1.31.1":
-    # These patches are maintained at https://github.com/qmfrederik/libs-base/tree/base-1_31_1-PACKAGE
-    - patch_file: "0001-Support-libcurl-7.61.patch"
-    - patch_file: "0002-expose-declarations-in-NSDebug.h-even-when-NDEBUG-is.patch"
-    - patch_file: "0003-Use-PKG_CONFIG-to-invoke-pkg-config.patch"
+  # These patches are maintained at https://github.com/qmfrederik/libs-base/tree/base-1_31_1-PACKAGE
+  - patch_file: "0001-Support-libcurl-7.61.patch"
+  - patch_file: "0002-expose-declarations-in-NSDebug.h-even-when-NDEBUG-is.patch"
+  - patch_file: "0003-Use-PKG_CONFIG-to-invoke-pkg-config.patch"

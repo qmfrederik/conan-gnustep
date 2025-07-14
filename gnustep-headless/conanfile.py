@@ -30,9 +30,9 @@ class GnustepHeadlessRecipe(ConanFile):
         apply_conandata_patches(self)
 
     def requirements(self):
-        self.requires("gnustep-gui/0.32.0")
+        self.requires("gnustep-gui/[^0.32.0]")
         self.requires("freetype/2.13.3")
-        self.tool_requires("gnustep-make/2.9.3")
+        self.tool_requires("gnustep-make/[^2.9.3]")
 
     def config_options(self):
         if self.settings.os == "Windows":

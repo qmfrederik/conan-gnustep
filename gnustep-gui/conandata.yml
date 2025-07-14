@@ -5,6 +5,5 @@ sources:
     strip_root: true
 
 patches:
-  "0.32.0":
-    - patch_file: "0001-Mark-PACKAGE_SCOPE-as-public-on-Windows.patch"
-    - patch_file: "0001-Only-include-unistd.h-if-it-exists.patch"
+  - patch_file: "0001-Mark-PACKAGE_SCOPE-as-public-on-Windows.patch"
+  - patch_file: "0001-Only-include-unistd.h-if-it-exists.patch"

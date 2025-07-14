@@ -26,7 +26,7 @@ class LibDispatchRecipe(ConanFile):
         apply_conandata_patches(self)
 
     def requirements(self):
-        self.requires("libobjc2/2.2.1")
+        self.requires("libobjc2/[^2.2.1]")
 
     def config_options(self):
         if self.settings.os == "Windows":
