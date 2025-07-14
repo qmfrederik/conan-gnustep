@@ -18,8 +18,8 @@ class libobjc2Recipe(ConanFile):
     default_options = {"shared": True, "fPIC": True}
     python_requires = "gnustep-helpers/0.1"
 
-    def set_version(self): 
-        self.version = self.python_requires["gnustep-helpers"].module.get_package_version(os.path.dirname(self.recipe_folder), self.name)
+    def set_version(self):
+        self.version = self.python_requires["gnustep-helpers"].module.get_package_version(self)
 
     def source(self):
         get(self, **sorted(self.conan_data["sources"].values())[0])

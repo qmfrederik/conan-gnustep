@@ -3,8 +3,8 @@ from conan.tools.gnu import PkgConfigDeps
 import package_version
 import os
 
-def get_package_version(repository, package_name):
-    return package_version.get_package_version(repository, package_name)
+def get_package_version(package):
+    return package_version.get_package_version(package)
 
 def configure_windows_host(pkg, autotools):
     if pkg.settings.os == "Windows":

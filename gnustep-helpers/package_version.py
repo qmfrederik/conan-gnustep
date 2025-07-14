@@ -26,20 +26,33 @@ import os
 # - Supports squash merges
 # - Works for installed packages
 
-def get_package_version(repository, package_name):
-    with open(os.path.join(repository, package_name, "conandata.yml")) as stream:
+def get_package_version(package):
+    repository =os.path.dirname(package.recipe_folder)
+    conan_path = os.path.join(repository, package.name, "conandata.yml")
+
+    # Return default version if conandata.yml cannot be accessed
+    if not os.path.exists(conan_path):
+        return package.version
+    
+    with open(conan_path) as stream:
         version_data = yaml.safe_load(stream)
 
     package_version = next(iter(version_data["sources"]))
     revision_count = 0
 
-    repo = Repository(os.path.join(repository, '.git'))
+    repo_dir = os.path.join(repository, '.git')
+
+    # Return default version if this is not a git repository.
+    if not os.path.exists(repo_dir):
+        return package.version
+
+    repo = Repository(repo_dir)
 
     status = repo.status()
 
     # Determine whether there are any local modifications, and increase the revision count
     # if there are
-    is_dirty = len(list(filter(lambda x: x.startswith(package_name), status))) > 0
+    is_dirty = len(list(filter(lambda x: x.startswith(package.name), status))) > 0
 
     if is_dirty:
         revision_count = 1
@@ -47,14 +60,14 @@ def get_package_version(repository, package_name):
     # Determine whether the tree for the current package was changed between the current branch
     # and the main branch.
     head_tree = repo.get(repo.head.target).tree
-    if head_tree.__contains__(package_name):
-        head_package_tree = head_tree / package_name
+    if head_tree.__contains__(package.name):
+        head_package_tree = head_tree / package.name
     else:
         head_package_tree = None
 
     main_tree = repo.resolve_refish('main')[0].tree
-    if main_tree.__contains__(package_name):
-        main_package_tree = main_tree / package_name
+    if main_tree.__contains__(package.name):
+        main_package_tree = main_tree / package.name
     else:
         main_package_tree = None
 
@@ -69,8 +82,8 @@ def get_package_version(repository, package_name):
         else:
             parent_commit = None
 
-        if commit.tree.__contains__(package_name):
-            recipe_tree = commit.tree / package_name
+        if commit.tree.__contains__(package.name):
+            recipe_tree = commit.tree / package.name
             commit_package_version = None
 
             if recipe_tree.__contains__("conandata.yml"):
