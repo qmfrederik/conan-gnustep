@@ -5,7 +5,6 @@ sources:
     strip_root: true
 
 patches:
-  "6.1.1":
-    - patch_file: "0001-Use-CMAKE_C_COMPILER_FRONTEND_VARIANT-to-detect-msvc.patch"
-    - patch_file: "0002-Fix-Windows-compatibility.patch"
-    - patch_file: "0003-Use-external-BlocksRuntime.patch"
+  - patch_file: "0001-Use-CMAKE_C_COMPILER_FRONTEND_VARIANT-to-detect-msvc.patch"
+  - patch_file: "0002-Fix-Windows-compatibility.patch"
+  - patch_file: "0003-Use-external-BlocksRuntime.patch"

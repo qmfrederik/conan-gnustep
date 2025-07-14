@@ -21,6 +21,7 @@ To get started, run the following commands:
 ```bash
 git clone https://github.com/qmfrederik/conan-gnustep/
 cd conan-gnustep
+conan create gnustep-helpers --profile:a=profiles/windows-clang
 conan create libobjc2 --profile:a=profiles/windows-clang
 conan create libdispatch --profile:a=profiles/windows-clang
 conan create gnustep-make --profile:a=profiles/windows-clang
@@ -43,6 +44,7 @@ cd conan-gnustep
 python3 -m venv .python3/
 .python3/bin/pip install conan==2.18.1
 . .python3/bin/activate
+conan create gnustep-helpers --profile:a=profiles/linux-clang
 conan create libobjc2 --profile:a=profiles/linux-clang
 conan create libdispatch --profile:a=profiles/linux-clang
 conan create gnustep-make --profile:a=profiles/linux-clang

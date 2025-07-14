@@ -21,7 +21,7 @@ class GnustepMakeRecipe(ConanFile):
         get(self, **self.conan_data["sources"][self.version])
 
     def requirements(self):
-        self.requires("libobjc2/2.2.1")
+        self.requires("libobjc2/[^2.2.1]")
 
     def config_options(self):
         if self.settings.os == "Windows":

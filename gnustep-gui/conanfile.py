@@ -20,18 +20,22 @@ class GnustepGuiRecipe(ConanFile):
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": True, "fPIC": True}
     exports_sources = "*.patch"
+    python_requires = "gnustep-helpers/0.1"
+
+    def set_version(self):
+        self.version = self.python_requires["gnustep-helpers"].module.get_package_version(os.path.dirname(self.recipe_folder), self.name)
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version])
+        get(self, **sorted(self.conan_data["sources"].values())[0])
         apply_conandata_patches(self)
 
     def requirements(self):
-        self.requires("gnustep-base/1.31.1")
+        self.requires("gnustep-base/[^1.31.1]")
         self.requires("libjpeg/9e")
         self.requires("libtiff/4.7.0")
         self.requires("libpng/1.6.50")
         self.requires("giflib/5.2.2")
-        self.tool_requires("gnustep-make/2.9.3")
+        self.tool_requires("gnustep-make/[^2.9.3]")
 
     def config_options(self):
         if self.settings.os == "Windows":
