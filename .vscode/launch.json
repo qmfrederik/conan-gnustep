@@ -60,6 +60,12 @@
                 "${workspaceFolder}/gnustep-gui/conanfile.py",
                 "--profile:a=${workspaceFolder}/profiles/linux-clang"
             ],
+        },
+        {
+            "name": "Run version script",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/version.py"
         }
     ]
 }
