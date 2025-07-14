@@ -32,6 +32,14 @@ def configure_windows_pkgconf(pkg, env):
         deps.generate()
         env.define("PKG_CONFIG_PATH", pkg.generators_folder)
 
+def windows_build_requirements(pkg):    
+    # Require a MSYS2 shell on Windows (for Autotools support)
+    if pkg.settings.os == "Windows":
+        pkg.win_bash = True
+        if not pkg.conf.get("tools.microsoft.bash:path", check_type=str):
+            pkg.tool_requires("msys2/cci.latest")
+            pkg.tool_requires("pkgconf/[>=2.2]")
+
 class Pkg(ConanFile):
     name = "gnustep-helpers"
     version = "0.1"
