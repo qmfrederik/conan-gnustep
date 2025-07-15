@@ -38,10 +38,12 @@ jobs:
           conan --version
           conan config install global.conf
       - name: Mark path as safe
+        run: git config --global --add safe.directory $(pwd)
+      - name: Check out main branch
         run: |
-          git config --global --add safe.directory $(pwd)
           git branch $env:GITHUB_BASE_REF origin/$env:GITHUB_BASE_REF
           git show-ref
+        if: ${{ github.ref != 'refs/heads/main' }}
       - name: Install gnustep-helpers
         run: conan create gnustep-helpers --profile:a=${{ github.workspace }}/profiles/windows-clang
       - name: Install libobjc2
@@ -125,10 +127,12 @@ jobs:
           .python3/bin/conan --version
           .python3/bin/conan config install global.conf
       - name: Mark path as safe
+        run: git config --global --add safe.directory $(pwd)
+      - name: Check out main branch
         run: |
-          git config --global --add safe.directory $(pwd)
           git branch $GITHUB_BASE_REF origin/$GITHUB_BASE_REF
           git show-ref
+        if: ${{ github.ref != 'refs/heads/main' }}
       - name: Install gnustep-helpers
         run: .python3/bin/conan create gnustep-helpers --profile:a=profiles/linux-clang
       - name: Install libobjc2
