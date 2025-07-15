@@ -75,8 +75,13 @@ else()
 endif()
 
 # Find the Objective-C and libs-base headers
+add_library(GNUstep::ObjC INTERFACE IMPORTED)
+target_include_directories(GNUstep::ObjC INTERFACE ${libobjc2_INCLUDE_DIRS})
+target_link_libraries(GNUstep::ObjC INTERFACE ${libobjc2_LIBRARIES})
+
 add_library(GNUstep::Base INTERFACE IMPORTED)
 target_link_libraries(GNUstep::Base INTERFACE gnustep-base::gnustep-base libdispatch::libdispatch libobjc2::libobjc2)
 target_compile_options(GNUstep::Base INTERFACE ${GNUSTEP_COMPILE_OPTIONS})
 target_compile_definitions(GNUstep::Base INTERFACE ${GNUSTEP_COMPILE_DEFINITIONS})
 target_include_directories(GNUstep::Base INTERFACE ${gnustep-base_INCLUDE_DIRS})
+target_link_libraries(GNUstep::Base INTERFACE GNUstep::ObjC)
