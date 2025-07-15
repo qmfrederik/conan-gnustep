@@ -67,20 +67,22 @@ jobs:
           ./conanrun.ps1
           ./Tutorial.exe
         working-directory: tutorial/
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: conan-gnustep-windows
-          path: |
-            ~/.conan2/p
-            !~/.conan2/p/msys2*
-      - name: Upload packages
+      - name: Upload Conan packages to Cloudsmith
         run: |
           conan remote add cloudsmith https://conan.cloudsmith.io/qmfrederik/gnustep/
           conan remote login -p ${{ secrets.CLOUDSMITH_API_KEY }} cloudsmith ${{ secrets.CLOUDSMITH_USER }}
           conan upload libobjc2/* --confirm -r cloudsmith
           conan upload libdispatch/* --confirm -r cloudsmith
           conan upload gnustep-*/* --confirm -r cloudsmith
+        if: ${{ github.ref == 'refs/heads/main' }}
+      - name: Upload Conan cache to GitHub artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: conan-gnustep-windows
+          path: |
+            ~/.conan2/p
+            !~/.conan2/p/msys2*
 
   linux:
     runs-on: ubuntu-latest
