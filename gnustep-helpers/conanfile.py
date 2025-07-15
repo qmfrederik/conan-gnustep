@@ -7,7 +7,9 @@ def get_package_version(package):
         import package_version
         return package_version.get_package_version(package)
     except:
-        return package.version
+        # We're building outside of a Git repository.
+        # Return None so the package version is set from metadata.
+        return None
 
 def configure_windows_host(pkg, autotools):
     if pkg.settings.os == "Windows":

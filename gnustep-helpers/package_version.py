@@ -30,9 +30,9 @@ def get_package_version(package):
     repository =os.path.dirname(package.recipe_folder)
     conan_path = os.path.join(repository, package.name, "conandata.yml")
 
-    # Return default version if conandata.yml cannot be accessed
+    # Use version from metadata if conandata.yml cannot be accessed
     if not os.path.exists(conan_path):
-        return package.version
+        return None
     
     with open(conan_path) as stream:
         version_data = yaml.safe_load(stream)
@@ -42,9 +42,9 @@ def get_package_version(package):
 
     repo_dir = os.path.join(repository, '.git')
 
-    # Return default version if this is not a git repository.
+    # Use version from metadata if this is not a git repository.
     if not os.path.exists(repo_dir):
-        return package.version
+        return None
 
     repo = Repository(repo_dir)
 
