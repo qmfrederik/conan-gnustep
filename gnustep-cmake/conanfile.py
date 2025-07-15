@@ -4,7 +4,7 @@ from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
 class GnustepCmakeRecipe(ConanFile):
     name = "gnustep-cmake"
     version = "0.1.0"
-    package_type = "header-library"
+    package_type = "build-scripts"
     license = "MIT"
     url = "https://github.com/qmfrederik/conan-gnustep/"
     description = "A CMake package for using GNUstep."

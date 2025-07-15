@@ -1,5 +1,7 @@
 [requires]
 gnustep-base/[^1.31.1]
+
+[tool_requires]
 gnustep-cmake/[^0.1.0]
 
 [generators]
