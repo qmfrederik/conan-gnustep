@@ -1,6 +1,4 @@
 import yaml
-from pygit2 import Repository, BlobIO, Commit, Object
-from pygit2.enums import SortMode
 import os
 
 # Automatically calculates the package version (x.y.z-{prerelease}+{build}) for the package.
@@ -26,8 +24,11 @@ import os
 # - Supports squash merges
 # - Works for installed packages
 
-def get_package_version(package):
-    repository =os.path.dirname(package.recipe_folder)
+def get_package_version(package):    
+    from pygit2 import Repository, BlobIO, Commit, Object
+    from pygit2.enums import SortMode
+
+    repository = os.path.dirname(package.recipe_folder)
     conan_path = os.path.join(repository, package.name, "conandata.yml")
 
     # Use version from metadata if conandata.yml cannot be accessed
