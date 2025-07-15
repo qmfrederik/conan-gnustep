@@ -1,5 +1,8 @@
 [requires]
 gnustep-base/[^1.31.1]
+libobjc2/[^2.2.1]
+
+[tool_requires]
 gnustep-cmake/[^0.1.0]
 
 [generators]

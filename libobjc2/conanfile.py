@@ -57,3 +57,4 @@ class libobjc2Recipe(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["objc"]
+        self.cpp_info.includedirs = ["include"]
