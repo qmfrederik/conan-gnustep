@@ -1,10 +1,16 @@
+import package_version
 from conan import ConanFile
 from conan.tools.gnu import PkgConfigDeps
-import package_version
 import os
 
-def get_package_version(repository, package_name):
-    return package_version.get_package_version(repository, package_name)
+def get_package_version(package):
+    try:
+        return package_version.get_package_version(package)
+    except Exception as inst:
+        # We're building outside of a Git repository.
+        # Return None so the package version is set from metadata.
+        package.output.warning(f"Couldn't determine version number: {inst}")
+        return None
 
 def configure_windows_host(pkg, autotools):
     if pkg.settings.os == "Windows":
@@ -32,7 +38,7 @@ def configure_windows_pkgconf(pkg, env):
         deps.generate()
         env.define("PKG_CONFIG_PATH", pkg.generators_folder)
 
-def windows_build_requirements(pkg):    
+def windows_build_requirements(pkg):
     # Require a MSYS2 shell on Windows (for Autotools support)
     if pkg.settings.os == "Windows":
         pkg.win_bash = True
