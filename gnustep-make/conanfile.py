@@ -56,6 +56,10 @@ class GnustepMakeRecipe(ConanFile):
         # On Windows, force targetting native Windows, even when building in an MSYS2 shell
         self.python_requires["gnustep-helpers"].module.configure_windows_host(self, tc)
 
+        # Support building in debug mode
+        if self.settings.build_type == "Debug":
+            tc.make_args.append("debug=yes")
+
         tc.generate(env)
 
         deps = AutotoolsDeps(self)

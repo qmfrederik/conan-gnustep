@@ -99,6 +99,10 @@ class GnustepBaseRecipe(ConanFile):
         # On Windows, use a copy of pkgconf which ships via Conan
         self.python_requires["gnustep-helpers"].module.configure_windows_pkgconf(self, env)
 
+        # Support building in debug mode
+        if self.settings.build_type == "Debug":
+            tc.make_args.append("debug=yes")
+
         tc.generate(env)
 
         deps = AutotoolsDeps(self)

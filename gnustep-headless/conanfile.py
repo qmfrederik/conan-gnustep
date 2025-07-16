@@ -82,7 +82,6 @@ class GnustepHeadlessRecipe(ConanFile):
             tc.make_args.append(f"OBJC_INCLUDE_PATH='{gnustep_base_include};{gnustep_gui_include}'")
         else:
             tc.make_args.append(f"OBJC_INCLUDE_PATH={gnustep_base_include}:{gnustep_gui_include}")
-        
 
         # Resolve GNUstep makefiles
         tc.configure_args.append(f"GNUSTEP_MAKEFILES={build_makefiles}")
@@ -101,6 +100,10 @@ class GnustepHeadlessRecipe(ConanFile):
 
         # On Windows, use a copy of pkgconf which ships via Conan
         self.python_requires["gnustep-helpers"].module.configure_windows_pkgconf(self, env)
+
+        # Support building in debug mode
+        if self.settings.build_type == "Debug":
+            tc.make_args.append("debug=yes")
 
         tc.generate(env)
 
