@@ -1,0 +1,67 @@
+From 5c75912dab8ff86780a16f2fa6f0976495abe515 Mon Sep 17 00:00:00 2001
+From: Frederik Seiffert <frederik@algoriddim.com>
+Date: Mon, 17 Mar 2025 15:39:55 +0100
+Subject: [PATCH] Fix NSNotFound definition to use NSInteger type #494
+
+---
+ Headers/Foundation/NSCalendar.h    | 2 +-
+ Headers/Foundation/NSObjCRuntime.h | 2 +-
+ Source/NSCoder.m                   | 2 +-
+ Source/NSUnarchiver.m              | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/Headers/Foundation/NSCalendar.h b/Headers/Foundation/NSCalendar.h
+index 90540f455..7d21b6df2 100644
+--- a/Headers/Foundation/NSCalendar.h
++++ b/Headers/Foundation/NSCalendar.h
+@@ -139,7 +139,7 @@ enum
+   NSWrapCalendarComponents = (1UL << 0)
+ };
+ 
+-enum
++NS_ENUM(NSInteger)
+ {
+   NSDateComponentUndefined = NSIntegerMax,
+   NSUndefinedDateComponent = NSDateComponentUndefined
+diff --git a/Headers/Foundation/NSObjCRuntime.h b/Headers/Foundation/NSObjCRuntime.h
+index 2703a385e..6a3cba95f 100644
+--- a/Headers/Foundation/NSObjCRuntime.h
++++ b/Headers/Foundation/NSObjCRuntime.h
+@@ -292,7 +292,7 @@ typedef NS_ENUM(NSInteger, NSComparisonResult)
+   NSOrderedAscending = (NSInteger)-1, NSOrderedSame, NSOrderedDescending
+ };
+ 
+-enum {NSNotFound = NSIntegerMax};
++static const NSInteger NSNotFound = NSIntegerMax;
+ 
+ DEFINE_BLOCK_TYPE(NSComparator, NSComparisonResult, id, id);
+ 
+diff --git a/Source/NSCoder.m b/Source/NSCoder.m
+index ae6d9ab38..1fe8795d4 100644
+--- a/Source/NSCoder.m
++++ b/Source/NSCoder.m
+@@ -100,7 +100,7 @@ static unsigned	systemVersion = MAX_SUPPORTED_SYSTEM_VERSION;
+ - (NSInteger) versionForClassName: (NSString*)className
+ {
+   [self subclassResponsibility: _cmd];
+-  return (NSInteger)NSNotFound;
++  return NSNotFound;
+ }
+ 
+ // Encoding Data
+diff --git a/Source/NSUnarchiver.m b/Source/NSUnarchiver.m
+index 784de669e..316659b45 100644
+--- a/Source/NSUnarchiver.m
++++ b/Source/NSUnarchiver.m
+@@ -1683,7 +1683,7 @@ scalarSize(char type)
+   info = [objDict objectForKey: className];
+   if (info == nil)
+     {
+-      return (NSInteger)NSNotFound;
++      return NSNotFound;
+     }
+   return info->version;
+ }
+-- 
+2.50.0.windows.1
+
