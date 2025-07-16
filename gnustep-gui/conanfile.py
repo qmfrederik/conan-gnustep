@@ -157,3 +157,6 @@ class GnustepGuiRecipe(ConanFile):
             rmdir(self, os.path.join(self.package_folder, "c"))
         else:
             rmdir(self, os.path.join(self.package_folder, "home"))
+
+    def package_info(self):
+        self.cpp_info.libs = ["gnustep-gui"]
