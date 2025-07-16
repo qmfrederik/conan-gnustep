@@ -39,17 +39,21 @@ class libobjc2Recipe(ConanFile):
         cmake_layout(self)
     
     def generate(self):
+        def yes_no(opt): return "yes" if opt else "no"
+
         deps = CMakeDeps(self)
         deps.generate()
         tc = CMakeToolchain(self)
         # Prevent picking up a default install location through gnustep-config
         tc.variables["GNUSTEP_INSTALL_TYPE"] = "NONE"
+        tc.variables["TESTS"] = yes_no(not self.conf.get("tools.build:skip_test", default=False))
         tc.generate()
 
     def build(self):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
+        cmake.test()
 
     def package(self):
         cmake = CMake(self)
