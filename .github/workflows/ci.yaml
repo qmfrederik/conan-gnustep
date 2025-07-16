@@ -53,7 +53,7 @@ jobs:
       - name: Install libdispatch
         run: conan create libdispatch --profile:a=${{ github.workspace }}/profiles/windows-clang
       - name: Install gnustep-base
-        run: conan create gnustep-base --profile:a=${{ github.workspace }}/profiles/windows-clang
+        run: conan create gnustep-base --profile:a=${{ github.workspace }}/profiles/windows-clang -c tools.build:skip_test=True
       - name: Install gnustep-gui
         run: conan create gnustep-gui --profile:a=${{ github.workspace }}/profiles/windows-clang
       - name: Install gnustep-headless
@@ -160,7 +160,7 @@ jobs:
           yum install -y libffi-devel libxml2-devel libxslt-devel gnutls-devel libicu-devel libcurl-devel
         if: matrix.family == 'rhel'
       - name: Install gnustep-base
-        run: .python3/bin/conan create gnustep-base --profile:a=profiles/linux-clang
+        run: .python3/bin/conan create gnustep-base --profile:a=profiles/linux-clang -c tools.build:skip_test=True
       - name: Install gnustep-gui dependencies (Ubuntu)
         run: |
           apt-get update

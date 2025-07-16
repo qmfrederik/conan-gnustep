@@ -99,15 +99,28 @@ class GnustepBaseRecipe(ConanFile):
         # On Windows, use a copy of pkgconf which ships via Conan
         self.python_requires["gnustep-helpers"].module.configure_windows_pkgconf(self, env)
 
+        # On Windows, running the test requires the Source/obj folder to be in PATH, not just LD_LIBRARY_PATH
+        if self.settings.os == "Windows":
+            env.append_path("PATH", os.path.join(self.build_folder, "Source/obj"))
+
         tc.generate(env)
 
         deps = AutotoolsDeps(self)
         deps.generate()
 
     def build(self):
+        def yes_no(opt): return "yes" if opt else "no"
+
         autotools = Autotools(self)
         autotools.configure()
         autotools.make()
+
+        if not self.conf.get("tools.build:skip_test", default=False):
+            # Build tests for release to match CRT of DLLs (for Windows compatibility).
+            test_with_debug=yes_no(self.settings.build_type == "Debug")
+            autotools.make(
+                target="check",
+                args=[f"GSMAKEOPTIONS='debug={test_with_debug}'"])
 
     def package(self):
         autotools = Autotools(self)
