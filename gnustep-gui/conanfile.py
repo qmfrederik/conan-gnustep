@@ -126,6 +126,10 @@ class GnustepGuiRecipe(ConanFile):
                 "-llibjpeg",
             )
 
+        # Support building in debug mode
+        if self.settings.build_type == "Debug":
+            tc.make_args.append("debug=yes")
+
         tc.generate(env)
 
         deps = AutotoolsDeps(self)

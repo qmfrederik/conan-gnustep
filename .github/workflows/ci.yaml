@@ -8,6 +8,11 @@ on:
 
 jobs:
   windows:
+    strategy:
+      matrix:
+        include:
+          - build_type: Debug
+          - build_type: Release
     runs-on: windows-2025
     steps:
       - uses: actions/checkout@v4
@@ -49,20 +54,20 @@ jobs:
       - name: Install libobjc2
         run: conan create libobjc2 --profile:a=${{ github.workspace }}/profiles/windows-clang
       - name: Install gnustep-make
-        run: conan create gnustep-make --profile:a=${{ github.workspace }}/profiles/windows-clang
+        run: conan create gnustep-make --profile:a=${{ github.workspace }}/profiles/windows-clang --settings:a=gnustep-*/*:build_type=${{ matrix.build_type }}
       - name: Install libdispatch
         run: conan create libdispatch --profile:a=${{ github.workspace }}/profiles/windows-clang
       - name: Install gnustep-base
-        run: conan create gnustep-base --profile:a=${{ github.workspace }}/profiles/windows-clang
+        run: conan create gnustep-base --profile:a=${{ github.workspace }}/profiles/windows-clang --settings:a=gnustep-*/*:build_type=${{ matrix.build_type }}
       - name: Install gnustep-gui
-        run: conan create gnustep-gui --profile:a=${{ github.workspace }}/profiles/windows-clang
+        run: conan create gnustep-gui --profile:a=${{ github.workspace }}/profiles/windows-clang --settings:a=gnustep-*/*:build_type=${{ matrix.build_type }}
       - name: Install gnustep-headless
-        run: conan create gnustep-headless --profile:a=${{ github.workspace }}/profiles/windows-clang
+        run: conan create gnustep-headless --profile:a=${{ github.workspace }}/profiles/windows-clang --settings:a=gnustep-*/*:build_type=${{ matrix.build_type }}
       - name: Install gnustep-cmake
-        run: conan create gnustep-cmake --profile:a=${{ github.workspace }}/profiles/windows-clang
+        run: conan create gnustep-cmake --profile:a=${{ github.workspace }}/profiles/windows-clang --settings:a=gnustep-*/*:build_type=${{ matrix.build_type }}
       - name: Build tutorial
         run: |
-          conan install conanfile.txt --profile:a=../profiles/windows-clang --output-folder=build/ --conf="tools.env.virtualenv:powershell=pwsh.exe"
+          conan install conanfile.txt --profile:a=../profiles/windows-clang --output-folder=build/ --conf="tools.env.virtualenv:powershell=pwsh.exe" --settings:a=gnustep-*/*:build_type=${{ matrix.build_type }}
           cd build/
           cmake .. -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_POLICY_DEFAULT_CMP0091="NEW" -GNinja
           cmake --build .
