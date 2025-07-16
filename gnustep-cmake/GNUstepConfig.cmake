@@ -3,7 +3,9 @@ find_package(PkgConfig)
 find_package(libobjc2 REQUIRED)
 find_package(gnustep-base REQUIRED)
 find_package(libdispatch REQUIRED)
-find_package(gnustep-gui REQUIRED)
+
+# GNUstep GUI is an optional dependency
+find_package(gnustep-gui)
 
 # These variables should always be set when using GNUstep
 list(APPEND GNUSTEP_COMPILE_DEFINITIONS "GNUSTEP=1")
@@ -23,8 +25,13 @@ message(STATUS "GNUstep configuration:")
 set(GNUSTEP_BASE_PKG_CONFIG "${gnustep-base_LIB_DIRS_RELEASE}/pkgconfig/gnustep-base.pc")
 file(STRINGS ${GNUSTEP_BASE_PKG_CONFIG} GNUSTEP_BASE_CFLAGS REGEX "Cflags")
 
-set(GNUSTEP_GUI_PKG_CONFIG "${gnustep-gui_LIB_DIRS_RELEASE}/pkgconfig/gnustep-gui.pc")
-file(STRINGS ${GNUSTEP_GUI_PKG_CONFIG} GNUSTEP_GUI_CFLAGS REGEX "Cflags")
+if(gnustep-gui_FOUND)
+    set(GNUSTEP_GUI_PKG_CONFIG "${gnustep-gui_LIB_DIRS_RELEASE}/pkgconfig/gnustep-gui.pc")
+    file(STRINGS ${GNUSTEP_GUI_PKG_CONFIG} GNUSTEP_GUI_CFLAGS REGEX "Cflags")
+    message(STATUS "  With GUI support")
+else()
+    message(STATUS "  Without GUI support")
+endif()
 
 # Make sure we are using native Objective C exceptions
 if ("${GNUSTEP_BASE_CFLAGS}" MATCHES "-D_NATIVE_OBJC_EXCEPTIONS")
@@ -90,7 +97,9 @@ target_compile_definitions(GNUstep::Base INTERFACE ${GNUSTEP_COMPILE_DEFINITIONS
 target_include_directories(GNUstep::Base INTERFACE ${gnustep-base_INCLUDE_DIRS})
 target_link_libraries(GNUstep::Base INTERFACE GNUstep::ObjC)
 
-add_library(GNUstep::GUI INTERFACE IMPORTED)
-target_include_directories(GNUstep::GUI INTERFACE ${GUI_INCLUDE_DIRECTORY})
-target_link_libraries(GNUstep::GUI INTERFACE gnustep-gui::gnustep-gui GNUstep::Base)
-target_include_directories(GNUstep::GUI INTERFACE ${gnustep-gui_INCLUDE_DIRS})
+if(gnustep-gui_FOUND)
+    add_library(GNUstep::GUI INTERFACE IMPORTED)
+    target_include_directories(GNUstep::GUI INTERFACE ${GUI_INCLUDE_DIRECTORY})
+    target_link_libraries(GNUstep::GUI INTERFACE gnustep-gui::gnustep-gui GNUstep::Base)
+    target_include_directories(GNUstep::GUI INTERFACE ${gnustep-gui_INCLUDE_DIRS})
+endif()
