@@ -8,6 +8,17 @@ It contains:
 
 On Windows, this repository takes the approach of building GNUstep using the Windows-native LLVM (clang) compiler. It uses MSYS2 to get a Bash shell, which allows running the scripts required to configure and build GNUstep, and does not use the MSYS2 compiler toolchain.
 
+## Using Conan packages for GNUstep
+
+Prebuilt binary Conan packages containing GNUstep for Windows are available at https://cloudsmith.io/~qmfrederik/repos/gnustep:
+
+| Package       | Status
+|---------------|---------------
+| gnustep-make  | [![Latest version of 'gnustep-make'](https://api.cloudsmith.com/v1/badges/version/qmfrederik/gnustep/conan/gnustep-make/latest/a=x86_64/?render=true&show_latest=true)](https://cloudsmith.io/~qmfrederik/repos/gnustep/packages/detail/conan/gnustep-make/latest/a=x86_64/)
+| gnustep-base  | [![Latest version of 'gnustep-base'](https://api.cloudsmith.com/v1/badges/version/qmfrederik/gnustep/conan/gnustep-base/latest/a=x86_64/?render=true&show_latest=true)](https://cloudsmith.io/~qmfrederik/repos/gnustep/packages/detail/conan/gnustep-base/latest/a=x86_64/)
+| gnustep-gui   | [![Latest version of 'gnustep-gui'](https://api.cloudsmith.com/v1/badges/version/qmfrederik/gnustep/conan/gnustep-gui/latest/a=x86_64/?render=true&show_latest=true)](https://cloudsmith.io/~qmfrederik/repos/gnustep/packages/detail/conan/gnustep-gui/latest/a=x86_64/)
+| gnustep-headless | [![Latest version of 'gnustep-headless'](https://api.cloudsmith.com/v1/badges/version/qmfrederik/gnustep/conan/gnustep-headless/latest/a=x86_64/?render=true&show_latest=true)](https://cloudsmith.io/~qmfrederik/repos/gnustep/packages/detail/conan/gnustep-headless/latest/a=x86_64/)
+
 ## Getting started on Windows
 On Windows, you'll need to download the Windows SDK and the LLVM toolchain. Optionally, you can use Visual Studio Code as an editor and Git for source code interations.
 
@@ -68,6 +79,7 @@ There's a couple of tips & tricks which help when you're building GNUstep on a W
   To make it target a 'native' Windows environment, specify `--host=x86_64-pc-windows` and `--target=x86_64-pc-windows`.
 - You can aquire [`pkgconf`](https://github.com/pkgconf/pkgconf) as a build tool: `self.tool_requires("pkgconf/[>=2.2]")`.
   Set the `PKG_CONFIG` variable to override the path to the `pkg-config` tool.
+- Running the tests for the various GNUstep projects will require you to add the path of the main output (e.g. `gnustep-gui.dll`) to be in the Windows path.
 
 These tips may help when debugging:
 
