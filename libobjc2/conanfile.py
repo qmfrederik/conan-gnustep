@@ -60,4 +60,4 @@ class libobjc2Recipe(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.components["objc"].libs = ["objc"]
+        self.cpp_info.libs = ["objc"]

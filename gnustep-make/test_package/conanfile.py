@@ -12,6 +12,7 @@ class TestPackageConan(ConanFile):
 
     def requirements(self):
         self.requires(self.tested_reference_str)
+        self.requires("libobjc2/[^2.2.1]")
 
     def build(self):
         cmake = CMake(self)

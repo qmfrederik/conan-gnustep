@@ -74,4 +74,4 @@ class GnustepMakeRecipe(ConanFile):
         self.cpp_info.includedirs = []
         self.cpp_info.defines = [ "GNUSTEP=1", "GNUSTEP_RUNTIME=1", "GNUSTEP_WITH_DLL=1", "_NONFRAGILE_ABI=1" ]
         self.cpp_info.cflags = [ "-fexceptions", "-fobjc-exceptions", "-fobjc-runtime=gnustep-2.2" ]
-        self.cpp_info.requires = [ "libobjc2::objc" ]
+        self.cpp_info.requires = [ "libobjc2::libobjc2" ]
