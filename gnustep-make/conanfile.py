@@ -69,3 +69,9 @@ class GnustepMakeRecipe(ConanFile):
     def package(self):
         autotools = Autotools(self)
         autotools.install()
+
+    def package_info(self):
+        self.cpp_info.includedirs = []
+        self.cpp_info.defines = [ "GNUSTEP=1", "GNUSTEP_RUNTIME=1", "GNUSTEP_WITH_DLL=1", "_NONFRAGILE_ABI=1" ]
+        self.cpp_info.cflags = [ "-fexceptions", "-fobjc-exceptions", "-fobjc-runtime=gnustep-2.2" ]
+        self.cpp_info.requires = [ "libobjc2::libobjc2" ]
