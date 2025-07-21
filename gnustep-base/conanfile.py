@@ -40,6 +40,7 @@ class GnustepBaseRecipe(ConanFile):
         self.requires("icu/77.1")
         self.requires("libcurl/8.12.1")
         self.requires("libiconv/1.17")
+        self.requires("gnustep-make/[^2.9.3]")
         self.tool_requires("gnustep-make/[^2.9.3]")
 
     def config_options(self):
@@ -144,3 +145,7 @@ class GnustepBaseRecipe(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["gnustep-base"]
+        self.cpp_info.defines = ["GNUSTEP=1", "GNUSTEP_RUNTIME=1", "GNUSTEP_BASE_LIBRARY=1", "_NATIVE_OBJC_EXCEPTIONS=1"]
+        if self.settings.os == "Windows":
+            self.cpp_info.defines.append("GNUSTEP_WITH_DLL=1")
+        self.cpp_info.cflags = ["-fconstant-string-class=NSConstantString", "-fblocks"]
