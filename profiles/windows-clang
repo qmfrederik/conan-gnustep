@@ -40,6 +40,7 @@ gnustep-*/*:compiler.runtime_version=v144
 [conf]
 tools.cmake.cmaketoolchain:generator=Ninja
 tools.build:compiler_executables = {"c": "clang", "cpp": "clang++"}
+tools.gnu:pkg_config=pkgconf
 
 [platform_requires]
 icu/77.1

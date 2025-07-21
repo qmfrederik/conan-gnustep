@@ -1,8 +1,8 @@
 from conan import ConanFile
-from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
+from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfig
 from conan.tools.files import get, apply_conandata_patches, copy, rmdir
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualRunEnv
+from conan.tools.env import VirtualRunEnv, Environment
 import os
 
 class GnustepBaseRecipe(ConanFile):
@@ -40,7 +40,6 @@ class GnustepBaseRecipe(ConanFile):
         self.requires("icu/77.1")
         self.requires("libcurl/8.12.1")
         self.requires("libiconv/1.17")
-        self.requires("gnustep-make/[^2.9.3]")
         self.tool_requires("gnustep-make/[^2.9.3]")
 
     def config_options(self):
@@ -145,7 +144,17 @@ class GnustepBaseRecipe(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["gnustep-base"]
-        self.cpp_info.defines = ["GNUSTEP=1", "GNUSTEP_RUNTIME=1", "GNUSTEP_BASE_LIBRARY=1", "_NATIVE_OBJC_EXCEPTIONS=1"]
-        if self.settings.os == "Windows":
-            self.cpp_info.defines.append("GNUSTEP_WITH_DLL=1")
-        self.cpp_info.cflags = ["-fconstant-string-class=NSConstantString", "-fblocks"]
+        # .cflags:  ['-MMD', '-MP', '-fno-strict-aliasing', '-fexceptions', '-fobjc-exceptions', '-pthread', '-fPIC', '-Wall', '-Wno-import', '-m64', '-fPIC', '-O3', '-fobjc-runtime=gnustep-2.2', '-fblocks']
+        # .defines: ['NDEBUG', 'GNUSTEP_RUNTIME=1', '_NONFRAGILE_ABI=1', 'GNUSTEP_BASE_LIBRARY=1', '_NATIVE_OBJC_EXCEPTIONS', 'GSWARN', 'GSDIAGNOSE']
+
+        # Copy select cflags from pkg-config to cpp_info; but don't copy flags like -Wall, -fPIC, -03
+        pkg_config_path = os.path.join(self.package_folder, "lib", "pkgconfig").replace('\\','/').replace('C:','/c')
+        pkg_config = PkgConfig(self, "gnustep-base", pkg_config_path)
+
+        cflags = ["-fexceptions", "-fobjc-exceptions", "-fobjc-runtime=", "-fblocks"]
+        for cflag in cflags:
+            value = next((x for x in pkg_config.cflags if x.startswith(cflag)),None)
+            if value:
+                self.cpp_info.cflags.append(value)
+
+        self.cpp_info.defines = pkg_config.defines
