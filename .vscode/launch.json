@@ -46,7 +46,8 @@
             "args": [
                 "create",
                 "${workspaceFolder}/gnustep-base/conanfile.py",
-                "--profile:a=${workspaceFolder}/profiles/linux-clang"
+                "--profile:a=${workspaceFolder}/profiles/linux-clang",
+                "-c", "tools.build:skip_test=True"
             ],
         },
         {
