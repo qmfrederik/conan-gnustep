@@ -43,12 +43,23 @@
             "request": "launch",
             "module": "conans.conan",
             "justMyCode": false,
-            "args": [
-                "create",
-                "${workspaceFolder}/gnustep-base/conanfile.py",
-                "--profile:a=${workspaceFolder}/profiles/linux-clang",
-                "-c", "tools.build:skip_test=True"
-            ],
+            "linux": {                
+                "args": [
+                    "create",
+                    "${workspaceFolder}/gnustep-base/conanfile.py",
+                    "--profile:a=${workspaceFolder}/profiles/linux-clang",
+                    "-c", "tools.build:skip_test=True"
+                ],
+            },
+            "windows": {
+                "args": [
+                    "create",
+                    "${workspaceFolder}/gnustep-base/conanfile.py",
+                    "--profile:a=${workspaceFolder}/profiles/windows-clang",
+                    "-c", "tools.build:skip_test=True",
+                    "-v"
+                ]
+            }
         },
         {
             "name": "gnustep-gui",
