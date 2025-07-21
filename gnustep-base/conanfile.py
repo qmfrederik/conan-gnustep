@@ -1,9 +1,11 @@
 from conan import ConanFile
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfig
-from conan.tools.files import get, apply_conandata_patches, copy, rmdir
+from conan.tools.files import get, apply_conandata_patches, copy, rmdir, mkdir, save, load
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualRunEnv, Environment
+
 import os
+import yaml
 
 class GnustepBaseRecipe(ConanFile):
     name = "gnustep-base"
@@ -122,6 +124,10 @@ class GnustepBaseRecipe(ConanFile):
                 target="check",
                 args=[f"GSMAKEOPTIONS='debug={test_with_debug}'"])
 
+    @property
+    def _pc_data_path(self):
+        return os.path.join(self.package_folder, "res", "pc_data.yml")
+
     def package(self):
         autotools = Autotools(self)
         autotools.install()
@@ -141,20 +147,30 @@ class GnustepBaseRecipe(ConanFile):
             rmdir(self, os.path.join(self.package_folder, "c"))
         else:
             rmdir(self, os.path.join(self.package_folder, "home"))
-
-    def package_info(self):
-        self.cpp_info.libs = ["gnustep-base"]
-        # .cflags:  ['-MMD', '-MP', '-fno-strict-aliasing', '-fexceptions', '-fobjc-exceptions', '-pthread', '-fPIC', '-Wall', '-Wno-import', '-m64', '-fPIC', '-O3', '-fobjc-runtime=gnustep-2.2', '-fblocks']
-        # .defines: ['NDEBUG', 'GNUSTEP_RUNTIME=1', '_NONFRAGILE_ABI=1', 'GNUSTEP_BASE_LIBRARY=1', '_NATIVE_OBJC_EXCEPTIONS', 'GSWARN', 'GSDIAGNOSE']
-
-        # Copy select cflags from pkg-config to cpp_info; but don't copy flags like -Wall, -fPIC, -03
+        
+        # Extract compiler options, and cache them for use by package_info
         pkg_config_path = os.path.join(self.package_folder, "lib", "pkgconfig").replace('\\','/').replace('C:','/c')
         pkg_config = PkgConfig(self, "gnustep-base", pkg_config_path)
+
+        pc_data = {
+            "cflags": [],
+            "defines": []
+        }
 
         cflags = ["-fexceptions", "-fobjc-exceptions", "-fobjc-runtime=", "-fblocks"]
         for cflag in cflags:
             value = next((x for x in pkg_config.cflags if x.startswith(cflag)),None)
             if value:
-                self.cpp_info.cflags.append(value)
+                pc_data["cflags"].append(value)
 
-        self.cpp_info.defines = pkg_config.defines
+        pc_data["defines"] = pkg_config.defines
+
+        mkdir(self, os.path.dirname(self._pc_data_path))
+        save(self, self._pc_data_path, yaml.dump(pc_data))
+
+    def package_info(self):
+        pc_data = yaml.safe_load(load(self, self._pc_data_path))
+
+        self.cpp_info.libs = ["gnustep-base"]
+        self.cpp_info.defines.extend(pc_data["defines"])
+        self.cpp_info.cflags.extend(pc_data["cflags"])
