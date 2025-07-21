@@ -58,8 +58,6 @@ jobs:
         run: conan create gnustep-gui --profile:a=${{ github.workspace }}/profiles/windows-clang
       - name: Install gnustep-headless
         run: conan create gnustep-headless --profile:a=${{ github.workspace }}/profiles/windows-clang
-      - name: Install gnustep-cmake
-        run: conan create gnustep-cmake --profile:a=${{ github.workspace }}/profiles/windows-clang
       - name: Build tutorial
         run: |
           conan install conanfile.txt --profile:a=../profiles/windows-clang --output-folder=build/ --conf="tools.env.virtualenv:powershell=pwsh.exe"
@@ -180,8 +178,6 @@ jobs:
         if: matrix.family == 'rhel'
       - name: Install gnustep-headless
         run: .python3/bin/conan create gnustep-headless --profile:a=profiles/linux-clang
-      - name: Install gnustep-cmake
-        run: .python3/bin/conan create gnustep-cmake --profile:a=profiles/linux-clang
       - name: Build tutorial
         run: |
           ../.python3/bin/conan install conanfile.txt --profile:a=../profiles/linux-clang --output-folder=build/

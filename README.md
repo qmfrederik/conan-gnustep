@@ -40,7 +40,6 @@ conan create gnustep-make --profile:a=profiles/windows-clang
 conan create gnustep-base --profile:a=profiles/windows-clang
 conan create gnustep-gui --profile:a=profiles/windows-clang
 conan create gnustep-headless --profile:a=profiles/windows-clang
-conan create gnustep-cmake --profile:a=profiles/windows-clang
 ```
 
 This will configure GNUstep Base and all of its dependencies.
@@ -64,7 +63,6 @@ conan create gnustep-make --profile:a=profiles/linux-clang
 conan create gnustep-base --profile:a=profiles/linux-clang
 conan create gnustep-gui --profile:a=profiles/linux-clang
 conan create gnustep-headless --profile:a=profiles/linux-clang
-conan create gnustep-cmake --profile:a=profiles/linux-clang
 ```
 
 ## Tips & Tricks
