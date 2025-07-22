@@ -1,5 +1,5 @@
 from conan import ConanFile
-from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfig
+from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfig, PkgConfigDeps
 from conan.tools.files import get, apply_conandata_patches, copy, rmdir, mkdir, save, load
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualRunEnv, Environment
@@ -109,6 +109,9 @@ class GnustepBaseRecipe(ConanFile):
             env.append_path("PATH", os.path.join(self.build_folder, "Source/obj"))
 
         tc.generate(env)
+
+        deps = PkgConfigDeps(self)
+        deps.generate()
 
         deps = AutotoolsDeps(self)
         deps.generate()

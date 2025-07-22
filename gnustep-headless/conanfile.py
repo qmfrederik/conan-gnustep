@@ -104,6 +104,9 @@ class GnustepHeadlessRecipe(ConanFile):
 
         tc.generate(env)
 
+        deps = PkgConfigDeps(self)
+        deps.generate()
+
         deps = AutotoolsDeps(self)
         deps.generate()
 
