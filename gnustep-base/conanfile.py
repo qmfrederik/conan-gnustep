@@ -17,8 +17,8 @@ class GnustepBaseRecipe(ConanFile):
     
     # Binary configuration
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": True, "fPIC": True}
+    options = {"shared": [True, False], "fPIC": [True, False], "objc_runtime": ["gnu", "ng"]}
+    default_options = {"shared": True, "fPIC": True, "objc_runtime": "ng"}
     exports_sources = "*.patch"
     python_requires = "gnustep-helpers/0.1"
 
@@ -30,8 +30,10 @@ class GnustepBaseRecipe(ConanFile):
         apply_conandata_patches(self)
 
     def requirements(self):
-        self.requires("libobjc2/[^2.2.1]")
-        self.requires("libdispatch/[^6.1.1]")
+        if self.options.objc_runtime == "ng":
+            self.requires("libobjc2/[^2.2.1]")
+            self.requires("libdispatch/[^6.1.1]")
+
         self.requires("libffi/3.4.8")
         self.requires("libxml2/2.13.8")
         self.requires("libxslt/1.1.43")
@@ -78,8 +80,6 @@ class GnustepBaseRecipe(ConanFile):
         if self.settings.os == "Windows":
             tc.configure_args.append("--disable-tls")
 
-        libdispatch_package_folder = self.dependencies["libdispatch"].package_folder
-
         # Resolve GNUstep makefiles
         gnustep_makefiles_folder = self.get_makefiles_folder()
         tc.configure_args.append(f"GNUSTEP_MAKEFILES={gnustep_makefiles_folder}")
@@ -93,7 +93,10 @@ class GnustepBaseRecipe(ConanFile):
         # through the compiler (clang) which is expecting Windows-like paths, resulting
         # in build failures.
         tc.configure_args.append("--srcdir=.")
-        env.append("LDFLAGS", f"-Wl,-rpath-link={libdispatch_package_folder}/libs/")
+
+        if self.options.objc_runtime == "ng":
+            libdispatch_package_folder = self.dependencies["libdispatch"].package_folder
+            env.append("LDFLAGS", f"-Wl,-rpath-link={libdispatch_package_folder}/libs/")
 
         # On Windows, force targetting native Windows, even when building in an MSYS2 shell
         self.python_requires["gnustep-helpers"].module.configure_windows_host(self, tc)
@@ -174,3 +177,7 @@ class GnustepBaseRecipe(ConanFile):
         self.cpp_info.libs = ["gnustep-base"]
         self.cpp_info.defines.extend(pc_data["defines"])
         self.cpp_info.cflags.extend(pc_data["cflags"])
+        
+        if self.options.objc_runtime == "gnu":
+            self.cpp_info.cflags.append("-fconstant-string-class=NSConstantString")
+            self.cpp_info.system_libs = ["objc"]

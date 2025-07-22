@@ -208,7 +208,7 @@ jobs:
       - name: Install dependencies (Ubuntu)
         run: |
           apt-get update
-          apt-get install -y gobjc curl zip unzip tar git pkg-config make python3-venv cmake
+          apt-get install -y gobjc-11 libstdc++-11-dev curl zip unzip tar git pkg-config make python3-venv cmake
         if: matrix.family == 'ubuntu'
       - uses: actions/checkout@v4
         with:
@@ -231,3 +231,5 @@ jobs:
         run: .python3/bin/conan create gnustep-helpers --profile:a=profiles/linux-gcc
       - name: Install gnustep-make
         run: .python3/bin/conan create gnustep-make --profile:a=profiles/linux-gcc
+      - name: Install gnustep-base
+        run: .python3/bin/conan create gnustep-base --profile:a=profiles/linux-gcc -c tools.build:skip_test=True
