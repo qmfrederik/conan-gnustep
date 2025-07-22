@@ -28,7 +28,7 @@ def configure_windows_host(pkg, autotools):
 
 def configure_windows_pkgconf(pkg, env):
     if pkg.settings.os == "Windows":
-        # The copy of MSYS2 in conancentral doesn't include pkg-config, but we acquired it as a built
+        # The copy of MSYS2 in conancentral doesn't include pkg-config, but we acquired it as a build
         # tool, so use that
         env.define("PKG_CONFIG", os.path.join(pkg.dependencies.build["pkgconf"].package_folder, "bin", "pkgconf.exe"))
 
@@ -36,7 +36,6 @@ def configure_windows_pkgconf(pkg, env):
         print(f"Generating pkg-config data in {pkg.generators_folder}")
         deps = PkgConfigDeps(pkg)
         deps.generate()
-        env.define("PKG_CONFIG_PATH", pkg.generators_folder)
 
 def windows_build_requirements(pkg):
     # Require a MSYS2 shell on Windows (for Autotools support)
