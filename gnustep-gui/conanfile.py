@@ -17,8 +17,8 @@ class GnustepGuiRecipe(ConanFile):
     
     # Binary configuration
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": True, "fPIC": True}
+    options = {"shared": [True, False], "fPIC": [True, False], "objc_runtime": ["gnu", "ng"]}
+    default_options = {"shared": True, "fPIC": True, "objc_runtime": "ng"}
     exports_sources = "*.patch"
     python_requires = "gnustep-helpers/0.1"
 
@@ -35,6 +35,7 @@ class GnustepGuiRecipe(ConanFile):
         self.requires("libtiff/4.7.0")
         self.requires("libpng/1.6.50")
         self.requires("giflib/5.2.2")
+        self.requires("icu/77.1")
         self.tool_requires("gnustep-make/[^2.9.3]")
 
     def config_options(self):
@@ -92,9 +93,18 @@ class GnustepGuiRecipe(ConanFile):
         # the include paths.  Conan passes this data to the ./configure script, and libs-gui compiles correctly, but somehow this
         # data is lost when starting to compile the libgmodel bundle.  Work around this using even more environment variables.
         gnustep_base_lib = self.get_package_folder("gnustep-base", "lib/")
-        dispatch_lib = self.get_package_folder("libdispatch", "lib/")
-        libobjc2_lib = self.get_package_folder("libobjc2", "lib/")
-        tc.make_args.append(f"ALL_LDFLAGS=-L{gnustep_base_lib} -L{dispatch_lib} -L{libobjc2_lib}")
+        ldflags = f"ALL_LDFLAGS=-L{gnustep_base_lib}"
+
+        if self.dependencies.__contains__("icu"):
+            icu_lib = self.get_package_folder("icu", "lib/")
+            ldflags += f" -L{icu_lib}"
+
+        if self.options.objc_runtime == "ng":
+            dispatch_lib = self.get_package_folder("libdispatch", "lib/")
+            libobjc2_lib = self.get_package_folder("libobjc2", "lib/")
+            ldflags += (f" -L{dispatch_lib} -L{libobjc2_lib}")
+
+        tc.make_args.append(ldflags)
 
         if self.settings.os != "Windows":
             # Force linking with libicu

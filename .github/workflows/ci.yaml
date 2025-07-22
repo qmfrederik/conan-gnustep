@@ -233,3 +233,5 @@ jobs:
         run: .python3/bin/conan create gnustep-make --profile:a=profiles/linux-gcc
       - name: Install gnustep-base
         run: .python3/bin/conan create gnustep-base --profile:a=profiles/linux-gcc -c tools.build:skip_test=True
+      - name: Install gnustep-gui
+        run: .python3/bin/conan create gnustep-gui --profile:a=profiles/linux-gcc
