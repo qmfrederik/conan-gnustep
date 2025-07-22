@@ -6,14 +6,17 @@ import os
 class TestPackageConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     generators = "CMakeDeps", "CMakeToolchain"
+    options = {"objc_runtime": ["gnu", "ng"]}
+    default_options = {"objc_runtime": "ng"}
 
     def layout(self):
         cmake_layout(self)
 
     def requirements(self):
         self.requires(self.tested_reference_str)
-        self.requires("gnustep-make/[^2.9.3]")
-        self.requires("libobjc2/[^2.2.1]")
+        
+        if self.options.objc_runtime == "ng":
+            self.requires("libobjc2/[^2.2.1]")
 
     def build(self):
         cmake = CMake(self)

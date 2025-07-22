@@ -1,6 +1,5 @@
 import package_version
 from conan import ConanFile
-from conan.tools.gnu import PkgConfigDeps
 import os
 
 def get_package_version(package):
@@ -31,11 +30,6 @@ def configure_windows_pkgconf(pkg, env):
         # The copy of MSYS2 in conancentral doesn't include pkg-config, but we acquired it as a build
         # tool, so use that
         env.define("PKG_CONFIG", os.path.join(pkg.dependencies.build["pkgconf"].package_folder, "bin", "pkgconf.exe"))
-
-        # Generate pkg-config data for dependencies, which we can inject into the configure process.
-        print(f"Generating pkg-config data in {pkg.generators_folder}")
-        deps = PkgConfigDeps(pkg)
-        deps.generate()
 
 def windows_build_requirements(pkg):
     # Require a MSYS2 shell on Windows (for Autotools support)
