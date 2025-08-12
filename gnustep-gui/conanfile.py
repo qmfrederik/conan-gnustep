@@ -31,11 +31,11 @@ class GnustepGuiRecipe(ConanFile):
 
     def requirements(self):
         self.requires("gnustep-base/[^1.31.1]")
-        self.requires("libjpeg/9e")
-        self.requires("libtiff/4.7.0")
-        self.requires("libpng/1.6.50")
-        self.requires("giflib/5.2.2")
-        self.requires("icu/77.1")
+        self.requires("libjpeg/[>=9e]")
+        self.requires("libtiff/[^4.7.0]")
+        self.requires("libpng/[^1.6.50]")
+        self.requires("giflib/[^5.2.2]")
+        self.requires("icu/[^77.1]")
         self.tool_requires("gnustep-make/[^2.9.3]")
 
     def config_options(self):
