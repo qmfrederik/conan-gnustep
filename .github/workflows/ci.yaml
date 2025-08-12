@@ -46,12 +46,12 @@ jobs:
         if: ${{ github.ref != 'refs/heads/main' }}
       - name: Install gnustep-helpers
         run: conan create gnustep-helpers --profile:a=${{ github.workspace }}/profiles/windows-clang
+      - name: Install libdispatch
+        run: conan create libdispatch --profile:a=${{ github.workspace }}/profiles/windows-clang
       - name: Install libobjc2
         run: conan create libobjc2 --profile:a=${{ github.workspace }}/profiles/windows-clang
       - name: Install gnustep-make
         run: conan create gnustep-make --profile:a=${{ github.workspace }}/profiles/windows-clang
-      - name: Install libdispatch
-        run: conan create libdispatch --profile:a=${{ github.workspace }}/profiles/windows-clang
       - name: Install gnustep-base
         run: conan create gnustep-base --profile:a=${{ github.workspace }}/profiles/windows-clang -c tools.build:skip_test=True
       - name: Install gnustep-gui
@@ -141,12 +141,12 @@ jobs:
         if: ${{ github.ref != 'refs/heads/main' }}
       - name: Install gnustep-helpers
         run: .python3/bin/conan create gnustep-helpers --profile:a=profiles/linux-clang
+      - name: Install libdispatch
+        run: .python3/bin/conan create libdispatch --profile:a=profiles/linux-clang
       - name: Install libobjc2
         run: .python3/bin/conan create libobjc2 --profile:a=profiles/linux-clang
       - name: Install gnustep-make
         run: .python3/bin/conan create gnustep-make --profile:a=profiles/linux-clang
-      - name: Install libdispatch
-        run: .python3/bin/conan create libdispatch --profile:a=profiles/linux-clang
       - name: Install gnustep-base dependencies (Ubuntu)
         run: |
           apt-get update
