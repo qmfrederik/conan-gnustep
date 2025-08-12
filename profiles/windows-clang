@@ -21,9 +21,7 @@ libobjc2/*:compiler.runtime_version=v144
 
 libdispatch/*:compiler=clang
 libdispatch/*:compiler.cppstd=17
-libdispatch/*:compiler.runtime=dynamic
 libdispatch/*:compiler.version=20
-libdispatch/*:compiler.runtime_version=v144
 
 gnustep-*/*:compiler=clang
 gnustep-*/*:compiler.cppstd=17
