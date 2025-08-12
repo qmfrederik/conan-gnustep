@@ -31,7 +31,7 @@ class GnustepGuiRecipe(ConanFile):
 
     def requirements(self):
         self.requires("gnustep-base/[^1.31.1]")
-        self.requires("libjpeg/9e")
+        self.requires("libjpeg/[>=9e]")
         self.requires("libtiff/4.7.0")
         self.requires("libpng/1.6.50")
         self.requires("giflib/5.2.2")
