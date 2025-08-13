@@ -74,6 +74,14 @@ jobs:
           conan upload libdispatch/* --confirm -r cloudsmith
           conan upload gnustep-*/* --confirm -r cloudsmith
         if: ${{ github.ref == 'refs/heads/main' }}
+      - name: Upload Conan packages to GitLab
+        run: |
+          conan remote add gitlab https://gitlab.com/api/v4/projects/72962159/packages/conan
+          conan remote login -p ${{ secrets.GITLAB_API_KEY }} gitlab ${{ secrets.GITLAB_USER }}
+          conan upload libobjc2/* --confirm -r gitlab
+          conan upload libdispatch/* --confirm -r gitlab
+          conan upload gnustep-*/* --confirm -r gitlab
+        if: ${{ github.ref == 'refs/heads/main' }}
       - name: Upload Conan cache to GitHub artifacts
         uses: actions/upload-artifact@v4
         if: always()
@@ -185,6 +193,14 @@ jobs:
           . build/conanrun.sh
           ./build/Tutorial
         working-directory: tutorial/
+      - name: Upload Conan packages to GitLab
+        run: |
+          .python3/bin/conan remote add gitlab https://gitlab.com/api/v4/projects/72962159/packages/conan
+          .python3/bin/conan remote login -p ${{ secrets.GITLAB_API_KEY }} gitlab ${{ secrets.GITLAB_USER }}
+          .python3/bin/conan upload "libobjc2/*" --confirm -r gitlab
+          .python3/bin/conan upload "libdispatch/*" --confirm -r gitlab
+          .python3/bin/conan upload "gnustep-*/*" --confirm -r gitlab
+        if: ${{ github.ref == 'refs/heads/main' && matrix.name == 'ubuntu-24.04' }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -235,3 +251,9 @@ jobs:
         run: .python3/bin/conan create gnustep-base --profile:a=profiles/linux-gcc -c tools.build:skip_test=True
       - name: Install gnustep-gui
         run: .python3/bin/conan create gnustep-gui --profile:a=profiles/linux-gcc
+      - name: Upload Conan packages to GitLab
+        run: |
+          .python3/bin/conan remote add gitlab https://gitlab.com/api/v4/projects/72962159/packages/conan
+          .python3/bin/conan remote login -p ${{ secrets.GITLAB_API_KEY }} gitlab ${{ secrets.GITLAB_USER }}
+          .python3/bin/conan upload "gnustep-*/*" --confirm -r gitlab
+        if: ${{ github.ref == 'refs/heads/main' }}
