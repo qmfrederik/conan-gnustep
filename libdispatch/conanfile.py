@@ -25,6 +25,9 @@ class LibDispatchRecipe(ConanFile):
         get(self, **sorted(self.conan_data["sources"].values())[0])
         apply_conandata_patches(self)
 
+    def requirements(self):
+        self.requires("libobjc2/[^2.2.1]")
+
     def config_options(self):
         if self.settings.os == "Windows":
             self.options.rm_safe("fPIC")
@@ -41,6 +44,23 @@ class LibDispatchRecipe(ConanFile):
         deps.generate()
         tc = CMakeToolchain(self)
 
+        # Use shared blocks runtime
+        libobjc2_package_folder = self.dependencies["libobjc2"].package_folder
+        libobjc_library_name = "libobjc.so"
+        
+        if self.settings.os == "Windows":
+            libobjc_library_name = "objc.lib"
+
+        libobjc_include_dir = os.path.join(libobjc2_package_folder, "include")
+        libobjc_library = os.path.join(libobjc2_package_folder, "lib", libobjc_library_name)
+
+        # There should be a more elegant way to handle these backwards slashes
+        if self.settings.os == "Windows":
+            libobjc_include_dir = libobjc_include_dir.replace('\\','/')
+            libobjc_library = libobjc_library.replace('\\','/')
+
+        tc.variables["BlocksRuntime_INCLUDE_DIR"] = libobjc_include_dir
+        tc.variables["BlocksRuntime_LIBRARIES"] = libobjc_library
         tc.variables["BUILD_TESTING"] = "NO"
         tc.generate()
 
