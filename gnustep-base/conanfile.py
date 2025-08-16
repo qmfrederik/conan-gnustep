@@ -169,7 +169,13 @@ class GnustepBaseRecipe(ConanFile):
             if value:
                 pc_data["cflags"].append(value)
 
-        pc_data["defines"] = pkg_config.defines
+        # Export the defines which influence the behavior of GNUstep, but prevent generic defines,
+        # such as NDEBUG or GSWARN and GSDIAGNOSE from being exported here; the user should be in control of those.
+        defines = ["GNUSTEP_RUNTIME", "_NONFRAGILE_ABI", "GNUSTEP_BASE_LIBRARY", "GNUSTEP_WITH_DLL", "_NATIVE_OBJC_EXCEPTIONS"]
+        for define in defines:
+            value = next((x for x in pkg_config.defines if x.startswith(define)),None)
+            if value:
+                pc_data["defines"].append(value)
 
         mkdir(self, os.path.dirname(self._pc_data_path))
         save(self, self._pc_data_path, yaml.dump(pc_data))
