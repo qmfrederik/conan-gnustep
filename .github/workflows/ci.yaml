@@ -9,6 +9,12 @@ on:
 jobs:
   windows:
     runs-on: windows-2025
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - conan-version: 2.18.1
+          - conan-version: 1.66.0
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,7 +39,7 @@ jobs:
           clang --version
       - name: Install Conan
         run: |
-          pip install conan==2.18.1
+          pip install conan==${{ matrix.conan-version }}
           pip install pygit2
           conan --version
           conan config install global.conf
@@ -45,22 +51,22 @@ jobs:
           git show-ref
         if: ${{ github.ref != 'refs/heads/main' }}
       - name: Install gnustep-helpers
-        run: conan create gnustep-helpers --profile:a=${{ github.workspace }}/profiles/windows-clang
+        run: conan create gnustep-helpers --profile:build=${{ github.workspace }}/profiles/windows-clang.jinja --profile:host=${{ github.workspace }}/profiles/windows-clang.jinja -c tools.build:skip_test=True
       - name: Install libdispatch
-        run: conan create libdispatch --profile:a=${{ github.workspace }}/profiles/windows-clang
+        run: conan create libdispatch --profile:build=${{ github.workspace }}/profiles/windows-clang.jinja --profile:host=${{ github.workspace }}/profiles/windows-clang.jinja
       - name: Install libobjc2
-        run: conan create libobjc2 --profile:a=${{ github.workspace }}/profiles/windows-clang
+        run: conan create libobjc2 --profile:build=${{ github.workspace }}/profiles/windows-clang.jinja --profile:host=${{ github.workspace }}/profiles/windows-clang.jinja
       - name: Install gnustep-make
-        run: conan create gnustep-make --profile:a=${{ github.workspace }}/profiles/windows-clang
+        run: conan create gnustep-make --profile:build=${{ github.workspace }}/profiles/windows-clang.jinja --profile:host=${{ github.workspace }}/profiles/windows-clang.jinja
       - name: Install gnustep-base
-        run: conan create gnustep-base --profile:a=${{ github.workspace }}/profiles/windows-clang -c tools.build:skip_test=True
+        run: conan create gnustep-base --profile:build=${{ github.workspace }}/profiles/windows-clang.jinja --profile:host=${{ github.workspace }}/profiles/windows-clang.jinja -c tools.build:skip_test=True
       - name: Install gnustep-gui
-        run: conan create gnustep-gui --profile:a=${{ github.workspace }}/profiles/windows-clang
+        run: conan create gnustep-gui --profile:build=${{ github.workspace }}/profiles/windows-clang.jinja --profile:host=${{ github.workspace }}/profiles/windows-clang.jinja
       - name: Install gnustep-headless
-        run: conan create gnustep-headless --profile:a=${{ github.workspace }}/profiles/windows-clang
+        run: conan create gnustep-headless --profile:build=${{ github.workspace }}/profiles/windows-clang.jinja --profile:host=${{ github.workspace }}/profiles/windows-clang.jinja
       - name: Build tutorial
         run: |
-          conan install conanfile.txt --profile:a=../profiles/windows-clang --output-folder=build/ --conf="tools.env.virtualenv:powershell=pwsh.exe"
+          conan install conanfile.txt  --profile:build=${{ github.workspace }}/profiles/windows-clang.jinja --profile:host=${{ github.workspace }}/profiles/windows-clang.jinja --output-folder=build/ --conf="tools.env.virtualenv:powershell=pwsh.exe"
           cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_POLICY_DEFAULT_CMP0091="NEW" -GNinja
           cmake --build build
           ./build/conanrun.ps1
@@ -86,7 +92,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: conan-gnustep-windows
+          name: conan-gnustep-windows-${{ matrix.conan-version }}
           path: |
             ~/.conan2/p
             !~/.conan2/p/msys2*
@@ -220,6 +226,11 @@ jobs:
           - name: ubuntu-22.04
             image: ubuntu:22.04
             family: ubuntu
+            conan-version: 2.18.1
+          - name: ubuntu-22.04
+            image: ubuntu:22.04
+            family: ubuntu
+            conan-version: 1.66.0
     steps:
       - name: Install dependencies (Ubuntu)
         run: |
@@ -232,7 +243,7 @@ jobs:
       - name: Install conan
         run: |
           python3 -m venv .python3/
-          .python3/bin/pip install conan==2.18.1
+          .python3/bin/pip install conan==${{ matrix.conan-version }}
           .python3/bin/pip install pygit2
           .python3/bin/conan --version
           .python3/bin/conan config install global.conf
@@ -244,13 +255,13 @@ jobs:
           git show-ref
         if: ${{ github.ref != 'refs/heads/main' }}
       - name: Install gnustep-helpers
-        run: .python3/bin/conan create gnustep-helpers --profile:a=profiles/linux-gcc
+        run: .python3/bin/conan create gnustep-helpers --profile:build=profiles/linux-gcc --profile:host=profiles/linux-gcc
       - name: Install gnustep-make
-        run: .python3/bin/conan create gnustep-make --profile:a=profiles/linux-gcc
+        run: .python3/bin/conan create gnustep-make --profile:build=profiles/linux-gcc --profile:host=profiles/linux-gcc
       - name: Install gnustep-base
-        run: .python3/bin/conan create gnustep-base --profile:a=profiles/linux-gcc -c tools.build:skip_test=True
+        run: .python3/bin/conan create gnustep-base --profile:build=profiles/linux-gcc --profile:host=profiles/linux-gcc -c tools.build:skip_test=True
       - name: Install gnustep-gui
-        run: .python3/bin/conan create gnustep-gui --profile:a=profiles/linux-gcc
+        run: .python3/bin/conan create gnustep-gui --profile:build=profiles/linux-gcc --profile:host=profiles/linux-gcc
       - name: Upload Conan packages to GitLab
         run: |
           .python3/bin/conan remote add gitlab https://gitlab.com/api/v4/projects/72962159/packages/conan
