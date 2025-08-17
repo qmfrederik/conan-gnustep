@@ -8,7 +8,11 @@ build_type=Release
 compiler=msvc
 compiler.cppstd=14
 compiler.runtime=msvc
+{% if detect_api is defined %}
 compiler.version=194
+{% else %}
+compiler.version=193
+{% endif %}
 compiler.runtime=dynamic
 compiler.runtime_type=Release
 os=Windows
@@ -37,5 +41,11 @@ tools.cmake.cmaketoolchain:generator=Ninja
 tools.build:compiler_executables = {"c": "clang", "cpp": "clang++"}
 tools.gnu:pkg_config=pkgconf
 
+# [platform_requires] is a Conan v2 concept.  Detect conan v2 by checking for the 
+# detect_api module, which is not available in Conan v1.
+{% if detect_api is defined %}
+
 [platform_requires]
 icu/77.1
+
+{% endif %}
