@@ -1,0 +1,5 @@
+sources:
+  "1.0.0":
+    url: "https://github.com/libimobiledevice-win32/getopt/archive/refs/tags/v1.0.tar.gz"
+    sha256: "fdf7c7b9c12b38d1de0d6e4945b635a0e4ede10e5640007b2c8c0deaf1738957"
+    strip_root: true
