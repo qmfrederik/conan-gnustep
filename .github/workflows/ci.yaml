@@ -58,6 +58,8 @@ jobs:
         run: conan create gnustep-gui --profile:a=${{ github.workspace }}/profiles/windows-clang
       - name: Install gnustep-headless
         run: conan create gnustep-headless --profile:a=${{ github.workspace }}/profiles/windows-clang
+      - name: Install getopt
+        run: conan create getopt --profile:a=${{ github.workspace }}/profiles/windows-clang
       - name: Build tutorial
         run: |
           conan install conanfile.txt --profile:a=../profiles/windows-clang --output-folder=build/ --conf="tools.env.virtualenv:powershell=pwsh.exe"
@@ -73,6 +75,7 @@ jobs:
           conan upload libobjc2/* --confirm -r cloudsmith
           conan upload libdispatch/* --confirm -r cloudsmith
           conan upload gnustep-*/* --confirm -r cloudsmith
+          conan upload getopt/* --confirm -r cloudsmith
         if: ${{ github.ref == 'refs/heads/main' }}
       - name: Upload Conan packages to GitLab
         run: |
@@ -81,6 +84,7 @@ jobs:
           conan upload libobjc2/* --confirm -r gitlab
           conan upload libdispatch/* --confirm -r gitlab
           conan upload gnustep-*/* --confirm -r gitlab
+          conan upload getopt/* --confirm -r gitlab
         if: ${{ github.ref == 'refs/heads/main' }}
       - name: Upload Conan cache to GitHub artifacts
         uses: actions/upload-artifact@v4
