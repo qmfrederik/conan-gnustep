@@ -19,6 +19,14 @@ Prebuilt binary Conan packages containing GNUstep for Windows are available at h
 | gnustep-gui   | [![Latest version of 'gnustep-gui'](https://api.cloudsmith.com/v1/badges/version/qmfrederik/gnustep/conan/gnustep-gui/latest/a=x86_64/?render=true&show_latest=true)](https://cloudsmith.io/~qmfrederik/repos/gnustep/packages/detail/conan/gnustep-gui/latest/a=x86_64/)
 | gnustep-headless | [![Latest version of 'gnustep-headless'](https://api.cloudsmith.com/v1/badges/version/qmfrederik/gnustep/conan/gnustep-headless/latest/a=x86_64/?render=true&show_latest=true)](https://cloudsmith.io/~qmfrederik/repos/gnustep/packages/detail/conan/gnustep-headless/latest/a=x86_64/)
 
+Due to download constraints on CloudSmith, these packages are mirrored on [GitLab](https://gitlab.com/qmfrederik/conan/-/packages).
+
+To get started, run:
+
+```bash
+conan remote add gnustep https://gitlab.com/api/v4/projects/72962159/packages/conan
+```
+
 ## Getting started on Windows
 On Windows, you'll need to download the Windows SDK and the LLVM toolchain. Optionally, you can use Visual Studio Code as an editor and Git for source code interations.
 
