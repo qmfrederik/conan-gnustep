@@ -42,8 +42,8 @@ git clone https://github.com/qmfrederik/conan-gnustep/
 cd conan-gnustep
 conan config install global.conf
 conan create gnustep-helpers --profile:a=profiles/windows-clang
-conan create libobjc2 --profile:a=profiles/windows-clang
 conan create libdispatch --profile:a=profiles/windows-clang
+conan create libobjc2 --profile:a=profiles/windows-clang
 conan create gnustep-make --profile:a=profiles/windows-clang
 conan create gnustep-base --profile:a=profiles/windows-clang
 conan create gnustep-gui --profile:a=profiles/windows-clang
@@ -65,8 +65,8 @@ python3 -m venv .python3/
 . .python3/bin/activate
 conan config install global.conf
 conan create gnustep-helpers --profile:a=profiles/linux-clang
-conan create libobjc2 --profile:a=profiles/linux-clang
 conan create libdispatch --profile:a=profiles/linux-clang
+conan create libobjc2 --profile:a=profiles/linux-clang
 conan create gnustep-make --profile:a=profiles/linux-clang
 conan create gnustep-base --profile:a=profiles/linux-clang
 conan create gnustep-gui --profile:a=profiles/linux-clang
