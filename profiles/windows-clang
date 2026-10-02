@@ -8,7 +8,7 @@ build_type=Release
 compiler=msvc
 compiler.cppstd=14
 compiler.runtime=msvc
-compiler.version=194
+compiler.version=195
 compiler.runtime=dynamic
 compiler.runtime_type=Release
 os=Windows
@@ -17,7 +17,7 @@ libobjc2/*:compiler=clang
 libobjc2/*:compiler.cppstd=17
 libobjc2/*:compiler.runtime=dynamic
 libobjc2/*:compiler.version=20
-libobjc2/*:compiler.runtime_version=v144
+libobjc2/*:compiler.runtime_version=v145
 
 libdispatch/*:compiler=clang
 libdispatch/*:compiler.cppstd=17
@@ -27,7 +27,7 @@ gnustep-*/*:compiler=clang
 gnustep-*/*:compiler.cppstd=17
 gnustep-*/*:compiler.runtime=dynamic
 gnustep-*/*:compiler.version=20
-gnustep-*/*:compiler.runtime_version=v144
+gnustep-*/*:compiler.runtime_version=v145
 
 # Temporary workaround to get the correct prebuilt for libcurl;
 # there are no prebuilts of 8.12.1 msvc version 194
