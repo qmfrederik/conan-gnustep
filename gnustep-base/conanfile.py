@@ -42,7 +42,7 @@ class GnustepBaseRecipe(ConanFile):
             self.requires("gnutls/3.8.7")
 
         self.requires("icu/77.1")
-        self.requires("libcurl/8.12.1")
+        self.requires("libcurl/8.15.0")
         self.requires("libiconv/1.17")
         self.tool_requires("gnustep-make/[^2.9.3]")
 
