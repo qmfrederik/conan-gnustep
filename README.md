@@ -61,7 +61,7 @@ git clone https://github.com/qmfrederik/conan-gnustep/
 cd conan-gnustep
 
 python3 -m venv .python3/
-.python3/bin/pip install conan==2.18.1
+.python3/bin/pip install conan==2.21.0
 . .python3/bin/activate
 conan config install global.conf
 conan create gnustep-helpers --profile:a=profiles/linux-clang
