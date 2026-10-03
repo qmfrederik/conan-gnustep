@@ -41,5 +41,11 @@ tools.cmake.cmaketoolchain:generator=Ninja
 tools.build:compiler_executables = {"c": "clang", "cpp": "clang++"}
 tools.gnu:pkg_config=pkgconf
 
+# Work around a Windows build failure on Conan >= 2.19.1
+# Conan >= 2.19.1 no longer sets this; try_compile then uses Debug, leaving the
+# Release-only CMAKE_MSVC_RUNTIME_LIBRARY genex empty so clang can't link.
+# See https://github.com/conan-io/conan/issues/18593
+tools.cmake.cmaketoolchain:extra_variables={"CMAKE_TRY_COMPILE_CONFIGURATION": "Release"}
+
 [platform_requires]
 icu/77.1

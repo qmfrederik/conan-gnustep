@@ -40,6 +40,11 @@ To get started, run the following commands:
 ```bash
 git clone https://github.com/qmfrederik/conan-gnustep/
 cd conan-gnustep
+
+python3.14 -m venv .python3/
+.\.python3\Scripts\activate
+pip install conan==2.33.0 pygit2
+
 conan config install global.conf
 conan create gnustep-helpers --profile:a=profiles/windows-clang
 conan create libdispatch --profile:a=profiles/windows-clang
@@ -61,7 +66,7 @@ git clone https://github.com/qmfrederik/conan-gnustep/
 cd conan-gnustep
 
 python3 -m venv .python3/
-.python3/bin/pip install conan==2.18.1
+.python3/bin/pip install conan==2.33.0
 . .python3/bin/activate
 conan config install global.conf
 conan create gnustep-helpers --profile:a=profiles/linux-clang
