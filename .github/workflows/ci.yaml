@@ -8,7 +8,7 @@ on:
 
 jobs:
   windows:
-    runs-on: windows-2025
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
         with:
@@ -23,17 +23,18 @@ jobs:
           rmdir /q /s C:\mingw64\bin\
           rmdir /q /s C:\Strawberry\c\bin\
           rmdir /q /s C:\Strawberry\perl\bin\
-      - name: Check LLVM version
+      - name: Check LLVM, Cmake version
         # We need at least LLVM 18.0 for proper Objective C support.  Visual Studio 2022 ships with LLVM 17,
         # so we need to make sure we pick up clang from C:\Program Files\LLVM\bin\
         # For full-fledged support on Windows, we'll need https://github.com/llvm/llvm-project/pull/107604,
-        # which will is included in LLVM 20.0.  The windows-2025 GitHub Actions image has this version of clang;
+        # which will is included in LLVM 20.0.  The windows-2022 GitHub Actions image has this version of clang;
         # trust but verify
         run: |
           clang --version
+          cmake --version
       - name: Install Conan
         run: |
-          pip install conan==2.33.0
+          pip install conan==2.18.1
           pip install pygit2
           conan --version
           conan config install global.conf
