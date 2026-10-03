@@ -11,4 +11,4 @@ os=Linux
 *:objc_runtime=gnu
 
 [conf]
-tools.build:compiler_executables={"c": "gcc-13", "cpp": "g++"}
+tools.build:compiler_executables={"c": "gcc-13", "cpp": "g++-13"}

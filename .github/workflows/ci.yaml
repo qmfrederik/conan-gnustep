@@ -230,7 +230,7 @@ jobs:
       - name: Install dependencies (Ubuntu)
         run: |
           apt-get update
-          apt-get install -y gobjc-13 libstdc++-13-dev curl zip unzip tar git pkg-config make python3-venv cmake
+          apt-get install -y gobjc-13 g++-13 libstdc++-13-dev curl zip unzip tar git pkg-config make python3-venv cmake
         if: matrix.family == 'ubuntu'
       - uses: actions/checkout@v4
         with:
@@ -253,8 +253,10 @@ jobs:
         run: .python3/bin/conan create gnustep-helpers --profile:a=profiles/linux-gcc
       - name: Install gnustep-make
         run: .python3/bin/conan create gnustep-make --profile:a=profiles/linux-gcc
+        # Build gnustep-base with a copy of ICU with static data packaging
       - name: Install gnustep-base
-        run: .python3/bin/conan create gnustep-base --profile:a=profiles/linux-gcc -c tools.build:skip_test=True
+        run: |
+          .python3/bin/conan create gnustep-base --profile:a=profiles/linux-gcc -c tools.build:skip_test=True --build=icu/* --build=gnustep-base/*
       - name: Install gnustep-gui
         run: .python3/bin/conan create gnustep-gui --profile:a=profiles/linux-gcc
 
@@ -300,8 +302,10 @@ jobs:
         run: .python3/bin/conan create libobjc2 --profile:a=profiles/linux-clang-nodist
       - name: Install gnustep-make
         run: .python3/bin/conan create gnustep-make --profile:a=profiles/linux-clang-nodist
+        # Build gnustep-base with a copy of ICU with static data packaging
       - name: Install gnustep-base
-        run: .python3/bin/conan create gnustep-base --profile:a=profiles/linux-clang-nodist -c tools.build:skip_test=True
+        run: |
+          .python3/bin/conan create gnustep-base --profile:a=profiles/linux-clang-nodist -c tools.build:skip_test=True --build=icu/* --build=gnustep-base/*
       - name: Install gnustep-gui
         run: .python3/bin/conan create gnustep-gui --profile:a=profiles/linux-clang-nodist
       - name: Install gnustep-headless
