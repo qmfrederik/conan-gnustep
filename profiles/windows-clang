@@ -51,7 +51,7 @@ libtiff/4.7.2:compiler.version=194
 # GNUstep headless backend
 brotli/1.1.0:compiler.version=194
 bzip2/1.0.8:compiler.version=194
-freetype/2.13.3:compiler.version=194
+freetype/2.14.3:compiler.version=194
 
 [options]
 *:shared=True

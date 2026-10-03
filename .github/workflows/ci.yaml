@@ -207,14 +207,6 @@ jobs:
           . build/conanrun.sh
           ./build/Tutorial
         working-directory: tutorial/
-      - name: Upload Conan packages to GitLab
-        run: |
-          .python3/bin/conan remote add gitlab https://gitlab.com/api/v4/projects/72962159/packages/conan
-          .python3/bin/conan remote login -p ${{ secrets.GITLAB_API_KEY }} gitlab ${{ secrets.GITLAB_USER }}
-          .python3/bin/conan upload "libobjc2/*" --confirm -r gitlab
-          .python3/bin/conan upload "libdispatch/*" --confirm -r gitlab
-          .python3/bin/conan upload "gnustep-*/*" --confirm -r gitlab
-        if: ${{ github.ref == 'refs/heads/main' && matrix.name == 'ubuntu-24.04' }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -265,6 +257,55 @@ jobs:
         run: .python3/bin/conan create gnustep-base --profile:a=profiles/linux-gcc -c tools.build:skip_test=True
       - name: Install gnustep-gui
         run: .python3/bin/conan create gnustep-gui --profile:a=profiles/linux-gcc
+
+  linux-nodist:
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: ubuntu-26.04
+            image: ubuntu:26.04
+            family: ubuntu
+    steps:
+      - name: Install dependencies (Ubuntu)
+        run: |
+          apt-get update
+          apt-get install -y gobjc-13 libstdc++-13-dev clang lld curl zip unzip tar git pkg-config make python3-venv cmake
+        if: matrix.family == 'ubuntu'
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install conan
+        run: |
+          python3 -m venv .python3/
+          .python3/bin/pip install conan==2.33.0
+          .python3/bin/pip install pygit2
+          .python3/bin/conan --version
+          .python3/bin/conan config install global.conf
+      - name: Mark path as safe
+        run: git config --global --add safe.directory $(pwd)
+      - name: Check out main branch
+        run: |
+          git branch $GITHUB_BASE_REF origin/$GITHUB_BASE_REF
+          git show-ref
+        if: ${{ github.ref != 'refs/heads/main' }}
+      - name: Install gnustep-helpers
+        run: .python3/bin/conan create gnustep-helpers --profile:a=profiles/linux-clang-nodist
+      - name: Install libdispatch
+        run: .python3/bin/conan create libdispatch --profile:a=profiles/linux-clang-nodist
+      - name: Install libobjc2
+        run: .python3/bin/conan create libobjc2 --profile:a=profiles/linux-clang-nodist
+      - name: Install gnustep-make
+        run: .python3/bin/conan create gnustep-make --profile:a=profiles/linux-clang-nodist
+      - name: Install gnustep-base
+        run: .python3/bin/conan create gnustep-base --profile:a=profiles/linux-clang-nodist -c tools.build:skip_test=True
+      - name: Install gnustep-gui
+        run: .python3/bin/conan create gnustep-gui --profile:a=profiles/linux-clang-nodist
+      - name: Install gnustep-headless
+        run: .python3/bin/conan create gnustep-headless --profile:a=profiles/linux-clang-nodist
       - name: Upload Conan packages to GitLab
         run: |
           .python3/bin/conan remote add gitlab https://gitlab.com/api/v4/projects/72962159/packages/conan
