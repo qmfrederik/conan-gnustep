@@ -34,7 +34,7 @@ jobs:
           cmake --version
       - name: Install Conan
         run: |
-          pip install conan==2.18.1
+          pip install conan==2.19.0
           pip install pygit2
           conan --version
           conan config install global.conf
