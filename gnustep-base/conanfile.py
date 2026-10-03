@@ -55,6 +55,12 @@ class GnustepBaseRecipe(ConanFile):
         if self.settings.os == "Windows":
             self.options.rm_safe("fPIC")
 
+    def configure(self):
+        # Embed the ICU data; the default "archive" needs an icudt*.dat file at runtime, which isn't packaged.
+        # On Windows the icu recipe always embeds the data and has no such option.
+        if self.settings.os != "Windows":
+            self.options["icu"].data_packaging = "static"
+
     def build_requirements(self):
         # Require a MSYS2 shell on Windows (for Autotools support)
         self.python_requires["gnustep-helpers"].module.windows_build_requirements(self)
