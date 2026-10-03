@@ -8,7 +8,7 @@ build_type=Release
 compiler=msvc
 compiler.cppstd=14
 compiler.runtime=msvc
-compiler.version=194
+compiler.version=195
 compiler.runtime=dynamic
 compiler.runtime_type=Release
 os=Windows
@@ -17,7 +17,7 @@ libobjc2/*:compiler=clang
 libobjc2/*:compiler.cppstd=17
 libobjc2/*:compiler.runtime=dynamic
 libobjc2/*:compiler.version=20
-libobjc2/*:compiler.runtime_version=v144
+libobjc2/*:compiler.runtime_version=v145
 
 libdispatch/*:compiler=clang
 libdispatch/*:compiler.cppstd=17
@@ -27,11 +27,31 @@ gnustep-*/*:compiler=clang
 gnustep-*/*:compiler.cppstd=17
 gnustep-*/*:compiler.runtime=dynamic
 gnustep-*/*:compiler.version=20
-gnustep-*/*:compiler.runtime_version=v144
+gnustep-*/*:compiler.runtime_version=v145
 
-# Temporary workaround to get the correct prebuilt for libcurl;
-# there are no prebuilts of 8.12.1 msvc version 194
-libcurl/8.12.1:compiler.version=193
+# Temporary workaround to get the correct prebuilt for packages
+# which don't have a 195 prebuilt yet.
+
+# GNUstep-base:
+zlib/1.3.2:compiler.version=194
+libiconv/1.17:compiler.version=194
+libxml2/2.15.4:compiler.version=194
+openssl/3.6.5:compiler.version=194
+libcurl/8.22.0:compiler.version=194
+libxslt/1.1.45:compiler.version=194
+libffi/3.4.8:compiler.version=193
+
+# GNUstep GUI:
+libjpeg/9f:compiler.version=194
+giflib/5.2.2:compiler.version=194
+libpng/1.6.58:compiler.version=194
+xz_utils/5.8.4:compiler.version=194
+libtiff/4.7.2:compiler.version=194
+
+# GNUstep headless backend
+brotli/1.1.0:compiler.version=194
+bzip2/1.0.8:compiler.version=194
+freetype/2.13.3:compiler.version=194
 
 [options]
 *:shared=True

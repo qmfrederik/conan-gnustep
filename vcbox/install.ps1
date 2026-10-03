@@ -11,9 +11,9 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocola
 # Install LLVM
 choco install -y llvm
 
-# Install the Visual Studio 2022 build tools, and then add the C++ build tools workload
-choco install -y visualstudio2022buildtools
-choco install -y visualstudio2022-workload-vctools
+# Install the Visual Studio 2026 build tools, and then add the C++ build tools workload
+choco install -y visualstudio2026buildtools
+choco install -y visualstudio2026-workload-vctools
 
 # Install git
 choco install -y git
