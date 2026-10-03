@@ -68,4 +68,4 @@ tools.gnu:pkg_config=pkgconf
 tools.cmake.cmaketoolchain:extra_variables={"CMAKE_TRY_COMPILE_CONFIGURATION": "Release"}
 
 [platform_requires]
-icu/77.1
+icu/78.2
