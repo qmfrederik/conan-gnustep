@@ -314,6 +314,14 @@ jobs:
           . build/conanrun.sh
           ./build/Tutorial
         working-directory: tutorial/
+      - name: Upload Conan packages to Cloudsmith
+        run: |
+          .python3/bin/conan remote add cloudsmith https://conan.cloudsmith.io/qmfrederik/gnustep/
+          .python3/bin/conan remote login -p ${{ secrets.CLOUDSMITH_API_KEY }} cloudsmith ${{ secrets.CLOUDSMITH_USER }}
+          .python3/bin/conan upload "libobjc2/*" --confirm -r cloudsmith
+          .python3/bin/conan upload "libdispatch/*" --confirm -r cloudsmith
+          .python3/bin/conan upload "gnustep-*/*" --confirm -r cloudsmith
+        if: ${{ github.ref == 'refs/heads/main' }}
       - name: Upload Conan packages to GitLab
         run: |
           .python3/bin/conan remote add gitlab https://gitlab.com/api/v4/projects/72962159/packages/conan
