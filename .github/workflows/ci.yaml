@@ -231,14 +231,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: ubuntu-22.04
-            image: ubuntu:22.04
+          - name: ubuntu-24.04
+            image: ubuntu:24.04
             family: ubuntu
     steps:
       - name: Install dependencies (Ubuntu)
         run: |
           apt-get update
-          apt-get install -y gobjc-11 libstdc++-11-dev curl zip unzip tar git pkg-config make python3-venv cmake
+          apt-get install -y gobjc-13 libstdc++-13-dev curl zip unzip tar git pkg-config make python3-venv cmake
         if: matrix.family == 'ubuntu'
       - uses: actions/checkout@v4
         with:

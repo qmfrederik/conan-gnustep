@@ -35,18 +35,18 @@ class GnustepBaseRecipe(ConanFile):
             self.requires("libdispatch/[^6.1.1]")
 
         self.requires("libffi/3.4.8")
-        self.requires("libxml2/2.13.8")
-        self.requires("libxslt/1.1.43")
+        self.requires("libxml2/2.15.4")
+        self.requires("libxslt/1.1.45")
 
         if self.settings.os != "Windows":
             self.requires("gnutls/3.8.7")
         else:
             # libcurl will bring in OpenSSL as a dependency, but be explicit about the version number
             # so we can get a prebuilt version of OpenSSL
-            self.requires("openssl/3.5.9")
+            self.requires("openssl/3.6.5")
 
         self.requires("icu/77.1")
-        self.requires("libcurl/8.12.1")
+        self.requires("libcurl/8.22.0")
         self.requires("libiconv/1.17")
         self.tool_requires("gnustep-make/[^2.9.3]")
 
