@@ -306,6 +306,14 @@ jobs:
         run: .python3/bin/conan create gnustep-gui --profile:a=profiles/linux-clang-nodist
       - name: Install gnustep-headless
         run: .python3/bin/conan create gnustep-headless --profile:a=profiles/linux-clang-nodist
+      - name: Build tutorial
+        run: |
+          ../.python3/bin/conan install conanfile.txt --profile:a=../profiles/linux-clang-nodist --output-folder=build/
+          cmake -S . -B build/ -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+          cmake --build build
+          . build/conanrun.sh
+          ./build/Tutorial
+        working-directory: tutorial/
       - name: Upload Conan packages to GitLab
         run: |
           .python3/bin/conan remote add gitlab https://gitlab.com/api/v4/projects/72962159/packages/conan
