@@ -6,6 +6,7 @@ from conan.tools.files import get, apply_conandata_patches
 class LibDispatchRecipe(ConanFile):
     name = "libdispatch"
     version = "6.4.0"
+    revision_mode = "scm"
     package_type = "library"
     license = "Apache-2.0"
     url = "https://github.com/swiftlang/swift-corelibs-libdispatch"

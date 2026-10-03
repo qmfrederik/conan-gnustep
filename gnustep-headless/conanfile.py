@@ -10,6 +10,7 @@ import shutil
 class GnustepHeadlessRecipe(ConanFile):
     name = "gnustep-headless"
     version = "0.32.0"
+    revision_mode = "scm"
     package_type = "library"
     license = "LGPL-2.1"
     url = "https://github.com/gnustep/libs-gui"
