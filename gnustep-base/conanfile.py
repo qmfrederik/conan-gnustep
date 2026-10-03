@@ -10,6 +10,7 @@ import yaml
 class GnustepBaseRecipe(ConanFile):
     name = "gnustep-base"
     version = "1.31.1"
+    revision_mode = "scm"
     package_type = "library"
     license = "LGPL-2.1"
     url = "https://github.com/gnustep/libs-base"

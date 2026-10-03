@@ -6,6 +6,7 @@ import os
 class libobjc2Recipe(ConanFile):
     name = "getopt"
     version = "1.0.0"
+    revision_mode = "scm"
     package_type = "library"
     license = "LGPL-3.0"
     url = "https://github.com/libimobiledevice-win32/getopt"

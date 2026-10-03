@@ -11,6 +11,7 @@ import os
 class GnustepMakeRecipe(ConanFile):
     name = "gnustep-make"
     version = "2.9.3"
+    revision_mode = "scm"
     package_type = "library"
     license = "GPL-3.0"
     url = "https://github.com/gnustep/tools-make"
