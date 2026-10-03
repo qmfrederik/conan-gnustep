@@ -318,5 +318,7 @@ jobs:
         run: |
           .python3/bin/conan remote add gitlab https://gitlab.com/api/v4/projects/72962159/packages/conan
           .python3/bin/conan remote login -p ${{ secrets.GITLAB_API_KEY }} gitlab ${{ secrets.GITLAB_USER }}
+          .python3/bin/conan upload "libobjc2/*" --confirm -r gitlab
+          .python3/bin/conan upload "libdispatch/*" --confirm -r gitlab
           .python3/bin/conan upload "gnustep-*/*" --confirm -r gitlab
         if: ${{ github.ref == 'refs/heads/main' }}
