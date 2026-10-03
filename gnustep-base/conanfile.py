@@ -46,7 +46,7 @@ class GnustepBaseRecipe(ConanFile):
             # so we can get a prebuilt version of OpenSSL
             self.requires("openssl/3.6.5")
 
-        self.requires("icu/77.1")
+        self.requires("icu/78.2")
         self.requires("libcurl/8.22.0")
         self.requires("libiconv/1.17")
         self.tool_requires("gnustep-make/[^2.9.3]")
@@ -54,6 +54,12 @@ class GnustepBaseRecipe(ConanFile):
     def config_options(self):
         if self.settings.os == "Windows":
             self.options.rm_safe("fPIC")
+
+    def configure(self):
+        # Embed the ICU data; the default "archive" needs an icudt*.dat file at runtime, which isn't packaged.
+        # On Windows the icu recipe always embeds the data and has no such option.
+        if self.settings.os != "Windows":
+            self.options["icu"].data_packaging = "static"
 
     def build_requirements(self):
         # Require a MSYS2 shell on Windows (for Autotools support)
