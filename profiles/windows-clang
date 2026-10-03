@@ -29,6 +29,10 @@ gnustep-*/*:compiler.runtime=dynamic
 gnustep-*/*:compiler.version=20
 gnustep-*/*:compiler.runtime_version=v144
 
+# Temporary workaround to get the correct prebuilt for libcurl;
+# there are no prebuilts of 8.12.1 msvc version 194
+libcurl/8.12.1:compiler.version=193
+
 [options]
 *:shared=True
 

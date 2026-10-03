@@ -40,6 +40,10 @@ class GnustepBaseRecipe(ConanFile):
 
         if self.settings.os != "Windows":
             self.requires("gnutls/3.8.7")
+        else:
+            # libcurl will bring in OpenSSL as a dependency, but be explicit about the version number
+            # so we can get a prebuilt version of OpenSSL
+            self.requires("openssl/3.5.9")
 
         self.requires("icu/77.1")
         self.requires("libcurl/8.12.1")
