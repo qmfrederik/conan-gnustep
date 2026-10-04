@@ -1,0 +1,72 @@
+Subject: [PATCH] Locate the GNUstep system paths relative to the gnustep-base library
+
+---
+--- a/Source/NSPathUtilities.m
++++ b/Source/NSPathUtilities.m
+@@ -899,6 +899,53 @@
+     }
+ }
+ 
++/* Packages such as Conan's can be installed anywhere on the file system, so
++ * the paths in the config file can't be hard-coded.  If a GNUstep/Libraries
++ * directory sits next to the loaded gnustep-base library, derive the system
++ * paths from the location of the library itself.
++ */
++static void
++RelocateConfigToLibrary(NSMutableDictionary *conf)
++{
++  NSString      *libDir;
++  NSString      *prefix;
++  NSString      *gnustepDir;
++  BOOL          isDir = NO;
++
++  libDir = [GSPrivateSymbolPath([NSProcessInfo class])
++    stringByDeletingLastPathComponent];
++  if (libDir == nil)
++    {
++      return;
++    }
++#if defined(_WIN32)
++  /* The DLL is installed in bin/; GNUstep/ lives in the sibling lib/. */
++  if (NSOrderedSame == [[libDir lastPathComponent]
++    caseInsensitiveCompare: @"bin"])
++    {
++      libDir = [[libDir stringByDeletingLastPathComponent]
++        stringByAppendingPathComponent: @"lib"];
++    }
++#endif
++  gnustepDir = [libDir stringByAppendingPathComponent: @"GNUstep"];
++  if ([MGR() fileExistsAtPath:
++    [gnustepDir stringByAppendingPathComponent: @"Libraries"]
++    isDirectory: &isDir] == NO || NO == isDir)
++    {
++      return;
++    }
++  prefix = [libDir stringByDeletingLastPathComponent];
++
++  [conf setObject: gnustepDir forKey: @"GNUSTEP_SYSTEM_LIBRARY"];
++  [conf setObject: libDir forKey: @"GNUSTEP_SYSTEM_LIBRARIES"];
++  [conf setObject: [prefix stringByAppendingPathComponent: @"include"]
++	   forKey: @"GNUSTEP_SYSTEM_HEADERS"];
++  [conf setObject: [prefix stringByAppendingPathComponent: @"bin"]
++	   forKey: @"GNUSTEP_SYSTEM_TOOLS"];
++  [conf setObject: [gnustepDir stringByAppendingPathComponent: @"Applications"]
++	   forKey: @"GNUSTEP_SYSTEM_APPS"];
++}
++
+ GS_DECLARE NSMutableDictionary*
+ GNUstepConfig(NSDictionary *newConfig)
+ {
+@@ -1018,6 +1065,12 @@
+ 		  ParseConfigurationFile(file, conf, nil);
+ 		}
+ 
++	      /* An explicit GNUSTEP_CONFIG_FILE always wins. */
++	      if (NO == fromEnvironment)
++		{
++		  RelocateConfigToLibrary(conf);
++		}
++
+ 	      /* Merge in any values from property lists in the
+ 	       * GlobalDefaults directory.
+ 	       */
