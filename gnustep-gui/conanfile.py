@@ -10,7 +10,8 @@ import shutil
 class GnustepGuiRecipe(ConanFile):
     name = "gnustep-gui"
     version = "0.32.0"
-    revision_mode = "scm"
+    if os.getenv("CI"):
+        revision_mode = "scm"
     package_type = "library"
     license = "LGPL-2.1"
     url = "https://github.com/gnustep/libs-gui"

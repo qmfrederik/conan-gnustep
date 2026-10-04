@@ -6,7 +6,8 @@ import os
 class libobjc2Recipe(ConanFile):
     name = "libobjc2"
     version = "2.2.1"
-    revision_mode = "scm"
+    if os.getenv("CI"):
+        revision_mode = "scm"
     package_type = "library"
     license = "MIT"
     url = "https://github.com/gnustep/libobjc2"
