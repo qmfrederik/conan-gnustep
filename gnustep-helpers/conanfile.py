@@ -42,6 +42,7 @@ def windows_build_requirements(pkg):
 class Pkg(ConanFile):
     name = "gnustep-helpers"
     version = "0.1"
-    revision_mode = "scm"
+    if os.getenv("CI"):
+        revision_mode = "scm"
     package_type = "python-require"
     exports = "*.py"
