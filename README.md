@@ -50,7 +50,7 @@ conan create gnustep-helpers --profile:a=profiles/windows-clang
 conan create libdispatch --profile:a=profiles/windows-clang
 conan create libobjc2 --profile:a=profiles/windows-clang
 conan create gnustep-make --profile:a=profiles/windows-clang
-conan create gnustep-base --profile:a=profiles/windows-clang
+conan create gnustep-base --profile:a=profiles/windows-clang -c tools.build:skip_test=True --build=icu/* --build=gnustep-base/*
 conan create gnustep-gui --profile:a=profiles/windows-clang
 conan create gnustep-headless --profile:a=profiles/windows-clang
 ```
@@ -73,7 +73,7 @@ conan create gnustep-helpers --profile:a=profiles/linux-clang
 conan create libdispatch --profile:a=profiles/linux-clang
 conan create libobjc2 --profile:a=profiles/linux-clang
 conan create gnustep-make --profile:a=profiles/linux-clang
-conan create gnustep-base --profile:a=profiles/linux-clang
+conan create gnustep-base --profile:a=profiles/linux-clang -c tools.build:skip_test=True --build=icu/* --build=gnustep-base/*
 conan create gnustep-gui --profile:a=profiles/linux-clang
 conan create gnustep-headless --profile:a=profiles/linux-clang
 ```
@@ -99,3 +99,21 @@ These tips may help when debugging:
   call to the script, forcing the debugger to pause.
 - If a build fails, you can enter an MSYS2 session by running `C:\Users\vagrant\.conan2\p\msys2f33247fcfc934\p\bin\msys64\usr\bin\bash.exe --login -i`.
   From within that session, you can run `./configure`, `make`,... --- just make sure to environment variables such as `PATH`.
+
+# Good to know
+
+## File system layout
+GNUstep assumes that the file system layout is fixed, and the paths like `GNUSTEP_SYSTEM_LIBRARY`, `GNUSTEP_SYSTEM_LIBRARIES`, `GNUSTEP_SYSTEM_HEADERS`,
+`GNUSTEP_SYSTEM_TOOLS` and `GNUSTEP_SYSTEM_APPS` are predictable.
+
+That isn't true when shipping GNUstep as Conan packages.  To work around this, the `0005-Locate-GNUstep-system-paths-relative-to-the-library.patch`
+patch updates these values at runtime, and they always respect the Conan package layout.
+
+## ICU libraries
+
+GNUstep uses ICU for working with time zones.  ICU reads some of this data from files, such as the `tzdata` files.  When using an operating-system
+provided copy of ICU, this usually works.  When using the ICU Conan package, a similar problem arises: GNUstep doesn't know where to find this data.
+
+When using the ICU Conan package:
+- The `data_packaging` option should be set to `static`.  This ensures ICU data is embedded in the gnustep-base library.
+- Other resources, such as tzdata, are shipped as GNUstep bundle resources, and the file system layout patch (mentioned above) is required.
