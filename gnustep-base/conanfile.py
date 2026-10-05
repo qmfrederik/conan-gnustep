@@ -34,7 +34,7 @@ class GnustepBaseRecipe(ConanFile):
     def requirements(self):
         if self.options.objc_runtime == "ng":
             self.requires("libobjc2/[^2.2.1]")
-            self.requires("libdispatch/[^6.1.1]")
+            self.requires("libdispatch/[^6.4.0]")
 
         self.requires("libffi/3.4.8")
         self.requires("libxml2/2.15.4")

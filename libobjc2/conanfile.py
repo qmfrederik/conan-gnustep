@@ -30,7 +30,7 @@ class libobjc2Recipe(ConanFile):
         self.requires("tsl-robin-map/1.3.0")
 
         # Use the blocks runtime which ships with libdispatch
-        self.requires("libdispatch/[^6.1.1]")
+        self.requires("libdispatch/[^6.4.0]")
 
     def config_options(self):
         if self.settings.os == "Windows":
