@@ -1,0 +1,49 @@
+[buildenv]
+PATH=+(path)C:\Program Files\LLVM\bin
+
+[settings]
+arch=x86_64
+build_type=Release
+
+compiler=msvc
+compiler.cppstd=14
+compiler.version=194
+compiler.runtime=dynamic
+compiler.runtime_type=Release
+os=Windows
+
+libobjc2/*:compiler=clang
+libobjc2/*:compiler.cppstd=17
+libobjc2/*:compiler.runtime=dynamic
+libobjc2/*:compiler.version=20
+libobjc2/*:compiler.runtime_version=v144
+
+libdispatch/*:compiler=clang
+libdispatch/*:compiler.cppstd=17
+libdispatch/*:compiler.version=20
+
+gnustep-*/*:compiler=clang
+gnustep-*/*:compiler.cppstd=17
+gnustep-*/*:compiler.runtime=dynamic
+gnustep-*/*:compiler.version=20
+gnustep-*/*:compiler.runtime_version=v144
+
+# No prebuilt for 194 yet.
+libffi/3.4.8:compiler.version=193
+
+[options]
+*:shared=True
+
+[conf]
+tools.cmake.cmaketoolchain:generator=Ninja
+tools.build:compiler_executables = {"c": "clang", "cpp": "clang++"}
+tools.gnu:pkg_config=pkgconf
+
+# Work around a Windows build failure on Conan >= 2.19.1
+# Conan >= 2.19.1 no longer sets this; try_compile then uses Debug, leaving the
+# Release-only CMAKE_MSVC_RUNTIME_LIBRARY genex empty so clang can't link.
+# See https://github.com/conan-io/conan/issues/18593
+tools.cmake.cmaketoolchain:extra_variables={"CMAKE_TRY_COMPILE_CONFIGURATION": "Release"}
+
+[platform_requires]
+icu/78.2

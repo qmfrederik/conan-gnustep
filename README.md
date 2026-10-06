@@ -46,13 +46,13 @@ python3.14 -m venv .python3/
 pip install conan==2.33.0 pygit2
 
 conan config install global.conf
-conan create gnustep-helpers --profile:a=profiles/windows-clang
-conan create libdispatch --profile:a=profiles/windows-clang
-conan create libobjc2 --profile:a=profiles/windows-clang
-conan create gnustep-make --profile:a=profiles/windows-clang
-conan create gnustep-base --profile:a=profiles/windows-clang -c tools.build:skip_test=True --build=icu/* --build=gnustep-base/*
-conan create gnustep-gui --profile:a=profiles/windows-clang
-conan create gnustep-headless --profile:a=profiles/windows-clang
+conan create gnustep-helpers --profile:a=profiles/windows-clang-vs2026
+conan create libdispatch --profile:a=profiles/windows-clang-vs2026
+conan create libobjc2 --profile:a=profiles/windows-clang-vs2026
+conan create gnustep-make --profile:a=profiles/windows-clang-vs2026
+conan create gnustep-base --profile:a=profiles/windows-clang-vs2026 -c tools.build:skip_test=True --build=icu/* --build=gnustep-base/*
+conan create gnustep-gui --profile:a=profiles/windows-clang-vs2026
+conan create gnustep-headless --profile:a=profiles/windows-clang-vs2026
 ```
 
 This will configure GNUstep Base and all of its dependencies.

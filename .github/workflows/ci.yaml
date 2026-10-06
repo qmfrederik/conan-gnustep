@@ -8,7 +8,15 @@ on:
 
 jobs:
   windows:
-    runs-on: windows-2025-vs2026
+    runs-on: ${{ matrix. image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: vs2026
+            image: windows-2025-vs2026
+          - name: vs2022
+            image: windows-2022
     steps:
       - uses: actions/checkout@v4
         with:
@@ -46,26 +54,26 @@ jobs:
           git show-ref
         if: ${{ github.ref != 'refs/heads/main' }}
       - name: Install gnustep-helpers
-        run: conan create gnustep-helpers --profile:a=${{ github.workspace }}/profiles/windows-clang
+        run: conan create gnustep-helpers --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
       - name: Install libdispatch
-        run: conan create libdispatch --profile:a=${{ github.workspace }}/profiles/windows-clang
+        run: conan create libdispatch --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
       - name: Install libobjc2
-        run: conan create libobjc2 --profile:a=${{ github.workspace }}/profiles/windows-clang
+        run: conan create libobjc2 --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
       - name: Install gnustep-make
-        run: conan create gnustep-make --profile:a=${{ github.workspace }}/profiles/windows-clang
+        run: conan create gnustep-make --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
       - name: Install gnustep-base
-        run: conan create gnustep-base --profile:a=${{ github.workspace }}/profiles/windows-clang -c tools.build:skip_test=True
+        run: conan create gnustep-base --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }} -c tools.build:skip_test=True
       - name: Install gnustep-gui
-        run: conan create gnustep-gui --profile:a=${{ github.workspace }}/profiles/windows-clang
+        run: conan create gnustep-gui --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
       - name: Install gnustep-headless
-        run: conan create gnustep-headless --profile:a=${{ github.workspace }}/profiles/windows-clang
+        run: conan create gnustep-headless --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
       - name: Install gnustep
-        run: conan create gnustep --profile:a=${{ github.workspace }}/profiles/windows-clang
+        run: conan create gnustep --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
       - name: Install getopt
-        run: conan create getopt --profile:a=${{ github.workspace }}/profiles/windows-clang
+        run: conan create getopt --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
       - name: Build tutorial
         run: |
-          conan install conanfile.txt --profile:a=../profiles/windows-clang --output-folder=build/ --conf="tools.env.virtualenv:powershell=pwsh.exe"
+          conan install conanfile.txt --profile:a=../profiles/windows-clang-${{ matrix.name }} --output-folder=build/ --conf="tools.env.virtualenv:powershell=pwsh.exe"
           cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_POLICY_DEFAULT_CMP0091="NEW" -GNinja
           cmake --build build
           ./build/conanrun.ps1
