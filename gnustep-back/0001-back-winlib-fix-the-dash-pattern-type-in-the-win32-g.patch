@@ -1,0 +1,30 @@
+From c960ada87dc325a952f9666db7de482cea385a84 Mon Sep 17 00:00:00 2001
+From: DTW-Thalion <todd.white@thalion.global>
+Date: Tue, 14 Jul 2026 16:28:24 -0400
+Subject: [PATCH] back/winlib: fix the dash pattern type in the win32 graphics
+ state (#143)
+
+The dash pattern was declared as an array of CGFloat pointers rather than an
+array of CGFloat, so -getLineDash:count:phase: filled it with dash lengths cast
+to pointers and the pen pattern was built from the pointer values.  It also did
+not compile on a modern compiler.  Declare it as an array of CGFloat.
+---
+ Source/winlib/WIN32GState.m | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Source/winlib/WIN32GState.m b/Source/winlib/WIN32GState.m
+index 7bdc961..3d20061 100644
+--- a/Source/winlib/WIN32GState.m
++++ b/Source/winlib/WIN32GState.m
+@@ -1375,7 +1375,7 @@ HBITMAP GSCreateBitmap(HDC hDC, NSInteger pixelsWide, NSInteger pixelsHigh,
+   if (patternCount > 0)
+     {
+       NSInteger i = 0;
+-      CGFloat* thePattern[patternCount];
++      CGFloat thePattern[patternCount];
+       CGFloat phase = 0.0;
+ 
+       penStyle = PS_GEOMETRIC | PS_USERSTYLE;
+-- 
+2.56.0.windows.1
+
