@@ -1,0 +1,10 @@
+sources:
+  "0.32.0":
+    url: "https://github.com/gnustep/libs-back/releases/download/back-0_32_0/gnustep-back-0.32.0.tar.gz"
+    sha256: "ce171095012ac5d845f6e1285a5c71e011fd00aa5981ea1d5a5183706478218d"
+    strip_root: true
+
+patches:
+  - patch_file: "0001-Use-_wfopen-on-WIN32-too.patch"
+  - patch_file: "0001-back-winlib-fix-the-dash-pattern-type-in-the-win32-g.patch"
+  - patch_file: "0001-Don-t-link-with-libm-on-Windows.patch"

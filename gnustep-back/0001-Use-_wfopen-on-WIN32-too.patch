@@ -1,0 +1,25 @@
+From ff83a47a7c6a2a82a9cb5ff7c71c6e5337a216a4 Mon Sep 17 00:00:00 2001
+From: Frederik Carlier <frederik.carlier@keysight.com>
+Date: Tue, 6 Oct 2026 20:40:24 +0000
+Subject: [PATCH 1/1] Use _wfopen on WIN32, too
+
+---
+ Source/gsc/GSStreamContext.m | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Source/gsc/GSStreamContext.m b/Source/gsc/GSStreamContext.m
+index 9341298..2e9cbc9 100644
+--- a/Source/gsc/GSStreamContext.m
++++ b/Source/gsc/GSStreamContext.m
+@@ -101,7 +101,7 @@ fpfloat(FILE *stream, float f)
+     {
+       NSString *path = [info objectForKey: @"NSOutputFile"];
+       NSDebugLLog(@"GSContext", @"Printing to %@", path);
+-#if	defined(__MINGW32__)
++#if	defined(__MINGW32__) || defined(_WIN32)
+       gstream = _wfopen([path fileSystemRepresentation], L"wb");
+ #else
+       gstream = fopen([path fileSystemRepresentation], "w");
+-- 
+2.56.0.windows.1
+
