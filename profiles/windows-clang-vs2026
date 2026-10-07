@@ -13,21 +13,17 @@ compiler.runtime=dynamic
 compiler.runtime_type=Release
 os=Windows
 
-libobjc2/*:compiler=clang
-libobjc2/*:compiler.cppstd=17
-libobjc2/*:compiler.runtime=dynamic
-libobjc2/*:compiler.version=20
-libobjc2/*:compiler.runtime_version=v145
-
-libdispatch/*:compiler=clang
-libdispatch/*:compiler.cppstd=17
-libdispatch/*:compiler.version=20
-
-gnustep-*/*:compiler=clang
-gnustep-*/*:compiler.cppstd=17
-gnustep-*/*:compiler.runtime=dynamic
-gnustep-*/*:compiler.version=20
-gnustep-*/*:compiler.runtime_version=v145
+{% for ref in [
+    "libobjc2/*",
+    "libdispatch/*",
+    "gnustep-*/*"
+] %}
+{{ ref }}:compiler=clang
+{{ ref }}:compiler.cppstd=17
+{{ ref }}:compiler.version=20
+{{ ref }}:compiler.runtime=dynamic
+{{ ref }}:compiler.runtime_version=v145
+{% endfor %}
 
 # Temporary workaround to get the correct prebuilt for packages
 # which don't have a 195 prebuilt yet.
