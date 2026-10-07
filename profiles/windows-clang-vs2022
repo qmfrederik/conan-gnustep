@@ -6,30 +6,28 @@ arch=x86_64
 build_type=Release
 
 compiler=msvc
-compiler.cppstd=14
 compiler.version=194
 compiler.runtime=dynamic
 compiler.runtime_type=Release
 os=Windows
 
 libobjc2/*:compiler=clang
-libobjc2/*:compiler.cppstd=17
-libobjc2/*:compiler.runtime=dynamic
 libobjc2/*:compiler.version=20
 libobjc2/*:compiler.runtime_version=v144
 
 libdispatch/*:compiler=clang
-libdispatch/*:compiler.cppstd=17
 libdispatch/*:compiler.version=20
+libdispatch/*:compiler.runtime_version=v144
 
 gnustep-*/*:compiler=clang
-gnustep-*/*:compiler.cppstd=17
-gnustep-*/*:compiler.runtime=dynamic
 gnustep-*/*:compiler.version=20
 gnustep-*/*:compiler.runtime_version=v144
 
 # No prebuilt for 194 yet.
 libffi/3.4.8:compiler.version=193
+
+# Requires a specific cppstd version
+libtiff/4.7.2:compiler.cppstd=14
 
 [options]
 *:shared=True
