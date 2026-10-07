@@ -12,21 +12,17 @@ compiler.runtime=dynamic
 compiler.runtime_type=Release
 os=Windows
 
-libobjc2/*:compiler=clang
-libobjc2/*:compiler.cppstd=17
-libobjc2/*:compiler.runtime=dynamic
-libobjc2/*:compiler.version=20
-libobjc2/*:compiler.runtime_version=v144
-
-libdispatch/*:compiler=clang
-libdispatch/*:compiler.cppstd=17
-libdispatch/*:compiler.version=20
-
-gnustep-*/*:compiler=clang
-gnustep-*/*:compiler.cppstd=17
-gnustep-*/*:compiler.runtime=dynamic
-gnustep-*/*:compiler.version=20
-gnustep-*/*:compiler.runtime_version=v144
+{% for ref in [
+    "libobjc2/*",
+    "libdispatch/*",
+    "gnustep-*/*"
+] %}
+{{ ref }}:compiler=clang
+{{ ref }}:compiler.cppstd=17
+{{ ref }}:compiler.version=20
+{{ ref }}:compiler.runtime=dynamic
+{{ ref }}:compiler.runtime_version=v144
+{% endfor %}
 
 # No prebuilt for 194 yet.
 libffi/3.4.8:compiler.version=193
