@@ -11,4 +11,6 @@ patches:
   - patch_file: "0003-Use-PKG_CONFIG-to-invoke-pkg-config.patch"
   - patch_file: "0004-Fix-NSNotFound-definition-to-use-NSInteger-type-494.patch"
   - patch_file: "0005-Locate-GNUstep-system-paths-relative-to-the-library.patch"
-  - patch_file: "bace6f54fd5fb882cb3adc79c87cc82d5c6d9c70.patch"
+  # Fixes for clang 22 compatibility (missing casts)
+  - patch_file: "0006-workaround-for-clang-bug-issue-589.patch"
+  - patch_file: "0007-Update-NSTimeZone.m.patch"

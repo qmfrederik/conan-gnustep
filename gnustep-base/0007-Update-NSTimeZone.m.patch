@@ -1,0 +1,36 @@
+From 42c80d309042fab69e36ac724c194252c5315888 Mon Sep 17 00:00:00 2001
+From: Mike <rans@email.com>
+Date: Sat, 23 May 2026 21:57:46 +1200
+Subject: [PATCH 7/7] Update NSTimeZone.m (#614)
+
+Cast (GSPlaceholderTimeZone*)zone
+win32: GetTimeZoneInformation -> GetDynamicTimeZoneInformation
+---
+ Source/NSTimeZone.m | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Source/NSTimeZone.m b/Source/NSTimeZone.m
+index 5ac959bcf..fab27501c 100644
+--- a/Source/NSTimeZone.m
++++ b/Source/NSTimeZone.m
+@@ -510,7 +510,7 @@ static NSString *_time_zone_path(NSString *subpath, NSString *type)
+                 {
+                   zone = [[GSWindowsTimeZone alloc] initWithName: name data: 0];
+                   DESTROY(self);
+-                  return zone;
++                  return (GSPlaceholderTimeZone*)zone;
+                 }
+ #else
+ 		{
+@@ -1480,7 +1480,7 @@ static int		uninitialisedOffset = 100000;
+         // See: https://unicode-org.github.io/cldr-staging/charts/latest/supplemental/zone_tzid.html
+         tzName = tz.StandardName;
+ #else
+-        dst = GetTimeZoneInformation(&tz);
++        dst = GetDynamicTimeZoneInformation(&tz);
+ 
+         if (dst == TIME_ZONE_ID_DAYLIGHT)
+           tzName = tz.DaylightName;
+-- 
+2.56.0.windows.1
+
