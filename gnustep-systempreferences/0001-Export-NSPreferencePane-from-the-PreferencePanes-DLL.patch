@@ -1,0 +1,42 @@
+From 7b9ed11a46152c0937970384a2906b117296355e Mon Sep 17 00:00:00 2001
+From: Frederik Carlier <frederik.carlier@keysight.com>
+Date: Thu, 8 Oct 2026 21:16:33 +0000
+Subject: [PATCH] Export NSPreferencePane from the PreferencePanes DLL on
+ Windows
+
+---
+ PreferencePanes/NSPreferencePane.h | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/PreferencePanes/NSPreferencePane.h b/PreferencePanes/NSPreferencePane.h
+index c70a4e3..8d9b5b0 100644
+--- a/PreferencePanes/NSPreferencePane.h
++++ b/PreferencePanes/NSPreferencePane.h
+@@ -28,6 +28,16 @@
+ #include <Foundation/Foundation.h>
+ #include <AppKit/NSNibDeclarations.h>
+ 
++#if defined(GNUSTEP_WITH_DLL) && !(defined(__MINGW32__) && !defined(__clang__))
++#  if BUILD_PreferencePanes_DLL
++#    define PREFPANES_EXPORT_CLASS __declspec(dllexport)
++#  else
++#    define PREFPANES_EXPORT_CLASS __declspec(dllimport)
++#  endif
++#else
++#  define PREFPANES_EXPORT_CLASS
++#endif
++
+ typedef enum {
+   NSUnselectCancel,	
+   NSUnselectNow,	
+@@ -38,6 +48,7 @@ typedef enum {
+ @class NSWindow;
+ @class NSView;
+ 
++PREFPANES_EXPORT_CLASS
+ @interface NSPreferencePane : NSObject 
+ {
+   NSBundle *_bundle;
+-- 
+2.56.0.windows.1
+

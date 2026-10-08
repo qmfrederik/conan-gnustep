@@ -69,6 +69,8 @@ jobs:
         run: conan create gnustep-headless --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
       - name: Install gnustep-back
         run: conan create gnustep-back --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
+      - name: Install gnustep-systempreferences
+        run: conan create gnustep-systempreferences --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
       - name: Install gnustep
         run: conan create gnustep --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
       - name: Install getopt
