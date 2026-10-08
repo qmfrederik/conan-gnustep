@@ -11,3 +11,4 @@ patches:
   - patch_file: "0003-Use-PKG_CONFIG-to-invoke-pkg-config.patch"
   - patch_file: "0004-Fix-NSNotFound-definition-to-use-NSInteger-type-494.patch"
   - patch_file: "0005-Locate-GNUstep-system-paths-relative-to-the-library.patch"
+  - patch_file: "bace6f54fd5fb882cb3adc79c87cc82d5c6d9c70.patch"
