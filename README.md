@@ -53,6 +53,9 @@ conan create gnustep-make --profile:a=profiles/windows-clang-vs2026
 conan create gnustep-base --profile:a=profiles/windows-clang-vs2026 -c tools.build:skip_test=True --build=icu/* --build=gnustep-base/*
 conan create gnustep-gui --profile:a=profiles/windows-clang-vs2026
 conan create gnustep-headless --profile:a=profiles/windows-clang-vs2026
+conan create gnustep-back --profile:a=profiles/windows-clang-vs2026
+conan create gnustep-winuxtheme --profile:a=profiles/windows-clang-vs2026
+conan create gnustep-systempreferences --profile:a=profiles/windows-clang-vs2026
 ```
 
 This will configure GNUstep Base and all of its dependencies.
