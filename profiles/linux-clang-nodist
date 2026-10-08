@@ -8,13 +8,13 @@ compiler.libcxx=libstdc++11
 os=Linux
 
 libdispatch/*:compiler=clang
-libdispatch/*:compiler.version=18
+libdispatch/*:compiler.version=22
 
 libobjc2/*:compiler=clang
-libobjc2/*:compiler.version=18
+libobjc2/*:compiler.version=22
 
 gnustep-*/*:compiler=clang
-gnustep-*/*:compiler.version=18
+gnustep-*/*:compiler.version=22
 
 os=Linux
 
