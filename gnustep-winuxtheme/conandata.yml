@@ -1,0 +1,5 @@
+sources:
+  "1.0.0":
+    url: "https://github.com/gnustep/plugins-themes-WinUXTheme/archive/92ab1fb034ce8b8be82441730d4b843eda708b6e.tar.gz"
+    sha256: "21c3cb94ac335e8c0f9634f3edd8fb7e674b1ffaaeb62c75adff360148f58ffc"
+    strip_root: true
