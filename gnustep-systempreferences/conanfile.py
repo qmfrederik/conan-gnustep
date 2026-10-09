@@ -91,9 +91,13 @@ class GnustepSystemPreferencesRecipe(ConanFile):
 
         # Overriding some linker flags via ALL_LDFLAGS means overriding all; so find all dependencies
         # and provider linker paths
+        ldflags = ""
+        if self.options.objc_runtime == "ng":
+            ldflags += " -fuse-ld=lld"
+
         gnustep_base_lib = self.get_package_folder("gnustep-base", "lib/")
         gnustep_gui_lib = self.get_package_folder("gnustep-gui", "lib/")
-        ldflags = f" -L{gnustep_base_lib} -L{gnustep_gui_lib}"
+        ldflags += f" -L{gnustep_base_lib} -L{gnustep_gui_lib}"
 
         # Resolve library paths for the Objective-C runtime
         if self.options.objc_runtime == "ng":
