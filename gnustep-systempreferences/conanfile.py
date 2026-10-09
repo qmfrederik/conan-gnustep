@@ -49,33 +49,58 @@ class GnustepSystemPreferencesRecipe(ConanFile):
 
     def generate(self):
         if not cross_building(self):
+            # Expose LD_LIBRARY_PATH when there are shared dependencies,
+            # as configure tries to run a test executable (when not cross-building)
             env = VirtualRunEnv(self)
             env.generate(scope="build")
 
         tc = AutotoolsToolchain(self)
         env = tc.environment()
 
-        # Merge the makefiles of gnustep-make, gnustep-base and gnustep-gui into a single directory
-        # (see gnustep-gui for details).
+        # The GNUstep makefiles are stored in the gnustep-make and gnustep-base package (gnustep-base
+        # deploys a single makefile, but that contains additional preprocessor definitions which are
+        # needed).
+        # The GNUstep filesystem doesn't deal with this layout very well, so create a single directory
+        # into which we merge both file systems
+        gnustep_make_makefiles = os.path.join(self.dependencies.build["gnustep-make"].package_folder, "share/GNUstep/Makefiles/")
+        gnustep_base_makefiles = os.path.join(self.dependencies["gnustep-base"].package_folder, "share/GNUstep/Makefiles")
+        gnustep_gui_makefiles = os.path.join(self.dependencies["gnustep-gui"].package_folder, "share/GNUstep/Makefiles")
         build_makefiles = os.path.join(self.build_folder, "build/Makefiles")
         mkdir(self, build_makefiles)
-        shutil.copytree(os.path.join(self.dependencies.build["gnustep-make"].package_folder, "share/GNUstep/Makefiles"), build_makefiles, dirs_exist_ok=True)
-        shutil.copytree(os.path.join(self.dependencies["gnustep-base"].package_folder, "share/GNUstep/Makefiles"), build_makefiles, dirs_exist_ok=True)
-        shutil.copytree(os.path.join(self.dependencies["gnustep-gui"].package_folder, "share/GNUstep/Makefiles"), build_makefiles, dirs_exist_ok=True)
+        shutil.copytree(gnustep_make_makefiles, build_makefiles, dirs_exist_ok=True)
+        shutil.copytree(gnustep_base_makefiles, build_makefiles, dirs_exist_ok=True)
+        shutil.copytree(gnustep_gui_makefiles, build_makefiles, dirs_exist_ok=True)
 
         if self.settings.os == "Windows":
-            build_makefiles = build_makefiles.replace('\\','/').replace('C:','/c')
+            build_makefiles = build_makefiles.replace('\\','/')
+            build_makefiles = build_makefiles.replace('C:','/c')
+
+        # Resolve GNUstep makefiles
+        tc.configure_args.append(f"GNUSTEP_MAKEFILES={build_makefiles}")
         tc.make_args.append(f"GNUSTEP_MAKEFILES={build_makefiles}")
 
-        # The headers are spread over several packages, so be explicit about the include paths.
-        # clang reads OBJC_INCLUDE_PATH directly, so it needs native paths (no MSYS conversion).
-        includes = [os.path.join(self.dependencies[dep].package_folder, "include") for dep in ("gnustep-base", "gnustep-gui", "libobjc2")]
-        separator = ";" if self.settings.os == "Windows" else ":"
-        tc.make_args.append(f"OBJC_INCLUDE_PATH='{separator.join(includes)}'")
+        # Fix header paths
+        gnustep_base_include = os.path.join(self.dependencies["gnustep-base"].package_folder, "include/")
+        gnustep_gui_include = os.path.join(self.dependencies["gnustep-gui"].package_folder, "include/")
+        objc_include = os.path.join(self.dependencies["libobjc2"].package_folder, "include/")
+        
+        if self.settings.os == "Windows":
+            tc.make_args.append(f"OBJC_INCLUDE_PATH='{gnustep_base_include};{gnustep_gui_include};{objc_include}'")
+        else:
+            tc.make_args.append(f"OBJC_INCLUDE_PATH={gnustep_base_include}:{gnustep_gui_include}:{objc_include}")
 
-        ldflags = f"-L{self.get_package_folder('gnustep-base', 'lib/')} -L{self.get_package_folder('gnustep-gui', 'lib/')}"
+        # Overriding some linker flags via ALL_LDFLAGS means overriding all; so find all dependencies
+        # and provider linker paths
+        gnustep_base_lib = self.get_package_folder("gnustep-base", "lib/")
+        gnustep_gui_lib = self.get_package_folder("gnustep-gui", "lib/")
+        ldflags = f" -L{gnustep_base_lib} -L{gnustep_gui_lib}"
+
+        # Resolve library paths for the Objective-C runtime
         if self.options.objc_runtime == "ng":
-            ldflags += f" -L{self.get_package_folder('libdispatch', 'lib/')} -L{self.get_package_folder('libobjc2', 'lib/')}"
+            dispatch_lib = self.get_package_folder("libdispatch", "lib/")
+            libobjc2_lib = self.get_package_folder("libobjc2", "lib/")
+            ldflags+= f" -L{dispatch_lib} -L{libobjc2_lib}"
+
         if self.settings.os == "Windows":
             # gnustep-make names a framework's import library libPreferencePanes.dll.lib, but clang resolves
             # -lPreferencePanes to PreferencePanes.lib, so rename it and let the modules find it in the framework folder.
@@ -85,6 +110,10 @@ class GnustepSystemPreferencesRecipe(ConanFile):
             ldflags += f" -L{framework_dir}"
         tc.make_args.append(f"ALL_LDFLAGS={ldflags}")
 
+        # On Windows, force targetting native Windows, even when building in an MSYS2 shell
+        self.python_requires["gnustep-helpers"].module.configure_windows_host(self, tc)
+
+        # On Windows, use a copy of pkgconf which ships via Conan
         self.python_requires["gnustep-helpers"].module.configure_windows_pkgconf(self, env)
 
         tc.generate(env)
