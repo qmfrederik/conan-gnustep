@@ -107,11 +107,10 @@ class GnustepBackRecipe(ConanFile):
         tc.make_args.append(f"GNUSTEP_MAKEFILES={build_makefiles}")
 
         # Resolve library paths for the Objective-C runtime
-        ldflags = ""
         if self.options.objc_runtime == "ng":
             dispatch_lib = self.get_package_folder("libdispatch", "lib/")
             libobjc2_lib = self.get_package_folder("libobjc2", "lib/")
-            tc.make_args.append(f"ALL_LDFLAGS=-L{dispatch_lib} -L{libobjc2_lib}")
+            tc.make_args.append(f"ALL_LDFLAGS=-fuse-ld=lld -L{dispatch_lib} -L{libobjc2_lib}")
 
         # Force the use of a relative value for srcdir.  Some configure checks will inject
         # the value of srcdir into a C source file, like this:

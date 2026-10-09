@@ -94,8 +94,12 @@ class GnustepGuiRecipe(ConanFile):
         # Similarly, because the headers are spread out in different packages (and not just in a central location), be explicit about
         # the include paths.  Conan passes this data to the ./configure script, and libs-gui compiles correctly, but somehow this
         # data is lost when starting to compile the libgmodel bundle.  Work around this using even more environment variables.
+        ldflags = ""
+        if self.options.objc_runtime == "ng":
+            ldflags += " -fuse-ld=lld"
+            
         gnustep_base_lib = self.get_package_folder("gnustep-base", "lib/")
-        ldflags = f"ALL_LDFLAGS=-L{gnustep_base_lib}"
+        ldflags += f" -L{gnustep_base_lib}"
 
         if self.dependencies.__contains__("icu"):
             icu_lib = self.get_package_folder("icu", "lib/")
@@ -106,7 +110,7 @@ class GnustepGuiRecipe(ConanFile):
             libobjc2_lib = self.get_package_folder("libobjc2", "lib/")
             ldflags += (f" -L{dispatch_lib} -L{libobjc2_lib}")
 
-        tc.make_args.append(ldflags)
+        tc.make_args.append(f"ALL_LDFLAGS={ldflags}")
 
         if self.settings.os != "Windows":
             # Force linking with libicu

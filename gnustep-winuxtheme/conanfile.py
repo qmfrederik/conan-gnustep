@@ -70,7 +70,11 @@ class GnustepWinUXThemeRecipe(ConanFile):
         includes = [os.path.join(self.dependencies[dep].package_folder, "include") for dep in ("gnustep-base", "gnustep-gui", "libobjc2")]
         tc.make_args.append(f"OBJC_INCLUDE_PATH='{';'.join(includes)}'")
 
-        ldflags = f"-L{self.get_package_folder('gnustep-base', 'lib/')} -L{self.get_package_folder('gnustep-gui', 'lib/')}"
+        ldflags = ""
+        if self.options.objc_runtime == "ng":
+            ldflags += " -fuse-ld=lld"
+
+        ldflags += f" -L{self.get_package_folder('gnustep-base', 'lib/')} -L{self.get_package_folder('gnustep-gui', 'lib/')}"
         if self.options.objc_runtime == "ng":
             ldflags += f" -L{self.get_package_folder('libdispatch', 'lib/')} -L{self.get_package_folder('libobjc2', 'lib/')}"
         tc.make_args.append(f"ALL_LDFLAGS={ldflags}")
