@@ -11,15 +11,15 @@ class GnustepSystemPreferencesRecipe(ConanFile):
     version = "1.2.1"
     if os.getenv("CI"):
         revision_mode = "scm"
-    package_type = "application"
+    package_type = "library"
     license = "GPL-2.0-or-later"
     url = "https://github.com/gnustep/apps-systempreferences"
     description = "System Preferences application and PreferencePanes framework for GNUstep."
 
     # Binary configuration
     settings = "os", "compiler", "build_type", "arch"
-    options = {"objc_runtime": ["gnu", "ng"]}
-    default_options = {"objc_runtime": "ng"}
+    options = {"shared": [True, False], "fPIC": [True, False], "objc_runtime": ["gnu", "ng"]}
+    default_options = {"shared": True, "fPIC": True, "objc_runtime": "ng"}
     exports_sources = "*.patch"
     python_requires = "gnustep-helpers/0.1"
 
@@ -81,7 +81,8 @@ class GnustepSystemPreferencesRecipe(ConanFile):
             # -lPreferencePanes to PreferencePanes.lib, so rename it and let the modules find it in the framework folder.
             tc.make_args.append("FRAMEWORK_LIBRARY_FILE=PreferencePanes.lib")
             framework_dir = os.path.join(self.build_folder, "PreferencePanes", "PreferencePanes.framework")
-            ldflags += f" -L{framework_dir.replace('\\', '/').replace('C:', '/c')}"
+            framework_dir = framework_dir.replace('\\', '/').replace('C:', '/c')
+            ldflags += f" -L{framework_dir}"
         tc.make_args.append(f"ALL_LDFLAGS={ldflags}")
 
         self.python_requires["gnustep-helpers"].module.configure_windows_pkgconf(self, env)
@@ -104,6 +105,4 @@ class GnustepSystemPreferencesRecipe(ConanFile):
         autotools.install()
 
     def package_info(self):
-        self.cpp_info.includedirs = []
-        self.cpp_info.libdirs = []
-        self.cpp_info.bindirs = []
+        self.cpp_info.libs = ["PreferencePanes"]

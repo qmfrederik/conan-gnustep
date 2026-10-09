@@ -213,6 +213,8 @@ jobs:
         if: matrix.family == 'rhel'
       - name: Install gnustep-headless
         run: .python3/bin/conan create gnustep-headless --profile:a=profiles/linux-clang
+      - name: Install gnustep-systempreferences
+        run: .python3/bin/conan create gnustep-systempreferences --profile:a=profiles/linux-clang
       - name: Build tutorial
         run: |
           ../.python3/bin/conan install conanfile.txt --profile:a=../profiles/linux-clang --output-folder=build/
@@ -346,6 +348,8 @@ jobs:
         run: .python3/bin/conan create gnustep-gui --profile:a=profiles/linux-clang-nodist
       - name: Install gnustep-headless
         run: .python3/bin/conan create gnustep-headless --profile:a=profiles/linux-clang-nodist
+      - name: Install gnustep-systempreferences
+        run: .python3/bin/conan create gnustep-systempreferences --profile:a=profiles/linux-clang-nodist
       - name: Install gnustep
         run: .python3/bin/conan create gnustep --profile:a=profiles/linux-clang-nodist
       - name: Build tutorial
