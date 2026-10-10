@@ -1,0 +1,11 @@
+diff --git a/cmake/modules/DispatchCompilerWarnings.cmake b/cmake/modules/DispatchCompilerWarnings.cmake
+--- a/cmake/modules/DispatchCompilerWarnings.cmake
++++ b/cmake/modules/DispatchCompilerWarnings.cmake
+@@ -45,6 +45,7 @@
+   add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:-Wunused>)
+ 
+   add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:-Wno-unknown-warning-option>)
++  add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:-Wno-unused-but-set-global>)
+   add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:-Wno-trigraphs>)
+   add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:-Wno-four-char-constants>)
+   add_compile_options($<$<COMPILE_LANGUAGE:C,CXX>:-Wno-disabled-macro-expansion>)
