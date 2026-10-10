@@ -33,7 +33,7 @@ class GnustepHeadlessRecipe(ConanFile):
 
     def requirements(self):
         self.requires("gnustep-gui/[^0.32.0]")
-        self.requires("freetype/2.14.3")
+        self.requires("freetype/[^2.13.2]")
         self.tool_requires("gnustep-make/[^2.9.3]")
 
     def config_options(self):
@@ -79,13 +79,13 @@ class GnustepHeadlessRecipe(ConanFile):
         # Fix header paths
         gnustep_base_include = os.path.join(self.dependencies["gnustep-base"].package_folder, "include/")
         gnustep_gui_include = os.path.join(self.dependencies["gnustep-gui"].package_folder, "include/")
+        objc_include = os.path.join(self.dependencies["libobjc2"].package_folder, "include/")
         
         if self .settings.os == "Windows":
-            tc.make_args.append(f"OBJC_INCLUDE_PATH='{gnustep_base_include};{gnustep_gui_include}'")
+            tc.make_args.append(f"OBJC_INCLUDE_PATH='{gnustep_base_include};{gnustep_gui_include};{objc_include}'")
         else:
-            tc.make_args.append(f"OBJC_INCLUDE_PATH={gnustep_base_include}:{gnustep_gui_include}")
+            tc.make_args.append(f"OBJC_INCLUDE_PATH={gnustep_base_include}:{gnustep_gui_include}:{objc_include}")
         
-
         # Resolve GNUstep makefiles
         tc.configure_args.append(f"GNUSTEP_MAKEFILES={build_makefiles}")
         tc.make_args.append(f"GNUSTEP_MAKEFILES={build_makefiles}")
