@@ -33,7 +33,7 @@ class GnustepBackRecipe(ConanFile):
 
     def requirements(self):
         self.requires("gnustep-gui/[^0.32.0]")
-        self.requires("freetype/2.14.3")
+        self.requires("freetype/[^2.13.2]")
         self.requires("cairo/1.18.4")
         self.requires("expat/2.8.5")
         self.tool_requires("gnustep-make/[^2.9.3]")
@@ -101,7 +101,6 @@ class GnustepBackRecipe(ConanFile):
         else:
             tc.make_args.append(f"OBJC_INCLUDE_PATH={gnustep_base_include}:{gnustep_gui_include}:{objc_include}")
         
-
         # Resolve GNUstep makefiles
         tc.configure_args.append(f"GNUSTEP_MAKEFILES={build_makefiles}")
         tc.make_args.append(f"GNUSTEP_MAKEFILES={build_makefiles}")
