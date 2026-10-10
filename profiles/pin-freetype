@@ -1,0 +1,7 @@
+# Pins the freetype version range declared by gnustep-back/gnustep-headless to an exact
+# version, so CI builds are reproducible instead of floating to the latest match.
+# Pins freetype dependencies to avoid conflicts.
+[replace_requires]
+freetype/*: freetype/2.13.2
+fontconfig/*:fontconfig/2.14.2
+    

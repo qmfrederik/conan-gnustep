@@ -66,9 +66,9 @@ jobs:
       - name: Install gnustep-gui
         run: conan create gnustep-gui --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
       - name: Install gnustep-headless
-        run: conan create gnustep-headless --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
+        run: conan create gnustep-headless --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }} --profile:a=${{ github.workspace }}/profiles/pin-freetype
       - name: Install gnustep-back
-        run: conan create gnustep-back --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
+        run: conan create gnustep-back --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }} --profile:a=${{ github.workspace }}/profiles/pin-freetype
       - name: Install gnustep-systempreferences
         run: conan create gnustep-systempreferences --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
       - name: Install gnustep
@@ -347,7 +347,7 @@ jobs:
       - name: Install gnustep-gui
         run: .python3/bin/conan create gnustep-gui --profile:a=profiles/linux-clang-nodist
       - name: Install gnustep-headless
-        run: .python3/bin/conan create gnustep-headless --profile:a=profiles/linux-clang-nodist
+        run: .python3/bin/conan create gnustep-headless --profile:a=profiles/linux-clang-nodist --profile:a=profiles/pin-freetype
       - name: Install gnustep-systempreferences
         run: .python3/bin/conan create gnustep-systempreferences --profile:a=profiles/linux-clang-nodist
       - name: Install gnustep
