@@ -278,6 +278,8 @@ jobs:
 
   linux-nodist:
     runs-on: ubuntu-latest
+    env:
+      CLANG_VERSION: 23
     container:
       image: ${{ matrix.image }}
     strategy:
@@ -295,7 +297,7 @@ jobs:
           install -d /etc/apt/keyrings
           curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key -o /etc/apt/keyrings/apt.llvm.org.asc
           . /etc/os-release
-          echo "deb [signed-by=/etc/apt/keyrings/apt.llvm.org.asc] http://apt.llvm.org/${VERSION_CODENAME}/ llvm-toolchain-${VERSION_CODENAME}-22 main" > /etc/apt/sources.list.d/llvm.list
+          echo "deb [signed-by=/etc/apt/keyrings/apt.llvm.org.asc] http://apt.llvm.org/${VERSION_CODENAME}/ llvm-toolchain-${VERSION_CODENAME}-${CLANG_VERSION} main" > /etc/apt/sources.list.d/llvm.list
         if: matrix.family == 'ubuntu'
       - name: Add Kitware apt repository (Ubuntu)
         run: |
@@ -306,10 +308,10 @@ jobs:
       - name: Install dependencies (Ubuntu)
         run: |
           apt-get update
-          apt-get install -y gobjc-13 libstdc++-13-dev clang-22 lld-22 curl zip unzip tar git pkg-config make python3-venv cmake
+          apt-get install -y gobjc-13 libstdc++-13-dev clang-${CLANG_VERSION} lld-${CLANG_VERSION} curl zip unzip tar git pkg-config make python3-venv cmake
           # The Conan profile expects /usr/bin/clang and /usr/bin/clang++
-          update-alternatives --install /usr/bin/clang clang /usr/bin/clang-22 100
-          update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-22 100
+          update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${CLANG_VERSION} 100
+          update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${CLANG_VERSION} 100
         if: matrix.family == 'ubuntu'
       - name: Check LLVM, Cmake version
         run: |
