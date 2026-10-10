@@ -1,0 +1,26 @@
+From f684c335a9c0cdef3dca95e291d841cde763cb35 Mon Sep 17 00:00:00 2001
+From: Mike <rans@email.com>
+Date: Mon, 5 Oct 2026 21:52:09 +1300
+Subject: [PATCH 9/9] GSScheduledBlock _block instead of BLOCK_SCOPE
+ GSScheduledBlock _block (#809)
+
+---
+ Headers/Foundation/NSBackgroundActivityScheduler.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Headers/Foundation/NSBackgroundActivityScheduler.h b/Headers/Foundation/NSBackgroundActivityScheduler.h
+index f7b8d6ab0..c1a45d132 100644
+--- a/Headers/Foundation/NSBackgroundActivityScheduler.h
++++ b/Headers/Foundation/NSBackgroundActivityScheduler.h
+@@ -77,7 +77,7 @@ GS_EXPORT_CLASS
+   NSActivityOptions _opts;
+   id _token;
+   NSString *_reason;
+-  BLOCK_SCOPE GSScheduledBlock _block;
++  GSScheduledBlock _block;
+ }
+   
+ - (instancetype) initWithIdentifier: (NSString *)identifier;
+-- 
+2.47.0.windows.1
+

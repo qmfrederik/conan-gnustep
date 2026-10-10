@@ -3,3 +3,9 @@ sources:
     url: "https://github.com/swiftlang/swift-corelibs-libdispatch/archive/refs/tags/swift-6.4.0-RELEASE.tar.gz"
     sha256: "af15fcc3da4514def6454ed672b82daa9ac1d40cb1d08fb69a6611cb8fc104c6"
     strip_root: true
+
+patches:
+  # Clang 23: -Wunused (added by upstream) re-enables -Wunused-but-set-global, which -Werror turns into an error,
+  # which would case this failure:
+  # error: variable '_dispatch_program_is_probably_callback_driven' set but not used [-Werror,-Wunused-but-set-global]
+  - patch_file: "0003-Disable-Wunused-but-set-global.patch"
