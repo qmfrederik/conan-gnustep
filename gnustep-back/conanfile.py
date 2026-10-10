@@ -119,3 +119,8 @@ class GnustepBackRecipe(ConanFile):
     def package(self):
         autotools = Autotools(self)
         autotools.install()
+
+    def package_info(self):
+        # The backend bundle lives outside gnustep-base's library directory, so make GNUstep search it.
+        self.runenv_info.append_path("GNUSTEP_EXTRA_LIBRARY_PATHS",
+                                     os.path.join(self.package_folder, "lib", "GNUstep"))
