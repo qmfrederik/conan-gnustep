@@ -1,0 +1,61 @@
+Subject: [PATCH] Search the directories in GNUSTEP_EXTRA_LIBRARY_PATHS for library resources
+
+---
+--- a/Source/NSPathUtilities.m
++++ b/Source/NSPathUtilities.m
+@@ -2238,6 +2238,33 @@ devroot(NSFileManager *manager, NSString *path)
+ }
+ #endif
+ 
++/* GNUSTEP_EXTRA_LIBRARY_PATHS lists additional library directories (each
++ * holding Bundles, Frameworks, ...), separated by ';' on Windows and ':'
++ * elsewhere.  Packages installed in separate prefixes use it to be found.
++ */
++static void
++AddExtraLibraryPaths(NSMutableArray *paths)
++{
++  NSString      *list;
++  NSEnumerator  *e;
++  NSString      *dir;
++
++  list = [[[NSProcessInfo processInfo] environment]
++    objectForKey: @"GNUSTEP_EXTRA_LIBRARY_PATHS"];
++#if defined(_WIN32)
++  e = [[list componentsSeparatedByString: @";"] objectEnumerator];
++#else
++  e = [[list componentsSeparatedByString: @":"] objectEnumerator];
++#endif
++  while ((dir = [e nextObject]) != nil)
++    {
++      if ([dir length] > 0 && [paths containsObject: dir] == NO)
++        {
++          [paths addObject: dir];
++        }
++    }
++}
++
+ GS_DECLARE NSArray *
+ NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory directoryKey,
+   NSSearchPathDomainMask domainMask, BOOL expandTilde)
+@@ -2357,6 +2384,10 @@ if (domainMask & mask) \
+ 	  ADD_PLATFORM_PATH(NSLocalDomainMask, gnustepLocalLibrary);
+ 	  ADD_PLATFORM_PATH(NSNetworkDomainMask, gnustepNetworkLibrary);
+ 	  ADD_PLATFORM_PATH(NSSystemDomainMask, gnustepSystemLibrary);
++	  if (domainMask & NSSystemDomainMask)
++	    {
++	      AddExtraLibraryPaths(paths);
++	    }
+ 	}
+ 	break;
+ 
+@@ -2372,6 +2403,10 @@ if (domainMask & mask) \
+ 	  ADD_PLATFORM_PATH(NSLocalDomainMask, gnustepLocalLibrary);
+ 	  ADD_PLATFORM_PATH(NSNetworkDomainMask, gnustepNetworkLibrary);
+ 	  ADD_PLATFORM_PATH(NSSystemDomainMask, gnustepSystemLibrary);
++	  if (domainMask & NSSystemDomainMask)
++	    {
++	      AddExtraLibraryPaths(paths);
++	    }
+ 	}
+ 	break;
+ 
