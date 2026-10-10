@@ -15,3 +15,5 @@ patches:
   - patch_file: "0006-workaround-for-clang-bug-issue-589.patch"
   - patch_file: "0007-Update-NSTimeZone.m.patch"
   - patch_file: "0008-Add-GNUSTEP_EXTRA_LIBRARY_PATHS.patch"
+  # Fixes for clang 23 compatibility
+  - patch_file: "0009-GSScheduledBlock-_block-instead-of-BLOCK_SCOPE-GSSch.patch"
