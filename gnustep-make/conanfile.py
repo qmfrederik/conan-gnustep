@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain
-from conan.tools.files import get
+from conan.tools.files import get, apply_conandata_patches
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualRunEnv
 from conan.errors import ConanInvalidConfiguration
@@ -22,6 +22,7 @@ class GnustepMakeRecipe(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False], "objc_runtime": ["gnu", "ng"]}
     default_options = {"shared": False, "fPIC": True, "objc_runtime": "ng"}
+    exports_sources = "*.patch"
     python_requires = "gnustep-helpers/0.1"
 
     def set_version(self):
@@ -29,6 +30,7 @@ class GnustepMakeRecipe(ConanFile):
 
     def source(self):
         get(self, **sorted(self.conan_data["sources"].values())[0])
+        apply_conandata_patches(self)
 
     def validate(self):
         # Require clang 20 on Windows
@@ -87,6 +89,18 @@ class GnustepMakeRecipe(ConanFile):
         autotools = Autotools(self)
         autotools.install()
 
+    def get_makefiles_folder(self):
+        gnustep_make_package_folder = self.package_folder
+        gnustep_makefiles_folder = f"{gnustep_make_package_folder}/share/GNUstep/Makefiles/"
+
+        # There should be a more elegant way to handle these backwards slashes
+        if self.settings.os == "Windows":
+            gnustep_makefiles_folder = gnustep_makefiles_folder.replace('\\','/')
+            gnustep_makefiles_folder = gnustep_makefiles_folder.replace('C:','/c')
+            gnustep_makefiles_folder = f"{gnustep_makefiles_folder}"
+
+        return gnustep_makefiles_folder
+
     def package_info(self):
         self.cpp_info.includedirs = []
         self.cpp_info.defines = [ "_NONFRAGILE_ABI=1" ]
@@ -97,3 +111,6 @@ class GnustepMakeRecipe(ConanFile):
             self.cpp_info.requires = [ "libobjc2::libobjc2" ]
         else:
             self.cpp_info.system_libs = ["objc"]
+
+        # Set the GNUSTEP_MAKEFILES path
+        self.buildenv_info.append_path("GNUSTEP_MAKEFILES", self.get_makefiles_folder())

@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Frederik Carlier <frederik.carlier@keysight.com>
+Date: Sun, 11 Oct 2026 09:00:00 +0000
+Subject: [PATCH] Add GNUSTEP_BUILD_ADDITIONAL_MAKEFILES
+
+Allow the build environment to inject additional makefiles, without
+the projects being built overriding the list (as is the case for
+GNUSTEP_LOCAL_ADDITIONAL_MAKEFILES).
+---
+ common.make | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/common.make b/common.make
+index d77f495..cf5496a 100644
+--- a/common.make
++++ b/common.make
+@@ -206,6 +206,12 @@ endif
+ # libraries themselves
+ -include $(GNUSTEP_MAKEFILES)/Additional/*.make
+ 
++# Makefiles injected by the build environment (e.g. by package managers), as a space-separated list.
++# Unlike GNUSTEP_LOCAL_ADDITIONAL_MAKEFILES, projects don't override this variable.
++ifneq ($(GNUSTEP_BUILD_ADDITIONAL_MAKEFILES),)
++include $(GNUSTEP_BUILD_ADDITIONAL_MAKEFILES)
++endif
++
+ #
+ # Determine target specific settings
+ #
+-- 
+2.43.0
+

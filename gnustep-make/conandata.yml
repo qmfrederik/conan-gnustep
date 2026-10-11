@@ -4,3 +4,6 @@ sources:
     sha256: "93ca320b706279ebca53760da89d4c3f2bbc547f4723967140a34346d9f04c24"
     strip_root: true
 
+patches:
+  - patch_file: "0001-Add-GNUSTEP_BUILD_ADDITIONAL_MAKEFILES.patch"
+
