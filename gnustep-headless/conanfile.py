@@ -58,24 +58,6 @@ class GnustepHeadlessRecipe(ConanFile):
         tc.configure_args.append("--enable-graphics=headless")
         tc.configure_args.append("--enable-server=headless")
 
-        # The GNUstep makefiles are stored in the gnustep-make and gnustep-base package (gnustep-base
-        # deploys a single makefile, but that contains additional preprocessor definitions which are
-        # needed).
-        # The GNUstep filesystem doesn't deal with this layout very well, so create a single directory
-        # into which we merge both file systems
-        gnustep_make_makefiles = os.path.join(self.dependencies.build["gnustep-make"].package_folder, "share/GNUstep/Makefiles/")
-        gnustep_base_makefiles = os.path.join(self.dependencies["gnustep-base"].package_folder, "share/GNUstep/Makefiles")
-        gnustep_gui_makefiles = os.path.join(self.dependencies["gnustep-gui"].package_folder, "share/GNUstep/Makefiles")
-        build_makefiles = os.path.join(self.build_folder, "build/Makefiles")
-        mkdir(self, build_makefiles)
-        shutil.copytree(gnustep_make_makefiles, build_makefiles, dirs_exist_ok=True)
-        shutil.copytree(gnustep_base_makefiles, build_makefiles, dirs_exist_ok=True)
-        shutil.copytree(gnustep_gui_makefiles, build_makefiles, dirs_exist_ok=True)
-
-        if self.settings.os == "Windows":
-            build_makefiles = build_makefiles.replace('\\','/')
-            build_makefiles = build_makefiles.replace('C:','/c')
-
         # Fix header paths
         gnustep_base_include = os.path.join(self.dependencies["gnustep-base"].package_folder, "include/")
         gnustep_gui_include = os.path.join(self.dependencies["gnustep-gui"].package_folder, "include/")
@@ -86,10 +68,6 @@ class GnustepHeadlessRecipe(ConanFile):
         else:
             tc.make_args.append(f"OBJC_INCLUDE_PATH={gnustep_base_include}:{gnustep_gui_include}:{objc_include}")
         
-        # Resolve GNUstep makefiles
-        tc.configure_args.append(f"GNUSTEP_MAKEFILES={build_makefiles}")
-        tc.make_args.append(f"GNUSTEP_MAKEFILES={build_makefiles}")
-
         # Force the use of a relative value for srcdir.  Some configure checks will inject
         # the value of srcdir into a C source file, like this:
         # #include "$srcdir/config/config.reuseaddr.c"
