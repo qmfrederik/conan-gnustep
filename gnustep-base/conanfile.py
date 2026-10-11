@@ -191,8 +191,8 @@ class GnustepBaseRecipe(ConanFile):
             self.cpp_info.cflags.append("-fconstant-string-class=NSConstantString")
             self.cpp_info.system_libs = ["objc"]
 
-        # Have the child build systems pick up base.make
-        base_make = os.path.join(self.package_folder, "share", "GNUstep", "Makefiles", "Additional", "base.make")
-        if self.settings.os == "Windows":
-            base_make = base_make.replace('\\', '/').replace('C:', '/c')
-        self.buildenv_info.append("GNUSTEP_BUILD_ADDITIONAL_MAKEFILES", base_make)
+        # Have the child build systems pick up the GNUstep base.make makefile
+        self.python_requires["gnustep-helpers"].module.gnustep_register_additional_makefiles(self, "base.make")
+
+        # Let the build systems of dependents find the headers and library of this package
+        self.python_requires["gnustep-helpers"].module.gnustep_register_library_paths(self)

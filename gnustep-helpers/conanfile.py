@@ -31,6 +31,32 @@ def configure_windows_pkgconf(pkg, env):
         # tool, so use that
         env.define("PKG_CONFIG", os.path.join(pkg.dependencies.build["pkgconf"].package_folder, "bin", "pkgconf.exe"))
 
+def gnustep_register_additional_makefiles(pkg, makefile):
+    # Have the child build systems pick up the package's additional makefile.  By default, GNUstep expects all additional
+    # Makefiles to be in the same location (e.g. /usr/share/GNUstep/Makefiles/Additional/ on Ubuntu).  When using Conan,
+    # these files live in the various packages.  Each package can declare their own extra package-specific Makefiles
+    # by adding to GNUSTEP_BUILD_ADDITIONAL_MAKEFILES.
+    path = os.path.join(pkg.package_folder, "share", "GNUstep", "Makefiles", "Additional", makefile)
+    if pkg.settings.os == "Windows":
+        path = path.replace('\\', '/').replace('C:', '/c')
+    pkg.buildenv_info.append("GNUSTEP_BUILD_ADDITIONAL_MAKEFILES", path)
+
+def gnustep_register_library_paths(pkg):
+    # By default, most GNUstep-related libraries live in the same folder.  The build system isn't expecting to
+    # be looking for libraries in non-standard locations.  We provide the necessary flags to help the build system find them.
+    lib_dir = os.path.join(pkg.package_folder, "lib")
+    include_dir = os.path.join(pkg.package_folder, "include")
+    if pkg.settings.os == "Windows":
+        lib_dir = lib_dir.replace('\\', '/').replace('C:', '/c')
+        include_dir = include_dir.replace('\\', '/').replace('C:', '/c')
+
+    # Set the lib dir through ADDITIONAL_LDFLAGS so bundles can find the package's library during linking.
+    pkg.buildenv_info.append("ADDITIONAL_LDFLAGS", f"-L{lib_dir}")
+
+    # The compiler only searches OBJC_INCLUDE_PATH for Objective-C headers (<Foundation/...>) when
+    # the include paths from CPPFLAGS are not passed through (e.g. when building bundles).
+    pkg.buildenv_info.append_path("OBJC_INCLUDE_PATH", include_dir)
+
 def windows_build_requirements(pkg):
     # Require a MSYS2 shell on Windows (for Autotools support)
     if pkg.settings.os == "Windows":

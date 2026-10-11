@@ -75,22 +75,6 @@ class GnustepBackRecipe(ConanFile):
             tc.configure_args.append("--enable-graphics=cairo")
             tc.configure_args.append("--enable-server=x11")
 
-        # Fix header paths
-        gnustep_base_include = os.path.join(self.dependencies["gnustep-base"].package_folder, "include/")
-        gnustep_gui_include = os.path.join(self.dependencies["gnustep-gui"].package_folder, "include/")
-        objc_include = os.path.join(self.dependencies["libobjc2"].package_folder, "include/")
-        
-        if self.settings.os == "Windows":
-            tc.make_args.append(f"OBJC_INCLUDE_PATH='{gnustep_base_include};{gnustep_gui_include};{objc_include}'")
-        else:
-            tc.make_args.append(f"OBJC_INCLUDE_PATH={gnustep_base_include}:{gnustep_gui_include}:{objc_include}")
-        
-        # Resolve library paths for the Objective-C runtime
-        if self.options.objc_runtime == "ng":
-            dispatch_lib = self.get_package_folder("libdispatch", "lib/")
-            libobjc2_lib = self.get_package_folder("libobjc2", "lib/")
-            tc.make_args.append(f"ALL_LDFLAGS=-fuse-ld=lld -L{dispatch_lib} -L{libobjc2_lib}")
-
         # Force the use of a relative value for srcdir.  Some configure checks will inject
         # the value of srcdir into a C source file, like this:
         # #include "$srcdir/config/config.reuseaddr.c"
