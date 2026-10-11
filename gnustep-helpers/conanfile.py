@@ -31,24 +31,26 @@ def configure_windows_pkgconf(pkg, env):
         # tool, so use that
         env.define("PKG_CONFIG", os.path.join(pkg.dependencies.build["pkgconf"].package_folder, "bin", "pkgconf.exe"))
 
+def msys_path(pkg, path):
+    # unix_path() can't be used in package_info(): it relies on win_bash, which is only set while building the package.
+    # Only needed for values that embed a path (flags, space-separated lists); append_path() converts on its own.
+    if pkg.settings.os == "Windows":
+        return path.replace('\\', '/').replace('C:', '/c')
+    return path
+
 def gnustep_register_additional_makefiles(pkg, makefile):
     # Have the child build systems pick up the package's additional makefile.  By default, GNUstep expects all additional
     # Makefiles to be in the same location (e.g. /usr/share/GNUstep/Makefiles/Additional/ on Ubuntu).  When using Conan,
     # these files live in the various packages.  Each package can declare their own extra package-specific Makefiles
-    # by adding to GNUSTEP_BUILD_ADDITIONAL_MAKEFILES.
+    # by adding to GNUSTEP_BUILD_ADDITIONAL_MAKEFILES (a space-separated list, so append_path() can't be used).
     path = os.path.join(pkg.package_folder, "share", "GNUstep", "Makefiles", "Additional", makefile)
-    if pkg.settings.os == "Windows":
-        path = path.replace('\\', '/').replace('C:', '/c')
-    pkg.buildenv_info.append("GNUSTEP_BUILD_ADDITIONAL_MAKEFILES", path)
+    pkg.buildenv_info.append("GNUSTEP_BUILD_ADDITIONAL_MAKEFILES", msys_path(pkg, path))
 
 def gnustep_register_library_paths(pkg):
     # By default, most GNUstep-related libraries live in the same folder.  The build system isn't expecting to
     # be looking for libraries in non-standard locations.  We provide the necessary flags to help the build system find them.
-    lib_dir = os.path.join(pkg.package_folder, "lib")
+    lib_dir = msys_path(pkg, os.path.join(pkg.package_folder, "lib"))
     include_dir = os.path.join(pkg.package_folder, "include")
-    if pkg.settings.os == "Windows":
-        lib_dir = lib_dir.replace('\\', '/').replace('C:', '/c')
-        include_dir = include_dir.replace('\\', '/').replace('C:', '/c')
 
     # Set the lib dir through ADDITIONAL_LDFLAGS so bundles can find the package's library during linking.
     pkg.buildenv_info.append("ADDITIONAL_LDFLAGS", f"-L{lib_dir}")

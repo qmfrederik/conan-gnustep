@@ -41,11 +41,6 @@ class GnustepWinUXThemeRecipe(ConanFile):
         # Require a MSYS2 shell on Windows (for GNU make)
         self.python_requires["gnustep-helpers"].module.windows_build_requirements(self)
 
-    def get_package_folder(self, package_name, folder_path):
-        full_folder_path = os.path.join(self.dependencies[package_name].package_folder, folder_path)
-        full_folder_path = full_folder_path.replace('\\','/')
-        return full_folder_path.replace('C:','/c')
-
     def generate(self):
         if not cross_building(self):
             env = VirtualRunEnv(self)
