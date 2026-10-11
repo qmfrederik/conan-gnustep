@@ -72,13 +72,13 @@ python3 -m venv .python3/
 .python3/bin/pip install conan==2.33.0
 . .python3/bin/activate
 conan config install global.conf
-conan create gnustep-helpers --profile:a=profiles/linux-clang
-conan create libdispatch --profile:a=profiles/linux-clang
-conan create libobjc2 --profile:a=profiles/linux-clang
-conan create gnustep-make --profile:a=profiles/linux-clang
-conan create gnustep-base --profile:a=profiles/linux-clang -c tools.build:skip_test=True --build=icu/* --build=gnustep-base/*
-conan create gnustep-gui --profile:a=profiles/linux-clang
-conan create gnustep-headless --profile:a=profiles/linux-clang
+conan create gnustep-helpers --profile:a=profiles/linux-clang-nodist
+conan create libdispatch --profile:a=profiles/linux-clang-nodist
+conan create libobjc2 --profile:a=profiles/linux-clang-nodist
+conan create gnustep-make --profile:a=profiles/linux-clang-nodist
+conan create gnustep-base --profile:a=profiles/linux-clang-nodist -c tools.build:skip_test=True --build=icu/* --build=gnustep-base/*
+conan create gnustep-gui --profile:a=profiles/linux-clang-nodist
+conan create gnustep-headless --profile:a=profiles/linux-clang-nodist
 ```
 
 ## Tips & Tricks
