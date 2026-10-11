@@ -65,18 +65,6 @@ class GnustepBaseRecipe(ConanFile):
     def build_requirements(self):
         # Require a MSYS2 shell on Windows (for Autotools support)
         self.python_requires["gnustep-helpers"].module.windows_build_requirements(self)
-
-    def get_makefiles_folder(self):
-        gnustep_make_package_folder = self.dependencies.build["gnustep-make"].package_folder
-        gnustep_makefiles_folder = f"{gnustep_make_package_folder}/share/GNUstep/Makefiles/"
-
-        # There should be a more elegant way to handle these backwards slashes
-        if self.settings.os == "Windows":
-            gnustep_makefiles_folder = gnustep_makefiles_folder.replace('\\','/')
-            gnustep_makefiles_folder = gnustep_makefiles_folder.replace('C:','/c')
-            gnustep_makefiles_folder = f"{gnustep_makefiles_folder}"
-
-        return gnustep_makefiles_folder
         
     def generate(self):
         if not cross_building(self):
@@ -92,10 +80,7 @@ class GnustepBaseRecipe(ConanFile):
         if self.settings.os == "Windows":
             tc.configure_args.append("--disable-tls")
 
-        # Resolve GNUstep makefiles
-        gnustep_makefiles_folder = self.get_makefiles_folder()
-        tc.configure_args.append(f"GNUSTEP_MAKEFILES={gnustep_makefiles_folder}")
-        tc.make_args.append(f"GNUSTEP_MAKEFILES={gnustep_makefiles_folder}")
+        # GNUstep makefiles are imported via gnustep-make, don't use the config file
         tc.configure_args.append("--disable-importing-config-file")
 
         # Force the use of a relative value for srcdir.  Some configure checks will inject
@@ -152,8 +137,11 @@ class GnustepBaseRecipe(ConanFile):
 
         # Make install copies the additional makefiles into $DESTDIR/${gnustep_make_package_folder}/share/GNUstep/Makefiles/,
         # but gnustep_make_package_folder is a fully qualified path (/home/user/.conan/p/b/{package}/p/share/GNUstep/Makefiles/);
-        # we fix that here.  This always runs in a GNU-like context (Linux or MSYS), so we can assume Unix paths.
-        src = os.path.join(self.package_folder, self.get_makefiles_folder()[1:], "Additional")
+        # we fix that here.  We copy the entire gnustep
+        # This always runs in a GNU-like context (Linux or MSYS), so we can assume Unix paths.
+        gnustep_makefiles = self.dependencies.build["gnustep-make"].buildenv_info.vars(self)["GNUSTEP_MAKEFILES"]
+        # Strip the trailing "/" to make the path relative
+        src = os.path.join(self.package_folder, gnustep_makefiles[1:], "Additional")
         dst = os.path.join(self.package_folder, "share/GNUstep/Makefiles/Additional/")
         copy(
             self,
@@ -202,3 +190,9 @@ class GnustepBaseRecipe(ConanFile):
         if self.options.objc_runtime == "gnu":
             self.cpp_info.cflags.append("-fconstant-string-class=NSConstantString")
             self.cpp_info.system_libs = ["objc"]
+
+        # Have the child build systems pick up base.make
+        base_make = os.path.join(self.package_folder, "share", "GNUstep", "Makefiles", "Additional", "base.make")
+        if self.settings.os == "Windows":
+            base_make = base_make.replace('\\', '/').replace('C:', '/c')
+        self.buildenv_info.append("GNUSTEP_BUILD_ADDITIONAL_MAKEFILES", base_make)

@@ -66,26 +66,6 @@ class GnustepGuiRecipe(ConanFile):
 
         tc = AutotoolsToolchain(self)
         env = tc.environment()
-
-        # The GNUstep makefiles are stored in the gnustep-make and gnustep-base package (gnustep-base
-        # deploys a single makefile, but that contains additional preprocessor definitions which are
-        # needed).
-        # The GNUstep filesystem doesn't deal with this layout very well, so create a single directory
-        # into which we merge both file systems
-        gnustep_make_makefiles = os.path.join(self.dependencies.build["gnustep-make"].package_folder, "share/GNUstep/Makefiles/")
-        gnustep_base_makefiles = os.path.join(self.dependencies["gnustep-base"].package_folder, "share/GNUstep/Makefiles")
-        build_makefiles = os.path.join(self.build_folder, "build/Makefiles")
-        mkdir(self, build_makefiles)
-        shutil.copytree(gnustep_make_makefiles, build_makefiles, dirs_exist_ok=True)
-        shutil.copytree(gnustep_base_makefiles, build_makefiles, dirs_exist_ok=True)
-
-        if self.settings.os == "Windows":
-            build_makefiles = build_makefiles.replace('\\','/')
-            build_makefiles = build_makefiles.replace('C:','/c')
-
-        # Resolve GNUstep makefiles
-        tc.configure_args.append(f"GNUSTEP_MAKEFILES={build_makefiles}")
-        tc.make_args.append(f"GNUSTEP_MAKEFILES={build_makefiles}")
         tc.configure_args.append("--disable-importing-config-file")
 
         gnustep_base_include = self.get_package_folder("gnustep-base", "include/")
@@ -179,3 +159,9 @@ class GnustepGuiRecipe(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["gnustep-gui"]
+
+        # common.make includes every file listed in GNUSTEP_BUILD_ADDITIONAL_MAKEFILES (space-separated)
+        gui_make = os.path.join(self.package_folder, "share", "GNUstep", "Makefiles", "Additional", "gui.make")
+        if self.settings.os == "Windows":
+            gui_make = gui_make.replace('\\', '/').replace('C:', '/c')
+        self.buildenv_info.append("GNUSTEP_BUILD_ADDITIONAL_MAKEFILES", gui_make)

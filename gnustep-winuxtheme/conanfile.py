@@ -54,17 +54,6 @@ class GnustepWinUXThemeRecipe(ConanFile):
         tc = AutotoolsToolchain(self)
         env = tc.environment()
 
-        # Merge the makefiles of gnustep-make, gnustep-base and gnustep-gui into a single directory
-        # (see gnustep-back for details).
-        build_makefiles = os.path.join(self.build_folder, "build/Makefiles")
-        mkdir(self, build_makefiles)
-        shutil.copytree(os.path.join(self.dependencies.build["gnustep-make"].package_folder, "share/GNUstep/Makefiles"), build_makefiles, dirs_exist_ok=True)
-        shutil.copytree(os.path.join(self.dependencies["gnustep-base"].package_folder, "share/GNUstep/Makefiles"), build_makefiles, dirs_exist_ok=True)
-        shutil.copytree(os.path.join(self.dependencies["gnustep-gui"].package_folder, "share/GNUstep/Makefiles"), build_makefiles, dirs_exist_ok=True)
-
-        build_makefiles = build_makefiles.replace('\\','/').replace('C:','/c')
-        tc.make_args.append(f"GNUSTEP_MAKEFILES={build_makefiles}")
-
         # The headers are spread over several packages, so be explicit about the include paths.
         # clang reads OBJC_INCLUDE_PATH directly, so it needs native Windows paths (no MSYS conversion).
         includes = [os.path.join(self.dependencies[dep].package_folder, "include") for dep in ("gnustep-base", "gnustep-gui", "libobjc2")]
