@@ -91,15 +91,9 @@ class GnustepMakeRecipe(ConanFile):
 
     def get_makefiles_folder(self):
         gnustep_make_package_folder = self.package_folder
-        gnustep_makefiles_folder = f"{gnustep_make_package_folder}/share/GNUstep/Makefiles/"
+        gnustep_makefiles_folder = os.path.join(gnustep_make_package_folder, "share", "GNUstep", "Makefiles") + "/"
 
-        # There should be a more elegant way to handle these backwards slashes
-        if self.settings.os == "Windows":
-            gnustep_makefiles_folder = gnustep_makefiles_folder.replace('\\','/')
-            gnustep_makefiles_folder = gnustep_makefiles_folder.replace('C:','/c')
-            gnustep_makefiles_folder = f"{gnustep_makefiles_folder}"
-
-        return gnustep_makefiles_folder
+        return self.python_requires["gnustep-helpers"].module.msys_path(self, gnustep_makefiles_folder)
 
     def package_info(self):
         self.cpp_info.includedirs = []

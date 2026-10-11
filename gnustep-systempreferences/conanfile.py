@@ -40,12 +40,7 @@ class GnustepSystemPreferencesRecipe(ConanFile):
 
     def get_package_folder(self, package_name, folder_path):
         full_folder_path = os.path.join(self.dependencies[package_name].package_folder, folder_path)
-
-        if self.settings.os == "Windows":
-            full_folder_path = full_folder_path.replace('\\','/')
-            full_folder_path = full_folder_path.replace('C:','/c')
-
-        return full_folder_path
+        return self.python_requires["gnustep-helpers"].module.msys_path(self, full_folder_path)
 
     def generate(self):
         if not cross_building(self):
@@ -88,7 +83,7 @@ class GnustepSystemPreferencesRecipe(ConanFile):
             # -lPreferencePanes to PreferencePanes.lib, so rename it and let the modules find it in the framework folder.
             tc.make_args.append("FRAMEWORK_LIBRARY_FILE=PreferencePanes.lib")
             framework_dir = os.path.join(self.build_folder, "PreferencePanes", "PreferencePanes.framework")
-            framework_dir = framework_dir.replace('\\', '/').replace('C:', '/c')
+            framework_dir = self.python_requires["gnustep-helpers"].module.msys_path(self, framework_dir)
             ldflags += f" -L{framework_dir}"
         tc.make_args.append(f"ALL_LDFLAGS={ldflags}")
 

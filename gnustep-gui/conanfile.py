@@ -48,15 +48,6 @@ class GnustepGuiRecipe(ConanFile):
         # Require a MSYS2 shell on Windows (for Autotools support)
         self.python_requires["gnustep-helpers"].module.windows_build_requirements(self)
 
-    def get_package_folder(self, package_name, folder_path):
-        full_folder_path = os.path.join(self.dependencies[package_name].package_folder, folder_path)
-        
-        if self.settings.os == "Windows":
-            full_folder_path = full_folder_path.replace('\\','/')
-            full_folder_path = full_folder_path.replace('C:','/c')
-
-        return full_folder_path
-
     def generate(self):
         if not cross_building(self):
             # Expose LD_LIBRARY_PATH when there are shared dependencies,

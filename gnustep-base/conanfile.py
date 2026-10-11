@@ -155,7 +155,7 @@ class GnustepBaseRecipe(ConanFile):
             rmdir(self, os.path.join(self.package_folder, "home"))
         
         # Extract compiler options, and cache them for use by package_info
-        pkg_config_path = os.path.join(self.package_folder, "lib", "pkgconfig").replace('\\','/').replace('C:','/c')
+        pkg_config_path = self.python_requires["gnustep-helpers"].module.msys_path(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         pkg_config = PkgConfig(self, "gnustep-base", pkg_config_path)
 
         pc_data = {
