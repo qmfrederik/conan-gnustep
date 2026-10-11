@@ -89,6 +89,9 @@ class GnustepMakeRecipe(ConanFile):
         autotools = Autotools(self)
         autotools.install()
 
+        self.python_requires["gnustep-helpers"].module.strip_absolute_paths(
+            self, "share/GNUstep/Makefiles/config.make", "bin/gnustep-config")
+
     def get_makefiles_folder(self):
         gnustep_make_package_folder = self.package_folder
         gnustep_makefiles_folder = os.path.join(gnustep_make_package_folder, "share", "GNUstep", "Makefiles") + "/"

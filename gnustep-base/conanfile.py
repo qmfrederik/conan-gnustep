@@ -153,7 +153,10 @@ class GnustepBaseRecipe(ConanFile):
             rmdir(self, os.path.join(self.package_folder, "c"))
         else:
             rmdir(self, os.path.join(self.package_folder, "home"))
-        
+
+        self.python_requires["gnustep-helpers"].module.strip_absolute_paths(
+            self, "share/GNUstep/Makefiles/Additional/base.make")
+
         # Extract compiler options, and cache them for use by package_info
         pkg_config_path = self.python_requires["gnustep-helpers"].module.msys_path(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
         pkg_config = PkgConfig(self, "gnustep-base", pkg_config_path)

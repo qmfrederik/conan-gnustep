@@ -1,6 +1,17 @@
 import package_version
 from conan import ConanFile
+from conan.tools.files import load, save
 import os
+import re
+
+_ABSOLUTE_PATH_FLAG = re.compile(r"\s(?:-[IL]|-Wl,-rpath(?:-link)?[=,])(?:/|[A-Za-z]:)\S*")
+
+def strip_absolute_paths(pkg, *relative_files):
+    # configure bakes absolute -I/-L/-rpath paths (Conan cache folders of the dependencies) into generated files.
+    # Strip them all so a relocated package fails visibly instead of silently using the builder's paths.
+    for rel in relative_files:
+        path = os.path.join(pkg.package_folder, rel)
+        save(pkg, path, _ABSOLUTE_PATH_FLAG.sub("", load(pkg, path)))
 
 def get_package_version(package):
     try:
