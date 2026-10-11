@@ -33,9 +33,10 @@ class GnustepBackRecipe(ConanFile):
 
     def requirements(self):
         self.requires("gnustep-gui/[^0.32.0]")
-        self.requires("freetype/[^2.13.2]")
-        self.requires("cairo/1.18.4")
-        self.requires("expat/2.8.5")
+        if self.settings.os != "Windows":
+            self.requires("freetype/[^2.13.2]")
+            self.requires("cairo/1.18.4")
+            self.requires("expat/2.8.5")
         self.tool_requires("gnustep-make/[^2.9.3]")
 
     def config_options(self):
@@ -69,6 +70,7 @@ class GnustepBackRecipe(ConanFile):
         if self.settings.os == "Windows":
             tc.configure_args.append("--enable-graphics=winlib")
             tc.configure_args.append("--enable-server=win32")
+            tc.configure_args.append("--without-freetype")
         else:
             tc.configure_args.append("--enable-graphics=cairo")
             tc.configure_args.append("--enable-server=x11")

@@ -33,7 +33,6 @@ class GnustepHeadlessRecipe(ConanFile):
 
     def requirements(self):
         self.requires("gnustep-gui/[^0.32.0]")
-        self.requires("freetype/[^2.13.2]")
         self.tool_requires("gnustep-make/[^2.9.3]")
 
     def config_options(self):
@@ -57,6 +56,7 @@ class GnustepHeadlessRecipe(ConanFile):
         # Configure a headless build
         tc.configure_args.append("--enable-graphics=headless")
         tc.configure_args.append("--enable-server=headless")
+        tc.configure_args.append("--without-freetype")
 
         # Fix header paths
         gnustep_base_include = os.path.join(self.dependencies["gnustep-base"].package_folder, "include/")

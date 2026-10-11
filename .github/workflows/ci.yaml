@@ -205,12 +205,6 @@ jobs:
         if: matrix.family == 'rhel'
       - name: Install gnustep-gui
         run: .python3/bin/conan create gnustep-gui --profile:a=profiles/linux-clang
-      - name: Install gnustep-headless dependencies (Ubuntu)
-        run: apt-get install -y libfreetype-dev
-        if: matrix.family == 'ubuntu'
-      - name: Install gnustep-headless dependencies (Enterprise Linux)
-        run: yum install --enablerepo=${{ matrix.repos}} -y freetype-devel
-        if: matrix.family == 'rhel'
       - name: Install gnustep-headless
         run: .python3/bin/conan create gnustep-headless --profile:a=profiles/linux-clang
       - name: Install gnustep-systempreferences
