@@ -110,4 +110,4 @@ class GnustepMakeRecipe(ConanFile):
             self.cpp_info.system_libs = ["objc"]
 
         # Set the GNUSTEP_MAKEFILES path
-        self.buildenv_info.append_path("GNUSTEP_MAKEFILES", self.get_makefiles_folder())
+        self.buildenv_info.define_path("GNUSTEP_MAKEFILES", self.get_makefiles_folder())
