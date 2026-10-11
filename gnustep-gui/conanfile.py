@@ -128,6 +128,9 @@ class GnustepGuiRecipe(ConanFile):
         else:
             rmdir(self, os.path.join(self.package_folder, "home"))
 
+        self.python_requires["gnustep-helpers"].module.strip_absolute_paths(
+            self, "share/GNUstep/Makefiles/Additional/gui.make")
+
     def package_info(self):
         self.cpp_info.libs = ["gnustep-gui"]
 
