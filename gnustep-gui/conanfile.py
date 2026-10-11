@@ -121,6 +121,14 @@ class GnustepGuiRecipe(ConanFile):
                 "-ljpeg",
                 "-llibjpeg",
             )
+            # Same for libpng, which ships as libpng16.lib; without this the configure check for
+            # png_sig_cmp fails, HAVE_LIBPNG is left undefined and PNG support is silently compiled out.
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "configure"),
+                "-lpng",
+                "-llibpng16",
+            )
 
         tc.generate(env)
 
