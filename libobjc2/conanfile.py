@@ -67,3 +67,6 @@ class libobjc2Recipe(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["objc"]
+
+        # Let the build systems of dependents find the headers and library of this package
+        self.python_requires["gnustep-helpers"].module.gnustep_register_library_paths(self)
