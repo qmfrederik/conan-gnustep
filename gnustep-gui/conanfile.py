@@ -1,6 +1,6 @@
 from conan import ConanFile
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
-from conan.tools.files import get, apply_conandata_patches, mkdir, copy, rmdir
+from conan.tools.files import get, apply_conandata_patches, mkdir, replace_in_file, copy, rmdir
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualRunEnv
 from pathlib import Path
@@ -72,6 +72,18 @@ class GnustepGuiRecipe(ConanFile):
 
         # On Windows, use a copy of pkgconf which ships via Conan
         self.python_requires["gnustep-helpers"].module.configure_windows_pkgconf(self, env)
+
+        if self.settings.os == "Windows":
+            # The Conan packages for libjpeg ship with a library named libjpeg.lib (as opposed to jpeg.lib);
+            # account for this by using -llibjpeg instead of -ljpeg.
+            # Another approach for fixing this would be to patch the upstream configure script to use pkgconfig
+            # to find libjpeg.
+            replace_in_file(
+                self,
+                os.path.join(self.source_folder, "configure"),
+                "-ljpeg",
+                "-llibjpeg",
+            )
 
         tc.generate(env)
 
