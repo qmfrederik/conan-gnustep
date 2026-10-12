@@ -4,7 +4,7 @@ from conan.tools.files import load, save
 import os
 import re
 
-_ABSOLUTE_PATH_FLAG = re.compile(r"\s(?:-[IL]|-Wl,-rpath(?:-link)?[=,])(?:/|[A-Za-z]:)\S*")
+_ABSOLUTE_PATH_FLAG = re.compile(r"\s(?:-[IL]|-Wl,-rpath(?:-link)?[=,])(?:/|[A-Za-z]:)[^\s\"';]*")
 
 def strip_absolute_paths(pkg, *relative_files):
     # configure bakes absolute -I/-L/-rpath paths (Conan cache folders of the dependencies) into generated files.
