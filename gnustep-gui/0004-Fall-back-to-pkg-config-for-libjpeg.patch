@@ -1,21 +1,8 @@
-From 148bb10f7d40d0e2a830b6153a03cee7f7023075 Mon Sep 17 00:00:00 2001
-From: Frederik Carlier <frederik.carlier@keysight.com>
-Date: Sun, 11 Oct 2026 14:52:16 +0200
-Subject: [PATCH] Fall back to pkg-config for finding libjpeg
-
-Allows finding libjpeg with non-standard library names.
----
- configure    | 87 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- configure.ac | 12 ++++++++
- 2 files changed, 99 insertions(+)
-
 diff --git a/configure b/configure
-index b01f8d04e2..ee9ff2b883 100755
+index cfb5aa8..65d44e3 100755
 --- a/configure
 +++ b/configure
-@@ -680,10 +680,12 @@ IMAGEMAGICK_CFLAGS
- HAVE_LIBPNG_CONFIG
- PNG_LIBS
+@@ -656,6 +656,8 @@ PNG_LIBS
  PNG_CFLAGS
  TIFF_LIBS
  TIFF_CFLAGS
@@ -24,9 +11,7 @@ index b01f8d04e2..ee9ff2b883 100755
  EGREP
  GREP
  XMKMF
- PKG_CONFIG_LIBDIR
- PKG_CONFIG_PATH
-@@ -781,6 +783,8 @@ PKG_CONFIG
+@@ -757,6 +759,8 @@ PKG_CONFIG
  PKG_CONFIG_PATH
  PKG_CONFIG_LIBDIR
  XMKMF
@@ -34,8 +19,8 @@ index b01f8d04e2..ee9ff2b883 100755
 +JPEG_LIBS
  TIFF_CFLAGS
  TIFF_LIBS
- IMAGEMAGICK_CFLAGS
-@@ -1457,6 +1461,8 @@ Some influential environment variables:
+ PNG_CFLAGS
+@@ -1423,6 +1427,8 @@ Some influential environment variables:
    PKG_CONFIG_LIBDIR
                path overriding pkg-config's built-in search path
    XMKMF       Path to xmkmf, Makefile generator for X Window System
@@ -43,8 +28,8 @@ index b01f8d04e2..ee9ff2b883 100755
 +  JPEG_LIBS   linker flags for JPEG, overriding pkg-config
    TIFF_CFLAGS C compiler flags for TIFF, overriding pkg-config
    TIFF_LIBS   linker flags for TIFF, overriding pkg-config
-   IMAGEMAGICK_CFLAGS
-@@ -2657,6 +2663,9 @@ fi
+   PNG_CFLAGS  C compiler flags for PNG, overriding pkg-config
+@@ -2287,6 +2293,9 @@ fi
  
  #--------------------------------------------------------------------
  # Use config.guess, config.sub and install-sh provided by gnustep-make
@@ -52,9 +37,9 @@ index b01f8d04e2..ee9ff2b883 100755
 +# GNUSTEP_MAKEFILES being set for simple variable substitution, so we
 +# execute a bit of shell code to dynamically get the directory.
  #--------------------------------------------------------------------
- 
- 
-@@ -4924,6 +4933,84 @@ fi
+ ac_aux_dir=
+ for ac_dir in $GNUSTEP_MAKEFILES "$srcdir"/$GNUSTEP_MAKEFILES; do
+@@ -4497,6 +4506,84 @@ fi
      with_jpeg_include="-I$with_jpeg_include"
    fi
  
@@ -138,12 +123,12 @@ index b01f8d04e2..ee9ff2b883 100755
 +
    CPPFLAGS="$with_jpeg_include ${CPPFLAGS}"
    LDFLAGS="$with_jpeg_library ${LDFLAGS}"
-          for ac_header in jpeglib.h
+   for ac_header in jpeglib.h
 diff --git a/configure.ac b/configure.ac
-index b9f457555d..9d96f34230 100644
+index 16e0f3e..cba2db0 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -242,6 +242,18 @@ if test $enable_jpeg = yes; then
+@@ -235,6 +235,18 @@ if test $enable_jpeg = yes; then
      with_jpeg_include="-I$with_jpeg_include"
    fi
  

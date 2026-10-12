@@ -1,19 +1,8 @@
-From c00e9178cc2428b83b170f1065bda6f9887c9690 Mon Sep 17 00:00:00 2001
-From: Frederik Carlier <frederik.carlier@keysight.com>
-Date: Sun, 11 Oct 2026 15:06:36 +0200
-Subject: [PATCH] Fall back to pkg-config for finding libpng
-
-Allows finding libpng with non-standard library names.
----
- configure    | 91 ++++++++++++++++++++++++++++++++++++++++++++++++++--
- configure.ac | 18 +++++++++--
- 2 files changed, 103 insertions(+), 6 deletions(-)
-
 diff --git a/configure b/configure
-index b01f8d04e2..875ba75187 100755
+index 70dc216..cfb5aa8 100755
 --- a/configure
 +++ b/configure
-@@ -678,6 +678,8 @@ MAGICKCORE_CFLAGS
+@@ -652,6 +652,8 @@ MAGICKCORE_CFLAGS
  IMAGEMAGICK_LIBS
  IMAGEMAGICK_CFLAGS
  HAVE_LIBPNG_CONFIG
@@ -21,8 +10,8 @@ index b01f8d04e2..875ba75187 100755
 +PNG_CFLAGS
  TIFF_LIBS
  TIFF_CFLAGS
- XMKMF
-@@ -783,6 +785,8 @@ PKG_CONFIG_LIBDIR
+ EGREP
+@@ -757,6 +759,8 @@ PKG_CONFIG_LIBDIR
  XMKMF
  TIFF_CFLAGS
  TIFF_LIBS
@@ -31,7 +20,7 @@ index b01f8d04e2..875ba75187 100755
  IMAGEMAGICK_CFLAGS
  IMAGEMAGICK_LIBS
  MAGICKCORE_CFLAGS
-@@ -1459,6 +1463,8 @@ Some influential environment variables:
+@@ -1421,6 +1425,8 @@ Some influential environment variables:
    XMKMF       Path to xmkmf, Makefile generator for X Window System
    TIFF_CFLAGS C compiler flags for TIFF, overriding pkg-config
    TIFF_LIBS   linker flags for TIFF, overriding pkg-config
@@ -40,7 +29,7 @@ index b01f8d04e2..875ba75187 100755
    IMAGEMAGICK_CFLAGS
                C compiler flags for IMAGEMAGICK, overriding pkg-config
    IMAGEMAGICK_LIBS
-@@ -5254,6 +5260,86 @@ fi
+@@ -4800,6 +4806,86 @@ fi
  
  
  if test $enable_png = yes; then
@@ -127,7 +116,7 @@ index b01f8d04e2..875ba75187 100755
    # use libpng-config if available
    # Extract the first word of "libpng-config", so it can be a program name with args.
  set dummy libpng-config; ac_word=$2
-@@ -5429,10 +5515,9 @@ then :
+@@ -4967,10 +5053,9 @@ _ACEOF
  fi
  
    fi
@@ -141,10 +130,10 @@ index b01f8d04e2..875ba75187 100755
      echo "can't be found. If you really want to compile GNUstep without"
      echo "PNG support, pass the --disable-png option to ./configure."
 diff --git a/configure.ac b/configure.ac
-index b9f457555d..b66fcdb6ef 100644
+index 98640cb..16e0f3e 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -322,6 +322,19 @@ AC_ARG_ENABLE(png,
+@@ -315,6 +315,19 @@ AC_ARG_ENABLE(png,
    enable_png=yes)
  
  if test $enable_png = yes; then
@@ -164,7 +153,7 @@ index b9f457555d..b66fcdb6ef 100644
    # use libpng-config if available
    AC_CHECK_PROG(HAVE_LIBPNG_CONFIG, [libpng-config], yes)
    if test "$HAVE_LIBPNG_CONFIG" = "yes"; then
-@@ -341,10 +354,9 @@ if test $enable_png = yes; then
+@@ -334,10 +347,9 @@ if test $enable_png = yes; then
      AC_CHECK_HEADERS(png.h)
      AC_CHECK_LIB(png, png_sig_cmp)
    fi
