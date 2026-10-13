@@ -1,0 +1,25 @@
+diff --git a/Source/NSDateFormatter.m b/Source/NSDateFormatter.m
+index 66d965e..7fa241f 100644
+--- a/Source/NSDateFormatter.m
++++ b/Source/NSDateFormatter.m
+@@ -1083,7 +1083,7 @@ static NSDateFormatterBehavior _defaultBehavior = 0;
+       unichar *value;
+       NSString *str;
+       NSZone *z = [self zone];
+-      UErrorCode err = U_ERROR_LIMIT;
++      UErrorCode err = U_ZERO_ERROR;
+       
+       length
+ 	= udat_getSymbols (internal->_formatter, symbol, idx, NULL, 0, &err);
+diff --git a/Source/common.h b/Source/common.h
+index b950a8c..661f2ea 100644
+--- a/Source/common.h
++++ b/Source/common.h
+@@ -93,6 +93,7 @@
+ /* Redefine some function names when using the MSVC ABI on Windows.
+  */
+ #ifdef _MSC_VER
++#  include <io.h>
+ #  define strncasecmp _strnicmp
+ #  define strcasecmp _stricmp
+ #  define write(fd, buffer, count) _write(fd, buffer, count)

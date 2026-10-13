@@ -1,0 +1,476 @@
+diff --git a/Headers/GNUstepBase/GSConfig.h.in b/Headers/GNUstepBase/GSConfig.h.in
+index dd9c7eb..7d8b33d 100644
+--- a/Headers/GNUstepBase/GSConfig.h.in
++++ b/Headers/GNUstepBase/GSConfig.h.in
+@@ -300,6 +300,18 @@ typedef	struct {
+ #define BOOL WinBOOL
+ #endif
+ #define __OBJC_BOOL 1
++#if defined(_MSC_VER)
++#include <WinSDKVer.h>
++#ifndef _WIN32_WINNT
++#define _WIN32_WINNT _WIN32_WINNT_WIN10
++#endif
++#if	!defined(WINVER)
++#define WINVER _WIN32_WINNT_WIN10
++#elif (WINVER < _WIN32_WINNT_WIN10)
++#undef	WINVER
++#define WINVER _WIN32_WINNT_WIN10
++#endif
++#else
+ #include <w32api.h>
+ #ifndef _WIN32_WINNT
+ #if defined(__MINGW64__)
+@@ -318,8 +330,9 @@ typedef	struct {
+ #undef	WINVER
+ #define WINVER Windows2000
+ #endif
++#endif
+ 
+-#if defined(__WIN64__)
++#if defined(__WIN64__) || defined(_MSC_VER)
+ #include <winsock2.h>
+ #include <windows.h>
+ #else
+diff --git a/Source/Additions/Makefile.preamble b/Source/Additions/Makefile.preamble
+index de2bafb..e912f92 100644
+--- a/Source/Additions/Makefile.preamble
++++ b/Source/Additions/Makefile.preamble
+@@ -52,6 +52,8 @@ else ifeq ($(GNUSTEP_TARGET_OS),mingw64)
+   ADDITIONAL_OBJCFLAGS += -DBUILD_libgnustep_base_DLL=1
+ else ifeq ($(GNUSTEP_TARGET_OS),cygwin)
+   ADDITIONAL_OBJCFLAGS += -DBUILD_libgnustep_base_DLL=1
++else ifeq ($(GNUSTEP_TARGET_OS),windows)
++  ADDITIONAL_OBJCFLAGS += -DBUILD_libgnustep_base_DLL=1
+ endif
+ 
+ # Additional flags to pass to the C compiler
+diff --git a/Source/CXXException.m b/Source/CXXException.m
+index 192970c..1dcd627 100644
+--- a/Source/CXXException.m
++++ b/Source/CXXException.m
+@@ -85,10 +85,12 @@ static Class boxClass(int64_t foo)
+ }
+ - (void) rethrow
+ {
++#if defined(WITH_UNWIND)
+   struct _Unwind_Exception *re = ex;
+   // We aren't allowed to hold onto the exception if it's been rethrown.
+   ex = 0;
+   _Unwind_Resume_or_Rethrow(re);
++#endif
+ }
+ - (void) dealloc
+ {
+diff --git a/Source/GNUmakefile b/Source/GNUmakefile
+index 26666eb..75d6bfd 100644
+--- a/Source/GNUmakefile
++++ b/Source/GNUmakefile
+@@ -87,12 +87,12 @@ libgnustep-baseadd_SUBPROJECTS += Additions
+ 
+ ifeq ($(GNUSTEP_TARGET_OS), mingw32)
+   libgnustep-base_SUBPROJECTS += win32
++else ifeq ($(GNUSTEP_TARGET_OS), mingw64)
++  libgnustep-base_SUBPROJECTS += win32
++else ifeq ($(GNUSTEP_TARGET_OS), windows)
++  libgnustep-base_SUBPROJECTS += win32
+ else
+-  ifeq ($(GNUSTEP_TARGET_OS), mingw64)
+-    libgnustep-base_SUBPROJECTS += win32
+-  else
+-    libgnustep-base_SUBPROJECTS += unix
+-  endif
++  libgnustep-base_SUBPROJECTS += unix
+ endif
+ 
+ DEFS+= -DGNUSTEP_TARGET_DIR=\"$(GNUSTEP_TARGET_DIR)\" \
+@@ -118,8 +118,9 @@ endif
+ 
+ ifeq ($(GNUSTEP_TARGET_OS), mingw32)
+   GNU_MFILES += libgnustep-base-entry.m
+-endif
+-ifeq ($(GNUSTEP_TARGET_OS), mingw64)
++else ifeq ($(GNUSTEP_TARGET_OS), mingw64)
++  GNU_MFILES += libgnustep-base-entry.m
++else ifeq ($(GNUSTEP_TARGET_OS), windows)
+   GNU_MFILES += libgnustep-base-entry.m
+ endif
+ 
+@@ -324,10 +325,12 @@ objc-load.m
+ 
+ ifneq ($(GNUSTEP_TARGET_OS), mingw32)
+   ifneq ($(GNUSTEP_TARGET_OS), mingw64)
++    ifneq ($(GNUSTEP_TARGET_OS), windows)
+ BASE_MFILES += \
+ GSFileHandle.m \
+ NSMessagePort.m \
+ NSMessagePortNameServer.m
++    endif
+   endif
+ endif
+ 
+diff --git a/Source/NSFileManager.m b/Source/NSFileManager.m
+index ca01f01..f3e5898 100644
+--- a/Source/NSFileManager.m
++++ b/Source/NSFileManager.m
+@@ -190,7 +190,28 @@
+  * Macros to handle unichar filesystem support.
+  */
+ 
+-#if	defined(_WIN32)
++#if defined(_MSC_VER)
++
++#warning NSFileManager is currently unsupported on Windows MSVC
++
++#define	_CHMOD(A,B)	0
++#define	_CLOSEDIR(A)
++#define	_OPENDIR(A)	NULL
++#define	_READDIR(A)	NULL
++#define	_RENAME(A,B)	-1
++#define	_RMDIR(A)	-1
++#define	_STAT(A,B)	-1
++#define	_UTIME(A,B)	-1
++
++#define	_CHAR		unichar
++#define	_DIR		void
++#define	_DIRENT		{const char *d_name;}
++#define	_STATB		{int st_ctime; int st_gid; int st_atime; int st_mtime; int st_mode; int st_uid; int st_size; int st_ino; int st_dev; int st_nlink;}
++#define	_UTIMB		{int actime; int modtime;}
++
++#define	_NUL		L'\0'
++
++#elif	defined(_WIN32)
+ 
+ #define	_CHMOD(A,B)	_wchmod(A,B)
+ #define	_CLOSEDIR(A)	_wclosedir(A)
+@@ -3591,11 +3612,15 @@ static NSSet	*fileKeys = nil;
+       case S_IFREG: return NSFileTypeRegular;
+       case S_IFDIR: return NSFileTypeDirectory;
+       case S_IFCHR: return NSFileTypeCharacterSpecial;
++#ifdef S_IFBLK
+       case S_IFBLK: return NSFileTypeBlockSpecial;
++#endif
+ #ifdef S_IFLNK
+       case S_IFLNK: return NSFileTypeSymbolicLink;
+ #endif
++#ifdef S_IFIFO
+       case S_IFIFO: return NSFileTypeFifo;
++#endif
+ #ifdef S_IFSOCK
+       case S_IFSOCK: return NSFileTypeSocket;
+ #endif
+diff --git a/Source/NSSocketPort.m b/Source/NSSocketPort.m
+index ff19bf9..2f2b512 100644
+--- a/Source/NSSocketPort.m
++++ b/Source/NSSocketPort.m
+@@ -73,13 +73,15 @@
+ #  include	<fcntl.h>
+ #endif
+ 
++#ifdef HAVE_SYS_TIME_H
++#  include <sys/time.h>
++#endif
++
+ #ifdef _WIN32
+ #include <winsock2.h>
+ #include <wininet.h>
+ #include <process.h>
+-#include <sys/time.h>
+ #else
+-#include <sys/time.h>
+ #include <sys/resource.h>
+ #include <netdb.h>
+ #include <sys/socket.h>
+diff --git a/Source/ObjectiveC2/Makefile.preamble b/Source/ObjectiveC2/Makefile.preamble
+index 68a7375..7e419f4 100644
+--- a/Source/ObjectiveC2/Makefile.preamble
++++ b/Source/ObjectiveC2/Makefile.preamble
+@@ -51,6 +51,8 @@ else ifeq ($(GNUSTEP_TARGET_OS),mingw64)
+   ADDITIONAL_OBJCFLAGS += -DBUILD_libgnustep_base_DLL=1
+ else ifeq ($(GNUSTEP_TARGET_OS),cygwin)
+   ADDITIONAL_OBJCFLAGS += -DBUILD_libgnustep_base_DLL=1
++else ifeq ($(GNUSTEP_TARGET_OS),windows)
++  ADDITIONAL_OBJCFLAGS += -DBUILD_libgnustep_base_DLL=1
+ endif
+ 
+ # Additional flags to pass to the C compiler
+diff --git a/Source/common.h b/Source/common.h
+index 4557641..b950a8c 100644
+--- a/Source/common.h
++++ b/Source/common.h
+@@ -90,4 +90,13 @@
+ #  endif
+ #endif
+ 
++/* Redefine some function names when using the MSVC ABI on Windows.
++ */
++#ifdef _MSC_VER
++#  define strncasecmp _strnicmp
++#  define strcasecmp _stricmp
++#  define write(fd, buffer, count) _write(fd, buffer, count)
++#  define close(fd) _close(fd)
++#endif
++
+ #endif /* COMMON_H */
+diff --git a/Source/inet_ntop.m b/Source/inet_ntop.m
+index fedd04e..b4969ee 100644
+--- a/Source/inet_ntop.m
++++ b/Source/inet_ntop.m
+@@ -20,7 +20,9 @@
+ 
+ #include <ctype.h>
+ #include <sys/types.h>
++#ifdef HAVE_SYS_PARAM_H
+ #include <sys/param.h>
++#endif
+ #include <stdio.h>
+ 
+ #import "GSPrivate.h"
+diff --git a/Source/inet_pton.m b/Source/inet_pton.m
+index 51adc9b..6e8b420 100644
+--- a/Source/inet_pton.m
++++ b/Source/inet_pton.m
+@@ -33,7 +33,9 @@
+ #endif
+ 
+ #include <sys/types.h>
++#ifdef HAVE_SYS_PARAM_H
+ #include <sys/param.h>
++#endif
+ 
+ #import "GSPrivate.h"
+ #import "GSNetwork.h"
+diff --git a/Source/libgnustep-base-entry.m b/Source/libgnustep-base-entry.m
+index 5b5c8f8..84920bb 100644
+--- a/Source/libgnustep-base-entry.m
++++ b/Source/libgnustep-base-entry.m
+@@ -29,6 +29,10 @@
+ 
+ #import "common.h"
+ 
++#ifdef _MSC_VER
++#define WINBOOL WinBOOL
++#endif
++
+ /* Only if using Microsoft's tools and libraries */
+ #ifdef __MS_WIN32__
+ #include <stdio.h>
+@@ -108,8 +112,10 @@ DllMain(HINSTANCE hInst, DWORD ul_reason_for_call, LPVOID lpReserved)
+   return TRUE;
+ }
+ 
++#ifndef __clang__
+ /*
+   This section terminates the list of imports under GCC. If you do not
+   include this then you will have problems when linking with DLLs.
+   */
+ asm (".section .idata$3\n" ".long 0,0,0,0,0,0,0,0");
++#endif
+diff --git a/Source/win32/GSFileHandle.m b/Source/win32/GSFileHandle.m
+index 2c1910d..a2567bc 100644
+--- a/Source/win32/GSFileHandle.m
++++ b/Source/win32/GSFileHandle.m
+@@ -60,13 +60,26 @@
+ #import "../GSPrivate.h"
+ #import "../GSNetwork.h"
+ 
+-#include <fcntl.h>
+-#include <sys/file.h>
++#if	defined(HAVE_SYS_FCNTL_H)
++#  include <sys/fcntl.h>
++#elif	defined(HAVE_FCNTL_H)
++#  include <fcntl.h>
++#endif
++
++#if	defined(HAVE_SYS_FILE_H)
++#  include	<sys/file.h>
++#endif
++
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <io.h>
+ #include <stdio.h>
+ 
++// S_ISREG is not defined in Windows headers
++#if !defined(S_ISREG) && defined(S_IFMT) && defined(S_IFREG)
++#define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
++#endif
++
+ #ifndef	O_BINARY
+ #ifdef	_O_BINARY
+ #define	O_BINARY	_O_BINARY
+diff --git a/Source/win32/Makefile.preamble b/Source/win32/Makefile.preamble
+index 3e6b90b..66eb677 100644
+--- a/Source/win32/Makefile.preamble
++++ b/Source/win32/Makefile.preamble
+@@ -51,6 +51,8 @@ else ifeq ($(GNUSTEP_TARGET_OS),mingw64)
+   ADDITIONAL_OBJCFLAGS += -DBUILD_libgnustep_base_DLL=1
+ else ifeq ($(GNUSTEP_TARGET_OS),cygwin)
+   ADDITIONAL_OBJCFLAGS += -DBUILD_libgnustep_base_DLL=1
++else ifeq ($(GNUSTEP_TARGET_OS),windows)
++  ADDITIONAL_OBJCFLAGS += -DBUILD_libgnustep_base_DLL=1
+ endif
+ 
+ # Additional flags to pass to the C compiler
+diff --git a/Tools/GNUmakefile b/Tools/GNUmakefile
+index 64f76e4..371b8be 100644
+--- a/Tools/GNUmakefile
++++ b/Tools/GNUmakefile
+@@ -79,7 +79,9 @@ TOOL_NAME = autogsdoc cvtenc plmerge sfparse xmlparse
+ else
+ TOOL_NAME = autogsdoc cvtenc gdnc gspath defaults pl plmerge \
+ 		plparse sfparse pldes plget plser pl2link xmlparse HTMLLinker
++ifneq ($(GNUSTEP_TARGET_OS), windows)
+ CTOOL_NAME = gdomap
++endif
+ 
+ SUBPROJECTS = make_strings
+ endif
+diff --git a/Tools/Makefile.preamble b/Tools/Makefile.preamble
+index 980482a..88eebb4 100644
+--- a/Tools/Makefile.preamble
++++ b/Tools/Makefile.preamble
+@@ -56,7 +56,9 @@ ifeq ($(FOUNDATION_LIB),gnu)
+ endif
+ 
+ # Additional LDFLAGS to pass to the linker
+-#ADDITIONAL_LDFLAGS += 
++ifeq ($(GNUSTEP_TARGET_OS),windows)
++  ADDITIONAL_LDFLAGS += -Wl,/subsystem:console
++endif
+ 
+ # Additional library directories the linker should search
+ ADDITIONAL_LIB_DIRS += -L../Source/$(GNUSTEP_OBJ_DIR)
+diff --git a/Tools/gdnc.m b/Tools/gdnc.m
+index 3bd5518..1a19481 100644
+--- a/Tools/gdnc.m
++++ b/Tools/gdnc.m
+@@ -25,6 +25,9 @@
+ #import	"common.h"
+ 
+ #include <stdio.h>
++#ifdef _WIN32
++#include <io.h>
++#endif
+ 
+ #import	"Foundation/NSArray.h"
+ #import	"Foundation/NSAutoreleasePool.h"
+@@ -1219,7 +1222,7 @@ main(int argc, char** argv, char** env)
+ #endif
+ 	signal(sym, ihandler);
+       }
+-#ifndef __MINGW__
++#ifndef _WIN32
+     signal(SIGPIPE, SIG_IGN);
+     signal(SIGTTOU, SIG_IGN);
+     signal(SIGTTIN, SIG_IGN);
+diff --git a/Tools/make_strings/make_strings.m b/Tools/make_strings/make_strings.m
+index 213c18d..ed0ffa2 100644
+--- a/Tools/make_strings/make_strings.m
++++ b/Tools/make_strings/make_strings.m
+@@ -38,6 +38,10 @@
+ #include "SourceEntry.h"
+ #include "StringsEntry.h"
+ 
++#ifdef _MSC_VER
++#define strdup _strdup
++#endif
++
+ 
+ int verbose, aggressive_import, aggressive_match, aggressive_remove;
+ 
+diff --git a/Tools/pl2link.m b/Tools/pl2link.m
+index ad12cb9..959a37f 100644
+--- a/Tools/pl2link.m
++++ b/Tools/pl2link.m
+@@ -32,6 +32,10 @@
+ #import	"Foundation/NSProcessInfo.h"
+ #import "Foundation/NSPathUtilities.h"
+ 
++#ifdef _MSC_VER
++#define popen _popen
++#endif
++
+ int
+ main(int argc, char** argv, char **env)
+ {
+diff --git a/configure b/configure
+index 295b625..f6463e7 100644
+--- a/configure
++++ b/configure
+@@ -2964,7 +2964,7 @@ then
+ fi
+ if test x"$GNUSTEP_TARGET_CONFIG_FILE" = x""; then
+   case "$target_os" in
+-    mingw*)
++    mingw*|windows*)
+       GNUSTEP_TARGET_CONFIG_FILE=./GNUstep.conf ;;
+     *)
+       GNUSTEP_TARGET_CONFIG_FILE="$GNUSTEP_MAKE_CONFIG" ;;
+@@ -2982,7 +2982,7 @@ $as_echo "$GNUSTEP_TARGET_CONFIG_FILE" >&6; }
+ # location (used by gnustep-make when building).
+ #-----------------------------------------------------------------
+ case "$target_os" in
+-    mingw*)	enable_env_config=no;;
++    mingw*|windows*)	enable_env_config=no;;
+     *)		enable_env_config=yes;;
+ esac
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether the GNUstep.conf file path can be set in the environment" >&5
+@@ -3262,7 +3262,7 @@ GNUSTEP_BASE_DOMAIN=$result
+ # paths (relative to libgnustep-base.dll).
+ #
+ case "$target_os" in
+-  mingw*)
++  mingw*|windows*)
+     # TODO: Improve this hack.
+     # According to Wikipedia, this is the default for Windows 2000,
+     # Windows XP and Windows Server 2003.  For Windows Vista this will
+@@ -10430,7 +10430,7 @@ $as_echo "$as_me: WARNING: Using libkvm which is known to be buggy on some syste
+   fi
+ fi
+ case "$target_os" in
+-    mingw*)	enable_fake_main=no; GS_FAKE_MAIN=0;;
++    mingw*|windows*)	enable_fake_main=no; GS_FAKE_MAIN=0;;
+ esac
+ 
+ { $as_echo "$as_me:${as_lineno-$LINENO}: result: $enable_fake_main" >&5
+diff --git a/configure.ac b/configure.ac
+index 7f953cd..2f47566 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -234,7 +234,7 @@ then
+ fi
+ if test x"$GNUSTEP_TARGET_CONFIG_FILE" = x""; then
+   case "$target_os" in
+-    mingw*)
++    mingw*|windows*)
+       GNUSTEP_TARGET_CONFIG_FILE=./GNUstep.conf ;;
+     *)
+       GNUSTEP_TARGET_CONFIG_FILE="$GNUSTEP_MAKE_CONFIG" ;;
+@@ -251,7 +251,7 @@ AC_MSG_RESULT($GNUSTEP_TARGET_CONFIG_FILE)
+ # location (used by gnustep-make when building).
+ #-----------------------------------------------------------------
+ case "$target_os" in
+-    mingw*)	enable_env_config=no;;
++    mingw*|windows*)	enable_env_config=no;;
+     *)		enable_env_config=yes;;
+ esac
+ AC_MSG_CHECKING([whether the GNUstep.conf file path can be set in the environment])
+@@ -533,7 +533,7 @@ AC_SUBST(GNUSTEP_BASE_DOMAIN)
+ # paths (relative to libgnustep-base.dll).
+ #
+ case "$target_os" in
+-  mingw*)
++  mingw*|windows*)
+     # TODO: Improve this hack.
+     # According to Wikipedia, this is the default for Windows 2000,
+     # Windows XP and Windows Server 2003.  For Windows Vista this will
+@@ -2748,7 +2748,7 @@ elif test "$enable_pass_arguments" = "no"; then
+   fi
+ fi
+ case "$target_os" in
+-    mingw*)	enable_fake_main=no; GS_FAKE_MAIN=0;;
++    mingw*|windows*)	enable_fake_main=no; GS_FAKE_MAIN=0;;
+ esac
+ AC_SUBST(GS_FAKE_MAIN)
+ AC_MSG_RESULT($enable_fake_main)

@@ -1,0 +1,13 @@
+diff --git a/Source/GNUmakefile b/Source/GNUmakefile
+index 75d6bfd..303fb06 100644
+--- a/Source/GNUmakefile
++++ b/Source/GNUmakefile
+@@ -114,6 +114,8 @@ endif
+ 
+ ifeq ($(findstring mingw, $(GNUSTEP_TARGET_OS)), mingw)
+   ADDITIONAL_NATIVE_LIBS += winhttp
++else ifeq ($(GNUSTEP_TARGET_OS), windows)
++  ADDITIONAL_NATIVE_LIBS += winhttp
+ endif
+ 
+ ifeq ($(GNUSTEP_TARGET_OS), mingw32)

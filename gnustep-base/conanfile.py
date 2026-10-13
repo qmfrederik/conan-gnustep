@@ -1,15 +1,15 @@
 from conan import ConanFile
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfig, PkgConfigDeps
-from conan.tools.files import get, apply_conandata_patches, copy, rmdir, mkdir, save, load
+from conan.tools.files import get, patch, copy, rmdir, mkdir, save, load
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualRunEnv, Environment
+from conan.tools.scm import Version
 
 import os
 import yaml
 
 class GnustepBaseRecipe(ConanFile):
     name = "gnustep-base"
-    version = "1.31.1"
     if os.getenv("CI"):
         revision_mode = "scm"
     package_type = "library"
@@ -28,8 +28,11 @@ class GnustepBaseRecipe(ConanFile):
         self.version = self.python_requires["gnustep-helpers"].module.get_package_version(self)
 
     def source(self):
-        get(self, **sorted(self.conan_data["sources"].values())[0])
-        apply_conandata_patches(self)
+        upstream_version = str(self.version).split("+")[0]
+        get(self, **self.conan_data["sources"][upstream_version])
+        # apply_conandata_patches would look up the full version, including the +build suffix
+        for entry in self.conan_data.get("patches", {}).get(upstream_version, []):
+            patch(self, patch_file=os.path.join(self.export_sources_folder, entry["patch_file"]))
 
     def requirements(self):
         if self.options.objc_runtime == "ng":
@@ -50,6 +53,13 @@ class GnustepBaseRecipe(ConanFile):
         self.requires("icu/78.2")
         self.requires("libcurl/8.22.0")
         self.requires("libiconv/1.17")
+
+        # Support for "native" Windows threads was implemented in libs-base v1.28.1 via
+        # https://github.com/gnustep/libs-base/pull/190; that fix hasn't been packported (yet),
+        # so pull in winpthreads instead.
+        if Version(str(self.version).split("+")[0]) < "1.28.1":
+            self.requires("pthreads4w/3.0.0")
+
         self.tool_requires("gnustep-make/[^2.9.3]")
 
     def config_options(self):

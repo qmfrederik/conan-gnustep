@@ -1,0 +1,26 @@
+diff --git a/Source/GSDispatch.h b/Source/GSDispatch.h
+index 89e86e8..b51216f 100644
+--- a/Source/GSDispatch.h
++++ b/Source/GSDispatch.h
+@@ -29,12 +29,21 @@
+ 
+ #import "GNUstepBase/GSBlocks.h"
+ 
++#if defined(_WIN32)
++/* libdispatch's generic_win_base.h typedefs pthread_attr_t to void, clashing with pthreads4w. */
++#define pthread_attr_t gs_dispatch_pthread_attr_t
++#endif
++
+ #if HAVE_DISPATCH_H
+ #include <dispatch.h>
+ #elif HAVE_DISPATCH_DISPATCH_H
+ #include <dispatch/dispatch.h>
+ #endif
+ 
++#if defined(_WIN32)
++#undef pthread_attr_t
++#endif
++
+ 
+ /*
+  * If gnustep-base is built with libdispatch support, these macros will expand

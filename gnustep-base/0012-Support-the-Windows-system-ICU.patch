@@ -1,0 +1,400 @@
+diff --git a/Headers/GNUstepBase/config.h.in b/Headers/GNUstepBase/config.h.in
+index a465736..ccc6a0d 100644
+--- a/Headers/GNUstepBase/config.h.in
++++ b/Headers/GNUstepBase/config.h.in
+@@ -318,6 +318,9 @@
+ /* Define if you have this function */
+ #undef HAVE_ICONV
+ 
++/* Define to 1 if you have the <icu.h> header file. */
++#undef HAVE_ICU_H
++
+ /* Define to 1 if you have the `inet_aton' function. */
+ #undef HAVE_INET_ATON
+ 
+diff --git a/Source/Additions/Unicode.m b/Source/Additions/Unicode.m
+index e5fb6e6..2c86309 100644
+--- a/Source/Additions/Unicode.m
++++ b/Source/Additions/Unicode.m
+@@ -59,7 +59,11 @@
+ #if HAVE_LANGINFO_CODESET
+ #include <langinfo.h>
+ #endif
+-#if     defined(HAVE_UNICODE_UCNV_H)
++#if     defined(HAVE_ICU_H)
++#define id id_icu
++#include <icu.h>
++#undef id
++#elif   defined(HAVE_UNICODE_UCNV_H)
+ #include <unicode/ucnv.h>
+ #endif
+ 
+diff --git a/Source/GSICUString.h b/Source/GSICUString.h
+index 15c2149..8e28d9c 100644
+--- a/Source/GSICUString.h
++++ b/Source/GSICUString.h
+@@ -1,6 +1,12 @@
+ #import <Foundation/NSString.h>
+ #import <Foundation/NSException.h>
++#if defined(HAVE_ICU_H)
++#define id id_icu
++#include <icu.h>
++#undef id
++#else
+ #include <unicode/utext.h>
++#endif
+ 
+ /*
+  * Define TRUE/FALSE to be used with UBool parameters, as these are no longer
+diff --git a/Source/NSCalendar.m b/Source/NSCalendar.m
+index 29bebf6..83c11f3 100644
+--- a/Source/NSCalendar.m
++++ b/Source/NSCalendar.m
+@@ -42,8 +42,12 @@
+ 
+ #if defined(HAVE_UNICODE_UCAL_H)
+ #define id ucal_id
++#if defined(HAVE_ICU_H)
++#include <icu.h>
++#else
+ #include <unicode/ucal.h>
+ #include <unicode/uvernum.h>
++#endif
+ #undef id
+ #endif
+ 
+@@ -464,7 +468,7 @@ do \
+                            toDate: (NSDate *) resultDate
+                           options: (NSUInteger) opts
+ {
+-#if GS_USE_ICU == 1 && (U_ICU_VERSION_MAJOR_NUM > 4 \
++#if GS_USE_ICU == 1 && (defined(HAVE_ICU_H) || U_ICU_VERSION_MAJOR_NUM > 4 \
+   || (U_ICU_VERSION_MAJOR_NUM == 4 && U_ICU_VERSION_MINOR_NUM >= 8))
+ 
+   NSDateComponents *comps = nil;
+diff --git a/Source/NSDateFormatter.m b/Source/NSDateFormatter.m
+index e902ced..66d965e 100644
+--- a/Source/NSDateFormatter.m
++++ b/Source/NSDateFormatter.m
+@@ -53,10 +53,14 @@
+ 
+ #if defined(HAVE_UNICODE_UDAT_H)
+ #define id id_ucal
++#if defined(HAVE_ICU_H)
++#include <icu.h>
++#else
+ #include <unicode/udat.h>
++#endif
+ #undef id
+ #endif
+-#if defined(HAVE_UNICODE_UDATPG_H)
++#if defined(HAVE_UNICODE_UDATPG_H) && !defined(HAVE_ICU_H)
+ #include <unicode/udatpg.h>
+ #endif
+ 
+@@ -1014,7 +1018,7 @@ static NSDateFormatterBehavior _defaultBehavior = 0;
+       patLength = [self->_dateFormat length];
+       pat = malloc(sizeof(UChar) * patLength);
+       [self->_dateFormat getCharacters: pat];
+-#if U_ICU_VERSION_MAJOR_NUM >= 50
++#if defined(HAVE_ICU_H) || U_ICU_VERSION_MAJOR_NUM >= 50
+       uDateStyle = UDAT_PATTERN; // Windows is using a more recent ICU library
+       uTimeStyle = UDAT_PATTERN;
+ #endif
+diff --git a/Source/NSLocale.m b/Source/NSLocale.m
+index 45823e4..2ad9db0 100644
+--- a/Source/NSLocale.m
++++ b/Source/NSLocale.m
+@@ -89,6 +89,11 @@ NSString * const NSPersianCalendar = @"persian";
+ NSString * const NSIndianCalendar = @"indian";
+ NSString * const NSISO8601Calendar = @"";
+ 
++#if	defined(HAVE_ICU_H)
++# define id id_icu
++# include <icu.h>
++# undef id
++#else
+ #if	defined(HAVE_UNICODE_ULOC_H)
+ # include <unicode/uloc.h>
+ #endif
+@@ -98,6 +103,7 @@ NSString * const NSISO8601Calendar = @"";
+ #if	defined(HAVE_UNICODE_UCURR_H)
+ # include <unicode/ucurr.h>
+ #endif
++#endif
+ 
+ 
+ 
+diff --git a/Source/NSNumberFormatter.m b/Source/NSNumberFormatter.m
+index 6303003..4cc0a78 100644
+--- a/Source/NSNumberFormatter.m
++++ b/Source/NSNumberFormatter.m
+@@ -68,7 +68,11 @@
+ 
+ @class NSDoubleNumber;
+ 
+-#if	defined(HAVE_UNICODE_UNUM_H)
++#if	defined(HAVE_ICU_H)
++# define id id_icu
++# include <icu.h>
++# undef id
++#elif	defined(HAVE_UNICODE_UNUM_H)
+ # include <unicode/unum.h>
+ #endif
+ 
+diff --git a/Source/NSPredicate.m b/Source/NSPredicate.m
+index 1300e40..df27f36 100644
+--- a/Source/NSPredicate.m
++++ b/Source/NSPredicate.m
+@@ -56,7 +56,11 @@
+ // For pow()
+ #include <math.h>
+ 
+-#if     defined(HAVE_UNICODE_UREGEX_H)
++#if     defined(HAVE_ICU_H)
++#define id id_icu
++#include <icu.h>
++#undef id
++#elif   defined(HAVE_UNICODE_UREGEX_H)
+ #include <unicode/uregex.h>
+ #endif
+ 
+diff --git a/Source/NSRegularExpression.m b/Source/NSRegularExpression.m
+index 187125e..32e7b29 100644
+--- a/Source/NSRegularExpression.m
++++ b/Source/NSRegularExpression.m
+@@ -32,14 +32,20 @@
+ #import "common.h"
+ 
+ #if GS_USE_ICU == 1
++#if defined(HAVE_ICU_H)
++#define id id_icu
++#include <icu.h>
++#undef id
++#else
+ #include "unicode/uregex.h"
++#endif
+ 
+ /* FIXME It would be nice to use autoconf for checking whether uregex_openUText
+  * is defined.  However the naive check using AC_CHECK_FUNCS(uregex_openUText)
+  * wonn't work because libicu internally renames all entry points with some cpp
+  * magic.
+  */
+-#if (U_ICU_VERSION_MAJOR_NUM > 4 || (U_ICU_VERSION_MAJOR_NUM == 4 && U_ICU_VERSION_MINOR_NUM >= 4))
++#if (defined(HAVE_ICU_H) || U_ICU_VERSION_MAJOR_NUM > 4 || (U_ICU_VERSION_MAJOR_NUM == 4 && U_ICU_VERSION_MINOR_NUM >= 4))
+ #define HAVE_UREGEX_OPENUTEXT 1
+ #endif
+ 
+diff --git a/Source/NSString.m b/Source/NSString.m
+index 4e61895..7e43ca0 100644
+--- a/Source/NSString.m
++++ b/Source/NSString.m
+@@ -101,6 +101,11 @@
+ #ifdef HAVE_ALLOCA_H
+ #include <alloca.h>
+ #endif
++#if	defined(HAVE_ICU_H)
++# define id id_icu
++# include <icu.h>
++# undef id
++#else
+ #if	defined(HAVE_UNICODE_UCOL_H)
+ # include <unicode/ucol.h>
+ #endif
+@@ -113,6 +118,7 @@
+ #if     defined(HAVE_UNICODE_USEARCH_H)
+ # include <unicode/usearch.h>
+ #endif
++#endif
+ 
+ /* Create local inline versions of key functions for case-insensitive operations
+  */
+diff --git a/Source/NSTimeZone.m b/Source/NSTimeZone.m
+index ecfe8d5..92f74a7 100644
+--- a/Source/NSTimeZone.m
++++ b/Source/NSTimeZone.m
+@@ -122,9 +122,13 @@
+ 
+ #if defined(HAVE_UNICODE_UCAL_H)
+ #define id id_ucal
++#if defined(HAVE_ICU_H)
++#include <icu.h>
++#else
+ #include <unicode/ucal.h>
++#endif
+ #undef id
+-#if (U_ICU_VERSION_MAJOR_NUM >= 52)
++#if (defined(HAVE_ICU_H) || U_ICU_VERSION_MAJOR_NUM >= 52)
+ #define HAVE_WINDOWS_TO_IANA_CONVERSION 1
+ #endif
+ #endif
+@@ -1459,8 +1463,10 @@ static NSMapTable	*absolutes = 0;
+ 
+ + (NSString *) icuLibraryVersion
+ {
+-#if GS_USE_ICU == 1
++#if GS_USE_ICU == 1 && defined(U_ICU_VERSION_MAJOR_NUM)
+ 	return [NSString stringWithFormat:@"ICU version %d.%d", U_ICU_VERSION_MAJOR_NUM, U_ICU_VERSION_MINOR_NUM];
++#elif GS_USE_ICU == 1
++	return @"ICU version (system)";
+ #else
+ 	return @"ICU not used";
+ #endif
+diff --git a/configure b/configure
+index f8610fd..295b625 100644
+--- a/configure
++++ b/configure
+@@ -12190,7 +12190,44 @@ fi
+ 
+ 
+ if test $enable_icu = yes; then
+-  if test "$enable_icu_config" = "yes"; then
++  system_icu=no
++  case "$host_os" in
++    mingw*|windows*)
++      # Windows 10 and later bundle ICU; the SDK exposes it through <icu.h> and icu.lib.
++      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for the Windows system ICU" >&5
++$as_echo_n "checking for the Windows system ICU... " >&6; }
++      saved_LIBS="$LIBS"
++      LIBS="-licu $LIBS"
++      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++#define id id_icu
++#include <icu.h>
++#undef id
++int
++main ()
++{
++return udat_countAvailable() > 0 ? 0 : 1;
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_link "$LINENO"; then :
++  system_icu=yes
++else
++  system_icu=no
++fi
++rm -f core conftest.err conftest.$ac_objext \
++    conftest$ac_exeext conftest.$ac_ext
++      LIBS="$saved_LIBS"
++      { $as_echo "$as_me:${as_lineno-$LINENO}: result: $system_icu" >&5
++$as_echo "$system_icu" >&6; }
++      ;;
++  esac
++  if test "$system_icu" = "yes"; then
++    have_icu=yes
++    ICU_LIBS="-licu"
++    ICU_LDFLAGS=""
++  elif test "$enable_icu_config" = "yes"; then
+ 
+   ok=no
+ 
+@@ -12310,6 +12347,37 @@ rm -f core conftest.err conftest.$ac_objext \
+   fi
+ 
+   if test "$have_icu" = "yes"; then
++    if test "$system_icu" = "yes"; then
++      # <icu.h> provides all of the headers which would otherwise be checked individually.
++      $as_echo "#define HAVE_ICU_H 1" >>confdefs.h
++
++      $as_echo "#define HAVE_UNICODE_ULOC_H 1" >>confdefs.h
++
++      $as_echo "#define HAVE_UNICODE_ULOCDATA_H 1" >>confdefs.h
++
++      $as_echo "#define HAVE_UNICODE_UCOL_H 1" >>confdefs.h
++
++      $as_echo "#define HAVE_UNICODE_UCURR_H 1" >>confdefs.h
++
++      $as_echo "#define HAVE_UNICODE_UREGEX_H 1" >>confdefs.h
++
++      $as_echo "#define HAVE_UNICODE_UCAL_H 1" >>confdefs.h
++
++      $as_echo "#define HAVE_UNICODE_UNORM2_H 1" >>confdefs.h
++
++      $as_echo "#define HAVE_UNICODE_UNUM_H 1" >>confdefs.h
++
++      $as_echo "#define HAVE_UNICODE_UDAT_H 1" >>confdefs.h
++
++      $as_echo "#define HAVE_UNICODE_UDATPG_H 1" >>confdefs.h
++
++      $as_echo "#define HAVE_UNICODE_USTRING_H 1" >>confdefs.h
++
++      $as_echo "#define HAVE_UNICODE_USEARCH_H 1" >>confdefs.h
++
++      $as_echo "#define HAVE_UNICODE_UCNV_H 1" >>confdefs.h
++
++    else
+     { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+ $as_echo "yes" >&6; }
+     for ac_header in unicode/uloc.h unicode/ulocdata.h unicode/ucol.h unicode/ucurr.h unicode/uregex.h unicode/ucal.h unicode/unorm2.h unicode/unum.h unicode/udat.h unicode/udatpg.h unicode/ustring.h unicode/usearch.h unicode/ucnv.h
+@@ -12325,6 +12393,7 @@ fi
+ 
+ done
+ 
++    fi
+     LIBS="$LIBS $ICU_LIBS"
+     LDFLAGS="$LDFLAGS $ICU_LDFLAGS"
+     LDIR_FLAGS="$LDIR_FLAGS $ICU_LDFLAGS"
+diff --git a/configure.ac b/configure.ac
+index fc12bdc..7f953cd 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -3381,7 +3381,27 @@ AC_ARG_WITH(icu-library,
+   icu_libdir="$withval", icu_libdir="no")
+ 
+ if test $enable_icu = yes; then
+-  if test "$enable_icu_config" = "yes"; then
++  system_icu=no
++  case "$host_os" in
++    mingw*|windows*)
++      # Windows 10 and later bundle ICU; the SDK exposes it through <icu.h> and icu.lib.
++      AC_MSG_CHECKING([for the Windows system ICU])
++      saved_LIBS="$LIBS"
++      LIBS="-licu $LIBS"
++      AC_LINK_IFELSE([AC_LANG_PROGRAM([[#define id id_icu
++#include <icu.h>
++#undef id]],
++        [[return udat_countAvailable() > 0 ? 0 : 1;]])],
++        [system_icu=yes], [system_icu=no])
++      LIBS="$saved_LIBS"
++      AC_MSG_RESULT($system_icu)
++      ;;
++  esac
++  if test "$system_icu" = "yes"; then
++    have_icu=yes
++    ICU_LIBS="-licu"
++    ICU_LDFLAGS=""
++  elif test "$enable_icu_config" = "yes"; then
+     AC_CHECK_ICU(4.6, have_icu=yes, have_icu=no)
+   else
+     have_icu=no;
+@@ -3397,8 +3417,26 @@ if test $enable_icu = yes; then
+   fi
+ 
+   if test "$have_icu" = "yes"; then
+-    AC_MSG_RESULT(yes)
+-    AC_CHECK_HEADERS(unicode/uloc.h unicode/ulocdata.h unicode/ucol.h unicode/ucurr.h unicode/uregex.h unicode/ucal.h unicode/unorm2.h unicode/unum.h unicode/udat.h unicode/udatpg.h unicode/ustring.h unicode/usearch.h unicode/ucnv.h)
++    if test "$system_icu" = "yes"; then
++      # <icu.h> provides all of the headers which would otherwise be checked individually.
++      AC_DEFINE(HAVE_ICU_H, 1, [Define to 1 if you have the <icu.h> header file.])
++      AC_DEFINE(HAVE_UNICODE_ULOC_H, 1, [Define to 1 if you have the <unicode/uloc.h> header file.])
++      AC_DEFINE(HAVE_UNICODE_ULOCDATA_H, 1, [Define to 1 if you have the <unicode/ulocdata.h> header file.])
++      AC_DEFINE(HAVE_UNICODE_UCOL_H, 1, [Define to 1 if you have the <unicode/ucol.h> header file.])
++      AC_DEFINE(HAVE_UNICODE_UCURR_H, 1, [Define to 1 if you have the <unicode/ucurr.h> header file.])
++      AC_DEFINE(HAVE_UNICODE_UREGEX_H, 1, [Define to 1 if you have the <unicode/uregex.h> header file.])
++      AC_DEFINE(HAVE_UNICODE_UCAL_H, 1, [Define to 1 if you have the <unicode/ucal.h> header file.])
++      AC_DEFINE(HAVE_UNICODE_UNORM2_H, 1, [Define to 1 if you have the <unicode/unorm2.h> header file.])
++      AC_DEFINE(HAVE_UNICODE_UNUM_H, 1, [Define to 1 if you have the <unicode/unum.h> header file.])
++      AC_DEFINE(HAVE_UNICODE_UDAT_H, 1, [Define to 1 if you have the <unicode/udat.h> header file.])
++      AC_DEFINE(HAVE_UNICODE_UDATPG_H, 1, [Define to 1 if you have the <unicode/udatpg.h> header file.])
++      AC_DEFINE(HAVE_UNICODE_USTRING_H, 1, [Define to 1 if you have the <unicode/ustring.h> header file.])
++      AC_DEFINE(HAVE_UNICODE_USEARCH_H, 1, [Define to 1 if you have the <unicode/usearch.h> header file.])
++      AC_DEFINE(HAVE_UNICODE_UCNV_H, 1, [Define to 1 if you have the <unicode/ucnv.h> header file.])
++    else
++      AC_MSG_RESULT(yes)
++      AC_CHECK_HEADERS(unicode/uloc.h unicode/ulocdata.h unicode/ucol.h unicode/ucurr.h unicode/uregex.h unicode/ucal.h unicode/unorm2.h unicode/unum.h unicode/udat.h unicode/udatpg.h unicode/ustring.h unicode/usearch.h unicode/ucnv.h)
++    fi
+     LIBS="$LIBS $ICU_LIBS"
+     LDFLAGS="$LDFLAGS $ICU_LDFLAGS"
+     LDIR_FLAGS="$LDIR_FLAGS $ICU_LDFLAGS"

@@ -1,0 +1,12 @@
+diff --git a/Tests/base/Functions/NSByteSwapping.m b/Tests/base/Functions/NSByteSwapping.m
+index c402487..f677916 100644
+--- a/Tests/base/Functions/NSByteSwapping.m
++++ b/Tests/base/Functions/NSByteSwapping.m
+@@ -3,6 +3,7 @@
+ // Commit ID: 916b60ebf4dcf52cea4b7f6c82043ec5a4d008a4 
+ // Date: 2016-10-03 12:51:49 +0000 
+ // ========== End of Keysight Technologies Notice ========== 
++#define _USE_MATH_DEFINES
+ #import <Foundation/Foundation.h>
+ #import "Testing.h"
+ 

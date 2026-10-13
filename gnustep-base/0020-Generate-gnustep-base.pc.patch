@@ -1,0 +1,87 @@
+diff --git a/Source/GNUmakefile b/Source/GNUmakefile
+index 303fb06..3de1fab 100644
+--- a/Source/GNUmakefile
++++ b/Source/GNUmakefile
+@@ -536,6 +536,7 @@ libbase-resources_RESOURCE_FILES = Info-gnustep.plist
+ 
+ libgnustep-base_NEEDS_GUI = NO
+ libgnustep-baseadd_NEEDS_GUI = NO
++libgnustep-base_PKGCONFIG_FILES = "gnustep-base.pc"
+ 
+ # Build the Additions subproject first.  It can then be used in by
+ # both gnustep-base and gnustep-baseadd (otherwise, if we ever build
+diff --git a/Source/gnustep-base.pc.in b/Source/gnustep-base.pc.in
+new file mode 100644
+index 0000000..8261450
+--- /dev/null
++++ b/Source/gnustep-base.pc.in
+@@ -0,0 +1,6 @@
++Name: gnustep-base
++Description: The GNUstep Base Library is a library of general-purpose, non-graphical Objective C objects.
++Version: @VERSION@
++URL: https://github.com/gnustep/libs-base/
++Libs: @BASELIBS@
++Cflags: @BASEFLAGS@
+diff --git a/configure b/configure
+index f6463e7..be87671 100644
+--- a/configure
++++ b/configure
+@@ -721,6 +721,8 @@ build_os
+ build_vendor
+ build_cpu
+ build
++BASELIBS
++BASEFLAGS
+ BASE_NONFRAGILE_ABI
+ target_alias
+ host_alias
+@@ -2734,6 +2736,11 @@ $as_echo "$as_me: WARNING: You are running configure with the link options ($LDF
+   fi
+ fi
+ 
++BASEFLAGS=`gnustep-config --objc-flags`
++
++BASELIBS=`gnustep-config --base-libs`
++
++
+ # We shouldn't be loading GNUstep.sh here.  It would load in a lot of
+ # variables which might get confused with the ones that will be used
+ # at runtime.  We will load it later once we have determined (and
+@@ -12858,7 +12865,7 @@ $as_echo "$VERSION" >&6; }
+ #--------------------------------------------------------------------
+ # Write the Makefiles
+ #--------------------------------------------------------------------
+-ac_config_files="$ac_config_files config.mak base.make Headers/GNUstepBase/GSConfig.h"
++ac_config_files="$ac_config_files config.mak base.make Source/gnustep-base.pc Headers/GNUstepBase/GSConfig.h"
+ 
+ cat >confcache <<\_ACEOF
+ # This file is a shell script that caches the results of configure
+@@ -13565,6 +13572,7 @@ do
+     "Headers/GNUstepBase/config.h") CONFIG_HEADERS="$CONFIG_HEADERS Headers/GNUstepBase/config.h" ;;
+     "config.mak") CONFIG_FILES="$CONFIG_FILES config.mak" ;;
+     "base.make") CONFIG_FILES="$CONFIG_FILES base.make" ;;
++    "Source/gnustep-base.pc") CONFIG_FILES="$CONFIG_FILES Source/gnustep-base.pc" ;;
+     "Headers/GNUstepBase/GSConfig.h") CONFIG_FILES="$CONFIG_FILES Headers/GNUstepBase/GSConfig.h" ;;
+ 
+   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5 ;;
+diff --git a/configure.ac b/configure.ac
+index 2f47566..c9391b3 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -125,6 +125,9 @@ else
+   fi
+ fi
+ 
++AC_SUBST(BASEFLAGS, `gnustep-config --objc-flags`)
++AC_SUBST(BASELIBS, `gnustep-config --base-libs`)
++
+ # We shouldn't be loading GNUstep.sh here.  It would load in a lot of
+ # variables which might get confused with the ones that will be used
+ # at runtime.  We will load it later once we have determined (and
+@@ -3631,5 +3634,5 @@ AC_SUBST(GCC_VERSION)
+ #--------------------------------------------------------------------
+ # Write the Makefiles
+ #--------------------------------------------------------------------
+-AC_CONFIG_FILES([config.mak base.make Headers/GNUstepBase/GSConfig.h])
++AC_CONFIG_FILES([config.mak base.make Source/gnustep-base.pc Headers/GNUstepBase/GSConfig.h])
+ AC_OUTPUT

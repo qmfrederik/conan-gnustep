@@ -1,0 +1,13 @@
+diff --git a/Headers/GNUstepBase/GSConfig.h.in b/Headers/GNUstepBase/GSConfig.h.in
+index 7d8b33d..dd952d6 100644
+--- a/Headers/GNUstepBase/GSConfig.h.in
++++ b/Headers/GNUstepBase/GSConfig.h.in
+@@ -240,7 +240,7 @@ typedef	gsuaddr gsaddr;
+  * Native character type for use in systemcalls etc.
+  */
+ 
+-#if	defined(__MINGW__)
++#if	defined(_WIN32)
+ #  define	GSNativeChar	uint16_t
+ #else
+ #  define	GSNativeChar	char

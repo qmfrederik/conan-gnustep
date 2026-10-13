@@ -4,16 +4,51 @@ sources:
     sha256: "e7546f1c978a7c75b676953a360194a61e921cb45a4804497b4f346a460545cd"
     strip_root: true
 
+  "1.24.8":
+    url: "https://github.com/qmfrederik/libs-base/archive/refs/heads/features/conan.tar.gz"
+    sha256: "665ef7de139ba32dd6a02575d4ef905971af93cd728eda8a8b16ae4b6225e0b6"
+    strip_root: true
+
 patches:
-  # These patches are maintained at https://github.com/qmfrederik/libs-base/tree/base-1_31_1-PACKAGE
-  - patch_file: "0001-Support-libcurl-7.61.patch"
-  - patch_file: "0002-expose-declarations-in-NSDebug.h-even-when-NDEBUG-is.patch"
-  - patch_file: "0003-Use-PKG_CONFIG-to-invoke-pkg-config.patch"
-  - patch_file: "0004-Fix-NSNotFound-definition-to-use-NSInteger-type-494.patch"
-  - patch_file: "0005-Locate-GNUstep-system-paths-relative-to-the-library.patch"
-  # Fixes for clang 22 compatibility (missing casts)
-  - patch_file: "0006-workaround-for-clang-bug-issue-589.patch"
-  - patch_file: "0007-Update-NSTimeZone.m.patch"
-  - patch_file: "0008-Add-GNUSTEP_EXTRA_LIBRARY_PATHS.patch"
-  # Fixes for clang 23 compatibility
-  - patch_file: "0009-GSScheduledBlock-_block-instead-of-BLOCK_SCOPE-GSSch.patch"
+  "1.31.1":
+    # These patches are maintained at https://github.com/qmfrederik/libs-base/tree/base-1_31_1-PACKAGE
+    - patch_file: "0001-Support-libcurl-7.61.patch"
+    - patch_file: "0002-expose-declarations-in-NSDebug.h-even-when-NDEBUG-is.patch"
+    - patch_file: "0003-Use-PKG_CONFIG-to-invoke-pkg-config.patch"
+    - patch_file: "0004-Fix-NSNotFound-definition-to-use-NSInteger-type-494.patch"
+    - patch_file: "0005-Locate-GNUstep-system-paths-relative-to-the-library.patch"
+    # Fixes for clang 22 compatibility (missing casts)
+    - patch_file: "0006-workaround-for-clang-bug-issue-589.patch"
+    - patch_file: "0007-Update-NSTimeZone.m.patch"
+    - patch_file: "0008-Add-GNUSTEP_EXTRA_LIBRARY_PATHS.patch"
+    # Fixes for clang 23 compatibility
+    - patch_file: "0009-GSScheduledBlock-_block-instead-of-BLOCK_SCOPE-GSSch.patch"
+
+  "1.24.8":
+    # configure only looks for -lpthread, but pthreads4w ships pthreadVC3.lib
+    - patch_file: "0008-Link-with-pthreads4w-on-Windows.patch"
+    # Backport of upstream's Windows workaround for configure checks that fail to link without ObjC code,
+    # see https://github.com/gnustep/libs-base/pull/168
+    - patch_file: "0009-Skip-ObjC-runtime-link-checks-on-Windows.patch"
+    # Use the ICU bundled with Windows 10 (<icu.h>, icu.lib) instead of icu-config
+    - patch_file: "0012-Support-the-Windows-system-ICU.patch"
+    # Backport of the applicable parts of gnustep/libs-base@61709e6 (Windows with clang's MSVC target)
+    - patch_file: "0013-Support-building-with-the-MSVC-ABI.patch"
+    # libdispatch's generic_win_base.h typedefs pthread_attr_t to void, which clashes with pthreads4w
+    - patch_file: "0014-Avoid-pthread_attr_t-clash-with-libdispatch.patch"
+    # Backport of the MSVC <io.h> include (common.h) and U_ERROR_LIMIT removal (NSDateFormatter.m) from 1.31
+    - patch_file: "0015-Fix-MSVC-and-system-ICU-compile-errors.patch"
+    # NSFileManager/NSString use UTF-16 paths on all of Windows (as in 1.31), not just MinGW
+    - patch_file: "0016-Use-UTF-16-GSNativeChar-on-all-Windows-targets.patch"
+    # Replace the unsupported-on-MSVC NSFileManager stubs with the bundled win32/dirent.h used by 1.31
+    - patch_file: "0017-Support-NSFileManager-on-Windows-MSVC.patch"
+    # The MSVC runtime has no tzname/daylight; GetTimeZoneInformation() is used on Windows instead
+    - patch_file: "0018-Skip-tzname-fallback-on-MSVC.patch"
+    # win32/NSStream.m uses WinHttp*, which must be linked on the MSVC target too
+    - patch_file: "0019-Link-winhttp-on-Windows-MSVC.patch"
+    # The recipe reads gnustep-base.pc, which 1.24.8 doesn't generate; backport of gnustep/libs-base@07d17a1
+    - patch_file: "0020-Generate-gnustep-base.pc.patch"
+    # M_PI needs _USE_MATH_DEFINES with the MSVC runtime
+    - patch_file: "0022-Define-_USE_MATH_DEFINES-in-NSByteSwapping-test.patch"
+    # Same as 0005 for 1.31.1: find the NSTimeZones etc. resources next to the library, wherever Conan installed it
+    - patch_file: "0023-Locate-GNUstep-system-paths-relative-to-the-library.patch"
