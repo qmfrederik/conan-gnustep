@@ -1,5 +1,6 @@
 import yaml
 import os
+from datetime import datetime
 
 # Automatically calculates the package version (x.y.z-{prerelease}+{build}) for the package.
 # 
@@ -25,9 +26,6 @@ import os
 # - Works for installed packages
 
 def get_package_version(package):    
-    from pygit2 import Repository, BlobIO, Commit, Object
-    from pygit2.enums import SortMode
-
     repository = os.path.dirname(package.recipe_folder)
     conan_path = os.path.join(repository, package.name, "conandata.yml")
 
@@ -38,7 +36,14 @@ def get_package_version(package):
     with open(conan_path) as stream:
         version_data = yaml.safe_load(stream)
 
-    package_version = next(iter(version_data["sources"]))
+    package_version = package.version
+
+    try:
+        from pygit2 import Repository, BlobIO, Commit, Object
+        from pygit2.enums import SortMode
+    except ImportError:
+        return f"{package_version}+l{datetime.now().strftime('%Y%m%d%H%M%S')}"
+
     revision_count = 0
 
     repo_dir = os.path.join(repository, '.git')
