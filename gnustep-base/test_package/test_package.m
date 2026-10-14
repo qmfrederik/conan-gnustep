@@ -5,6 +5,7 @@
 #endif
 
 #import <Foundation/Foundation.h>
+#import <GNUstepBase/NSData+GNUstepBase.h>
 
 @interface Test : NSObject
 @end
@@ -83,9 +84,24 @@ int main(void)
 
     NSLog(@"[%@]: Time zone abbreviation lookup", abbreviationOk ? @"PASS" : @"FAIL");
 
+    // -gzipped: and -gunzipped are implemented with zlib; they return nil (or the unchanged receiver) when zlib
+    // isn't linked in, so a successful round trip through a real gzip stream proves zlib is linked and working.
+    NSMutableData *original = [NSMutableData data];
+    int i;
+    for (i = 0; i < 1000; i++)
+        [original appendBytes:"Hello, zlib! " length:13];
+    NSData *compressed = [original gzipped:-1];
+    NSData *restored = [compressed gunzipped];
+    int zlibOk = (compressed != nil)
+        && [compressed isGzipped]
+        && [compressed length] < [original length]
+        && [restored isEqualToData:original];
+    NSLog(@"[%@]: zlib gzip round trip (%lu -> %lu bytes)", zlibOk ? @"PASS" : @"FAIL",
+          (unsigned long)[original length], (unsigned long)[compressed length]);
+
     [pool release];
 
-    if (!dateFormatOk || !bundleOk || !abbreviationOk)
+    if (!dateFormatOk || !bundleOk || !abbreviationOk || !zlibOk)
         return EXIT_FAILURE;
 
     return EXIT_SUCCESS;
