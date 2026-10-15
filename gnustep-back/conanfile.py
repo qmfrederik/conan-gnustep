@@ -22,7 +22,7 @@ class GnustepBackRecipe(ConanFile):
     options = {"shared": [True, False], "fPIC": [True, False], "objc_runtime": ["gnu", "ng"]}
     default_options = {"shared": True, "fPIC": True, "objc_runtime": "ng"}
     exports_sources = "*.patch"
-    python_requires = "gnustep-helpers/0.1"
+    python_requires = "gnustep-helpers/0.2"
 
     def set_version(self):
         self.version = self.python_requires["gnustep-helpers"].module.get_package_version(self)
