@@ -22,7 +22,7 @@ esac
 """
 
 class HelpersTestConan(ConanFile):
-    python_requires = "gnustep-helpers/0.1"
+    python_requires = "gnustep-helpers/0.2"
 
     def test(self):
         with tempfile.TemporaryDirectory() as folder:

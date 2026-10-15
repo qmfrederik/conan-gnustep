@@ -17,7 +17,7 @@ class GnustepRecipe(ConanFile):
     settings = {"os", "compiler", "build_type", "arch"}
     options = {"shared": [True, False], "fPIC": [True, False], "objc_runtime": ["gnu", "ng"]}
     default_options = {"shared": True, "fPIC": True, "objc_runtime": "ng"}
-    python_requires = "gnustep-helpers/0.1"
+    python_requires = "gnustep-helpers/0.2"
 
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
