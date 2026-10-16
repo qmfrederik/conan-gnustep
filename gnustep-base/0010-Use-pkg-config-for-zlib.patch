@@ -1,0 +1,88 @@
+diff --git a/configure b/configure
+index 63a5a9a..3d4fb7c 100644
+--- a/configure
++++ b/configure
+@@ -11170,50 +11170,23 @@ then :
+ fi
+ 
+ if test $ac_cv_header_zlib_h = yes; then
+-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for gzseek in -lz" >&5
+-printf %s "checking for gzseek in -lz... " >&6; }
+-if test ${ac_cv_lib_z_gzseek+y}
+-then :
+-  printf %s "(cached) " >&6
+-else $as_nop
+-  ac_check_lib_save_LIBS=$LIBS
+-LIBS="-lz  $LIBS"
+-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+-/* end confdefs.h.  */
+-
+-/* Override any GCC internal prototype to avoid an error.
+-   Use char because int might match the return type of a GCC
+-   builtin and then its argument prototype would still apply.  */
+-char gzseek ();
+-int
+-main (void)
+-{
+-return gzseek ();
+-  ;
+-  return 0;
+-}
+-_ACEOF
+-if ac_fn_c_try_link "$LINENO"
+-then :
+-  ac_cv_lib_z_gzseek=yes
+-else $as_nop
+-  ac_cv_lib_z_gzseek=no
+-fi
+-rm -f core conftest.err conftest.$ac_objext conftest.beam \
+-    conftest$ac_exeext conftest.$ac_ext
+-LIBS=$ac_check_lib_save_LIBS
+-fi
+-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_z_gzseek" >&5
+-printf "%s\n" "$ac_cv_lib_z_gzseek" >&6; }
+-if test "x$ac_cv_lib_z_gzseek" = xyes
++  ZLIB_LIBS=-lz
++  if test -n "$PKG_CONFIG" && $PKG_CONFIG --exists zlib; then
++    ZLIB_LIBS=`$PKG_CONFIG --libs-only-l zlib`
++  fi
++  saved_LIBS="$LIBS"
++  LIBS="$ZLIB_LIBS $LIBS"
++  ac_fn_c_check_func "$LINENO" "gzseek" "ac_cv_func_gzseek"
++if test "x$ac_cv_func_gzseek" = xyes
+ then :
+   zlib_ok=yes
+ else $as_nop
+   zlib_ok=no
+ fi
+ 
++  LIBS="$saved_LIBS"
+   if test "$zlib_ok" = yes; then
+-    LIBS="$LIBS -lz"
++    LIBS="$LIBS $ZLIB_LIBS"
+     USE_ZLIB=1
+   fi
+ fi
+diff --git a/configure.ac b/configure.ac
+index b893816..232bec7 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -2721,9 +2721,16 @@ AC_CHECK_FUNCS(gethostbyaddr_r inet_aton inet_pton inet_ntop sigaction)
+ USE_ZLIB=0
+ AC_CHECK_HEADERS(zlib.h)
+ if test $ac_cv_header_zlib_h = yes; then
+-  AC_CHECK_LIB(z, gzseek, zlib_ok=yes, zlib_ok=no)
++  ZLIB_LIBS=-lz
++  if test -n "$PKG_CONFIG" && $PKG_CONFIG --exists zlib; then
++    ZLIB_LIBS=`$PKG_CONFIG --libs-only-l zlib`
++  fi
++  saved_LIBS="$LIBS"
++  LIBS="$ZLIB_LIBS $LIBS"
++  AC_CHECK_FUNC(gzseek, zlib_ok=yes, zlib_ok=no)
++  LIBS="$saved_LIBS"
+   if test "$zlib_ok" = yes; then
+-    LIBS="$LIBS -lz"
++    LIBS="$LIBS $ZLIB_LIBS"
+     USE_ZLIB=1
+   fi
+ fi
