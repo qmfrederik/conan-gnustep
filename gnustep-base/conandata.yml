@@ -17,3 +17,5 @@ patches:
   - patch_file: "0008-Add-GNUSTEP_EXTRA_LIBRARY_PATHS.patch"
   # Fixes for clang 23 compatibility
   - patch_file: "0009-GSScheduledBlock-_block-instead-of-BLOCK_SCOPE-GSSch.patch"
+  # zlib's import library is named zdll/zlib on Windows, not z
+  - patch_file: "0010-Use-pkg-config-for-zlib.patch"

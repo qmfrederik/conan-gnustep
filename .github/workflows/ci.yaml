@@ -186,7 +186,7 @@ jobs:
       - name: Install gnustep-base dependencies (Ubuntu)
         run: |
           apt-get update
-          apt-get install -y libffi-dev libxml2-dev libxslt-dev gnutls-dev libicu-dev libcurl4-gnutls-dev
+          apt-get install -y libffi-dev libxml2-dev libxslt-dev gnutls-dev libicu-dev libcurl4-gnutls-dev zlib1g-dev
         if: matrix.family == 'ubuntu'
       - name: Install gnustep-base dependencies (Enterprise Linux)
         run: |
