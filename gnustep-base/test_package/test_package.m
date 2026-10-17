@@ -104,5 +104,11 @@ int main(void)
     if (!dateFormatOk || !bundleOk || !abbreviationOk || !zlibOk)
         return EXIT_FAILURE;
 
+    // Test for a potential clang 23 code generation regression:
+    // https://github.com/gnustep/libs-base/issues/855#issuecomment-6235100124
+    NSMutableString *s=[[NSMutableString alloc] init];
+    [s appendFormat:@"%u", 1u];
+    NSLog(@"appendFormat returned %@", s);
+
     return EXIT_SUCCESS;
 }
