@@ -109,5 +109,8 @@ class GnustepMakeRecipe(ConanFile):
         else:
             self.cpp_info.system_libs = ["objc"]
 
+        # cflags are not applied to C++ sources, including Objective C++ (.mm)
+        self.cpp_info.cxxflags = list(self.cpp_info.cflags)
+
         # Set the GNUSTEP_MAKEFILES path
         self.buildenv_info.define_path("GNUSTEP_MAKEFILES", self.get_makefiles_folder())
