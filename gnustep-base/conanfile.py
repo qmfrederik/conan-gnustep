@@ -189,9 +189,12 @@ class GnustepBaseRecipe(ConanFile):
         self.cpp_info.libs = ["gnustep-base"]
         self.cpp_info.defines.extend(pc_data["defines"])
         self.cpp_info.cflags.extend(pc_data["cflags"])
+        # cflags are not applied to C++ sources, including Objective C++ (.mm)
+        self.cpp_info.cxxflags.extend(pc_data["cflags"])
         
         if self.options.objc_runtime == "gnu":
             self.cpp_info.cflags.append("-fconstant-string-class=NSConstantString")
+            self.cpp_info.cxxflags.append("-fconstant-string-class=NSConstantString")
             self.cpp_info.system_libs = ["objc"]
 
         # Have the child build systems pick up the GNUstep base.make makefile
