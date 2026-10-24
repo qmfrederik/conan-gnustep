@@ -40,7 +40,7 @@ libffi/3.4.8:compiler.version=193
 # GNUstep GUI:
 libjpeg/9f:compiler.version=194
 giflib/5.2.2:compiler.version=194
-libpng/1.6.58:compiler.version=194
+libpng/1.6.59:compiler.version=194
 xz_utils/5.8.4:compiler.version=194
 libtiff/4.7.2:compiler.version=194
 
