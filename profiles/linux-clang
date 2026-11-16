@@ -1,25 +1,11 @@
-[buildenv]
-CC=/usr/bin/clang
-CXX=/usr/bin/clang++
-
 [settings]
 arch=x86_64
 build_type=Release
 compiler=clang
-compiler.cppstd=gnu17
-compiler.version=18
+compiler.version=22
+compiler.cppstd=20
+compiler.libcxx=libstdc++11
 os=Linux
 
-[platform_requires]
-libffi/3.4.8
-libxml2/2.15.4
-libxslt/1.1.45
-gnutls/3.8.7
-icu/78.2
-libcurl/8.22.0
-libiconv/1.17
-libjpeg/9e
-libtiff/4.7.0
-libpng/1.6.50
-giflib/5.2.2
-freetype/2.14.3
+[conf]
+tools.build:compiler_executables={"c": "/usr/bin/clang", "cpp": "/usr/bin/clang++"}

@@ -64,8 +64,15 @@ glib/2.86.5:compiler.version=194
 
 [conf]
 tools.cmake.cmaketoolchain:generator=Ninja
-tools.build:compiler_executables = {"c": "clang", "cpp": "clang++"}
 tools.gnu:pkg_config=pkgconf
+
+{% for ref in [
+    "libobjc2/*",
+    "libdispatch/*",
+    "gnustep-*/*"
+] %}
+{{ ref }}:tools.build:compiler_executables = {"c": "clang", "cpp": "clang++"}
+{% endfor %}
 
 # Work around a Windows build failure on Conan >= 2.19.1
 # Conan >= 2.19.1 no longer sets this; try_compile then uses Debug, leaving the

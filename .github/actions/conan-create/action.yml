@@ -1,0 +1,23 @@
+name: 'Create Conan Package'
+description: 'Creates a Conan package'
+inputs:
+  conan-package:  # id of input
+    description: 'Conan package to build'
+    required: true
+  profile:
+    description: 'Conan profile to use'
+    required: true
+  conan:
+    description: 'Conan executable to use'
+    default: 'conan'
+    required: false
+runs:
+  using: "composite"
+  steps:
+    - name: Create ${{ inputs.conan-package }}
+      # pwsh (7+) on Windows, bash elsewhere. The script must be valid in both: single quotes keep
+      # backslashes in Windows paths literal, and && stops after a failure (pwsh doesn't do that between lines).
+      shell: ${{ runner.os == 'Windows' && 'pwsh' || 'bash' }}
+      run: |
+        ${{ inputs.conan }} create '${{ inputs.conan-package }}' --profile:a='${{ inputs.profile }}' -c tools.build:skip_test=True --build=missing --format=json > '${{ inputs.conan-package }}.graph.json' &&
+        ${{ inputs.conan }} list --graph='${{ inputs.conan-package }}.graph.json' --graph-binaries=build --format=json > '${{ inputs.conan-package }}.build.json'
