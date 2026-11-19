@@ -22,8 +22,9 @@ class GnustepRecipe(ConanFile):
     def export_sources(self):
         copy(self, "CMakeLists.txt", self.recipe_folder, self.export_sources_folder)
 
-    def set_version(self):
-        self.version = self.python_requires["gnustep-helpers"].module.get_package_version(self)
+    def init(self):
+        if not isinstance(self.python_requires, str):
+            self.version = self.python_requires["gnustep-helpers"].module.get_package_version(self)
 
     def requirements(self):
         # Depend on gnustep-base, gnustep-gui and libobjc2, and mark both the headers and libs as transitive.
