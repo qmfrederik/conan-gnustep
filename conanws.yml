@@ -5,5 +5,7 @@ packages:
   - path: gnustep-base
   - path: gnustep-gui
   - path: gnustep-headless
+  - path: gnustep-back
+  - path: gnustep-winuxtheme
   - path: gnustep-systempreferences
   - path: gnustep

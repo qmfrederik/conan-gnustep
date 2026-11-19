@@ -63,10 +63,6 @@ jobs:
         run: conan create getopt --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
       - name: Create gnustep
         run: conan workspace create --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }} -c tools.build:skip_test=True --build=missing
-      - name: Create gnustep-back
-        run: conan create gnustep-back --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
-      - name: Create gnustep-winuxtheme
-        run: conan create gnustep-winuxtheme --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
       - name: Build tutorial
         run: |
           conan install conanfile.txt --profile:a=../profiles/windows-clang-${{ matrix.name }} --output-folder=build/ --conf="tools.env.virtualenv:powershell=pwsh.exe"

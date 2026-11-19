@@ -1,9 +1,14 @@
 import importlib.util
 import os
+import sys
 from types import SimpleNamespace
 
 import yaml
 from conan import Workspace
+
+
+# Packages which only make sense on Windows; they're left out of the workspace on other platforms.
+WINDOWS_ONLY_PACKAGES = {"gnustep-back", "gnustep-winuxtheme"}
 
 
 class MyWorkspace(Workspace):
@@ -24,6 +29,9 @@ class MyWorkspace(Workspace):
       packages = []
       for package in super().packages():
          package = dict(package)
+
+         if sys.platform != "win32" and os.path.basename(os.path.normpath(package["path"])) in WINDOWS_ONLY_PACKAGES:
+            continue
 
          if "ref" not in package:
             recipe_folder = os.path.normpath(os.path.join(self.folder, package["path"]))
