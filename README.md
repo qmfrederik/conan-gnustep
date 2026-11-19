@@ -47,7 +47,7 @@ pip install conan==2.33.0 pygit2
 
 conan config install global.conf
 conan create gnustep-helpers --profile:a=profiles/windows-clang-vs2026
-conan workspace create -pr:a=profiles/windows-clang-vs2026 -c tools.build:skip_test=True --build=missing
+conan workspace create -pr:a=profiles/windows-clang-vs2026 -c tools.build:skip_test=True --build="missing"
 
 # This is a Windows-only dependency
 conan create gnustep-winuxtheme --profile:a=profiles/windows-clang-vs2026
@@ -68,7 +68,7 @@ python3 -m venv .python3/
 . .python3/bin/activate
 conan config install global.conf
 conan create gnustep-helpers --profile:a=profiles/linux-clang-nodist
-conan workspace create --profile:a=profiles/linux-clang-nodist
+conan workspace create --profile:a=profiles/linux-clang-nodist -c tools.build:skip_test=True --build="missing"
 ```
 
 ## Tips & Tricks
