@@ -29,11 +29,9 @@ os=Windows
 # which don't have a 195 prebuilt yet.
 
 # GNUstep-base:
-zlib/1.3.2:compiler.version=194
 libiconv/1.17:compiler.version=194
 libxml2/2.15.4:compiler.version=194
 openssl/3.6.5:compiler.version=194
-libcurl/8.22.0:compiler.version=194
 libxslt/1.1.45:compiler.version=194
 libffi/3.4.8:compiler.version=193
 
