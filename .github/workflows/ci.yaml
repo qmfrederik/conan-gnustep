@@ -61,6 +61,10 @@ jobs:
         run: conan create gnustep-helpers --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
       - name: Create getopt
         run: conan create getopt --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
+      - name: Build external dependencies
+        # Builds the dependencies which are not part of the workspace (and which are not available as binaries) and
+        # records what was built in the graph, so we can upload exactly those packages later on.
+        run: conan workspace super-install --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }} -c tools.build:skip_test=True --build=missing --output-folder=${{ runner.temp }}/super-install --format=json --out-file=${{ runner.temp }}/graph.json
       - name: Create gnustep
         run: conan workspace create --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }} -c tools.build:skip_test=True --build=missing
       - name: Build tutorial
@@ -71,6 +75,10 @@ jobs:
           ./build/conanrun.ps1
           ./build/Tutorial.exe
         working-directory: tutorial/
+      - name: List external packages which were built locally
+        run: |
+          conan list --graph=${{ runner.temp }}/graph.json --graph-binaries=build --format=json --out-file=${{ runner.temp }}/built.json
+          python -c "import json; names = sorted(json.load(open(r'${{ runner.temp }}/built.json'))['Local Cache']); print('\n'.join(names) if names else 'No external packages were built')"
       - name: Upload Conan packages to Cloudsmith
         run: |
           conan remote add cloudsmith https://conan.cloudsmith.io/qmfrederik/gnustep/
@@ -79,6 +87,7 @@ jobs:
           conan upload libdispatch/* --confirm -r cloudsmith
           conan upload gnustep*/* --confirm -r cloudsmith
           conan upload getopt/* --confirm -r cloudsmith
+          conan upload --list=${{ runner.temp }}/built.json --confirm -r cloudsmith
         if: ${{ github.ref == 'refs/heads/main' }}
       - name: Upload Conan packages to GitLab
         run: |
@@ -88,6 +97,7 @@ jobs:
           conan upload libdispatch/* --confirm -r gitlab
           conan upload gnustep*/* --confirm -r gitlab
           conan upload getopt/* --confirm -r gitlab
+          conan upload --list=${{ runner.temp }}/built.json --confirm -r gitlab
         if: ${{ github.ref == 'refs/heads/main' }}
       # This can help troubleshooting when Conan packages fail to build because the repository is dirty
       - name: Get Git status
@@ -165,6 +175,10 @@ jobs:
         if: ${{ github.ref != 'refs/heads/main' }}
       - name: Install gnustep-helpers
         run: .python3/bin/conan create gnustep-helpers --profile:a=profiles/linux-clang-nodist
+      - name: Build external dependencies
+        # Builds the dependencies which are not part of the workspace (and which are not available as binaries) and
+        # records what was built in the graph, so we can upload exactly those packages later on.
+        run: .python3/bin/conan workspace super-install --profile:a=profiles/linux-clang-nodist -c tools.build:skip_test=True --build=missing --output-folder=${{ runner.temp }}/super-install --format=json --out-file=${{ runner.temp }}/graph.json
       - name: Create gnustep
         run: .python3/bin/conan workspace create --profile:a=profiles/linux-clang-nodist -c tools.build:skip_test=True --build=missing
       - name: Build tutorial
@@ -175,6 +189,10 @@ jobs:
           . build/conanrun.sh
           ./build/Tutorial
         working-directory: tutorial/
+      - name: List external packages which were built locally
+        run: |
+          .python3/bin/conan list --graph=${{ runner.temp }}/graph.json --graph-binaries=build --format=json --out-file=${{ runner.temp }}/built.json
+          .python3/bin/python -c "import json; names = sorted(json.load(open(r'${{ runner.temp }}/built.json'))['Local Cache']); print('\n'.join(names) if names else 'No external packages were built')"
       - name: Upload Conan packages to Cloudsmith
         run: |
           .python3/bin/conan remote add cloudsmith https://conan.cloudsmith.io/qmfrederik/gnustep/
@@ -182,6 +200,7 @@ jobs:
           .python3/bin/conan upload "libobjc2/*" --confirm -r cloudsmith
           .python3/bin/conan upload "libdispatch/*" --confirm -r cloudsmith
           .python3/bin/conan upload "gnustep*/*" --confirm -r cloudsmith
+          .python3/bin/conan upload --list=${{ runner.temp }}/built.json --confirm -r cloudsmith
         if: ${{ github.ref == 'refs/heads/main' }}
       - name: Upload Conan packages to GitLab
         run: |
@@ -190,4 +209,5 @@ jobs:
           .python3/bin/conan upload "libobjc2/*" --confirm -r gitlab
           .python3/bin/conan upload "libdispatch/*" --confirm -r gitlab
           .python3/bin/conan upload "gnustep*/*" --confirm -r gitlab
+          .python3/bin/conan upload --list=${{ runner.temp }}/built.json --confirm -r gitlab
         if: ${{ github.ref == 'refs/heads/main' }}
