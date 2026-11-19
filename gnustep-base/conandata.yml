@@ -19,3 +19,5 @@ patches:
   - patch_file: "0009-GSScheduledBlock-_block-instead-of-BLOCK_SCOPE-GSSch.patch"
   # zlib's import library is named zdll/zlib on Windows, not z
   - patch_file: "0010-Use-pkg-config-for-zlib.patch"
+  # Work around a clang 23 miscompile of GSPrivateFormat (backport of https://github.com/gnustep/libs-base/pull/856)
+  - patch_file: "0011-Work-around-clang-23-miscompile-of-GSPrivateFormat.patch"
