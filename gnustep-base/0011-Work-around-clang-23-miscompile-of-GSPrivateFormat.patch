@@ -1,0 +1,123 @@
+From b3c5026eb4a76b3026328a80b1824df32e0c1589 Mon Sep 17 00:00:00 2001
+From: Frederik Carlier <frederik.carlier@keysight.com>
+Date: Thu, 19 Nov 2026 17:36:46 +0100
+Subject: [PATCH] Work around clang 23 miscompile of GSPrivateFormat
+
+LLVM's DFA jump threading pass (on by default from clang 23) miscompiles the
+computed-goto table in GSPrivateFormat (llvm/llvm-project#231864).
+
+Backport of https://github.com/gnustep/libs-base/pull/856
+---
+ Source/GNUmakefile |  3 ++
+ config.mak.in      |  1 +
+ configure          | 35 ++++++++++++++++++
+ configure.ac       | 15 ++++++++
+ 4 files changed, 54 insertions(+)
+
+diff --git a/Source/GNUmakefile b/Source/GNUmakefile
+index 8bca407..9ce6966 100644
+--- a/Source/GNUmakefile
++++ b/Source/GNUmakefile
+@@ -369,6 +369,9 @@ else
+   NSKeyValueObserving.m
+ endif
+ 
++# Works around a clang miscompile of GSPrivateFormat (see configure.ac).
++GSFormat.m_FILE_FLAGS += $(GSFORMAT_CFLAGS)
++
+ ifeq ($(OBJC_RUNTIME_LIB), ng)
+   BASE_MFILES += \
+   NSKeyValueCoding+Caching.m
+diff --git a/config.mak.in b/config.mak.in
+--- a/config.mak.in
++++ b/config.mak.in
+@@ -22,6 +22,7 @@
+ OBJC2RUNTIME=@OBJC2RUNTIME@
+ OBJCSYNC=@OBJCSYNC@
+ WARN_FLAGS=@WARN_FLAGS@
++GSFORMAT_CFLAGS=@GSFORMAT_CFLAGS@
+ 
+ HAVE_INET_PTON=@HAVE_INET_PTON@
+ HAVE_INET_NTOP=@HAVE_INET_NTOP@
+diff --git a/configure b/configure
+index 3d4fb7c..4255779 100755
+--- a/configure
++++ b/configure
+@@ -757,6 +757,7 @@ PKG_CONFIG_LIBDIR
+ PKG_CONFIG_PATH
+ PKG_CONFIG
+ WHOAMI
++GSFORMAT_CFLAGS
+ CLANG_CC
+ CPP
+ OBJEXT
+@@ -5712,6 +5713,40 @@ printf "%s\n" "no" >&6; }
+ fi
+ 
+ 
++# LLVM's DFA jump threading pass (on by default from clang 23) miscompiles the
++# computed-goto table in GSPrivateFormat (llvm/llvm-project#231864).
++GSFORMAT_CFLAGS=
++if test "$CLANG_CC" = "yes"; then
++  { printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking whether the compiler accepts -mllvm -enable-dfa-jump-thread=false" >&5
++printf %s "checking whether the compiler accepts -mllvm -enable-dfa-jump-thread=false... " >&6; }
++  saved_CFLAGS="$CFLAGS"
++  CFLAGS="$CFLAGS -mllvm -enable-dfa-jump-thread=false"
++  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++
++int
++main (void)
++{
++
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_compile "$LINENO"
++then :
++  { printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: yes" >&5
++printf '%s\n' "yes" >&6; }
++    GSFORMAT_CFLAGS="-mllvm -enable-dfa-jump-thread=false"
++else case e in #(
++  e) { printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: no" >&5
++printf '%s\n' "no" >&6; } ;;
++esac
++fi
++rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
++  CFLAGS="$saved_CFLAGS"
++fi
++
++
+ 
+ # Large file support needed by NSData/NSFileHandle.
+ # These macros must be called after AC_USE_SYSTEM_EXTENSIONS because
+diff --git a/configure.ac b/configure.ac
+index 232bec7..278d07c 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1130,6 +1130,21 @@ else
+ fi
+ AC_SUBST(CLANG_CC)
+ 
++# LLVM's DFA jump threading pass (on by default from clang 23) miscompiles the
++# computed-goto table in GSPrivateFormat (llvm/llvm-project#231864).
++GSFORMAT_CFLAGS=
++if test "$CLANG_CC" = "yes"; then
++  AC_MSG_CHECKING(whether the compiler accepts -mllvm -enable-dfa-jump-thread=false)
++  saved_CFLAGS="$CFLAGS"
++  CFLAGS="$CFLAGS -mllvm -enable-dfa-jump-thread=false"
++  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [])],
++    AC_MSG_RESULT(yes)
++    GSFORMAT_CFLAGS="-mllvm -enable-dfa-jump-thread=false",
++    AC_MSG_RESULT(no))
++  CFLAGS="$saved_CFLAGS"
++fi
++AC_SUBST(GSFORMAT_CFLAGS)
++
+ 
+ # Large file support needed by NSData/NSFileHandle.
+ # These macros must be called after AC_USE_SYSTEM_EXTENSIONS because
+-- 
+2.43.0
+
