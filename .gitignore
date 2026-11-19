@@ -1,3 +1,7 @@
 .python3/
 build/
 CMakeUserPresets.json
+__pycache__/
+/*conan*.sh
+/*conan*.ps1
+/*conan*.bat

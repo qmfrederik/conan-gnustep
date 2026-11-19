@@ -1,0 +1,11 @@
+packages:
+  - path: libdispatch
+  - path: libobjc2
+  - path: gnustep-make
+  - path: gnustep-base
+  - path: gnustep-gui
+  - path: gnustep-headless
+  - path: gnustep-back
+  - path: gnustep-winuxtheme
+  - path: gnustep-systempreferences
+  - path: gnustep

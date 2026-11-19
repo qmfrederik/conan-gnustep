@@ -1,0 +1,3 @@
+# Have tutorial build up packages from the Conan package, not editable.
+# It's intended to test the final built packages, not the editable packages.
+packages: []
