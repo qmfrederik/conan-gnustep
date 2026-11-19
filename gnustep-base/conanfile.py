@@ -184,8 +184,28 @@ class GnustepBaseRecipe(ConanFile):
         mkdir(self, os.path.dirname(self._pc_data_path))
         save(self, self._pc_data_path, yaml.dump(pc_data))
 
+    def _read_pc_data(self):
+        if os.path.exists(self._pc_data_path):
+            return yaml.safe_load(load(self, self._pc_data_path))
+
+        # Editable packages (conan workspace) never run package(), so pc_data.yml doesn't exist, and configure
+        # hasn't run yet when dependents are installed. Use the values configure produces for the default setup.
+        pc_data = {
+            "cflags": ["-fexceptions", "-fobjc-exceptions"],
+            "defines": ["_NATIVE_OBJC_EXCEPTIONS"]
+        }
+
+        if self.options.objc_runtime == "ng":
+            pc_data["cflags"] += ["-fobjc-runtime=gnustep-2.2", "-fblocks"]
+            pc_data["defines"] += ["GNUSTEP_RUNTIME=1", "_NONFRAGILE_ABI=1", "GNUSTEP_BASE_LIBRARY=1"]
+
+        if self.settings.os == "Windows":
+            pc_data["defines"].append("GNUSTEP_WITH_DLL=1")
+
+        return pc_data
+
     def package_info(self):
-        pc_data = yaml.safe_load(load(self, self._pc_data_path))
+        pc_data = self._read_pc_data()
 
         self.cpp_info.libs = ["gnustep-base"]
         self.cpp_info.defines.extend(pc_data["defines"])
