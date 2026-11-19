@@ -53,28 +53,12 @@ jobs:
           git branch $env:GITHUB_BASE_REF origin/$env:GITHUB_BASE_REF
           git show-ref
         if: ${{ github.ref != 'refs/heads/main' }}
-      - name: Install gnustep-helpers
+      - name: Create gnustep-helpers
         run: conan create gnustep-helpers --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
-      - name: Install libdispatch
-        run: conan create libdispatch --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
-      - name: Install libobjc2
-        run: conan create libobjc2 --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
-      - name: Install gnustep-make
-        run: conan create gnustep-make --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
-      - name: Install gnustep-base
-        run: conan create gnustep-base --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }} -c tools.build:skip_test=True
-      - name: Install gnustep-gui
-        run: conan create gnustep-gui --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
-      - name: Install gnustep-headless
-        run: conan create gnustep-headless --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
-      - name: Install gnustep-back
-        run: conan create gnustep-back --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
-      - name: Install gnustep-systempreferences
-        run: conan create gnustep-systempreferences --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
-      - name: Install gnustep
-        run: conan create gnustep --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
-      - name: Install getopt
+      - name: Create getopt
         run: conan create getopt --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }}
+      - name: Create gnustep
+        run: conan workspace create --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }} -c tools.build:skip_test=True --build=missing
       - name: Build tutorial
         run: |
           conan install conanfile.txt --profile:a=../profiles/windows-clang-${{ matrix.name }} --output-folder=build/ --conf="tools.env.virtualenv:powershell=pwsh.exe"
@@ -101,6 +85,11 @@ jobs:
           conan upload gnustep*/* --confirm -r gitlab
           conan upload getopt/* --confirm -r gitlab
         if: ${{ github.ref == 'refs/heads/main' }}
+      # This can help troubleshooting when Conan packages fail to build because the repository is dirty
+      - name: Get Git status
+        run: |
+          git status
+        if: always()
       - name: Upload Conan cache to GitHub artifacts
         uses: actions/upload-artifact@v4
         if: always()
@@ -111,166 +100,6 @@ jobs:
             !~/.conan2/p/msys2*
 
   linux:
-    runs-on: ubuntu-latest
-    container:
-      image: ${{ matrix.image }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: ubuntu-22.04
-            image: ubuntu:22.04
-            family: ubuntu
-          - name: ubuntu-24.04
-            image: ubuntu:24.04
-            family: ubuntu
-          - name: rockylinux-10
-            image: rockylinux/rockylinux:10
-            family: rhel
-            # Some packages, such as giflib-devel, are not in the base RHEL repos but in an additional repository;
-            # which was named 'powertools' on RHEL8 and 'CodeReady Builder' on RHEL9.
-            # See https://wiki.rockylinux.org/rocky/repo/#notes-on-crb
-            repos: crb
-          - name: rockylinux-9
-            image: rockylinux:9
-            family: rhel
-            repos: crb
-          - name: rockylinux-8
-            image: rockylinux:8
-            family: rhel
-            repos: powertools
-    steps:
-      - name: Add CMake repository (Ubuntu 22.04)
-        run: |
-          apt-get update
-          apt-get install -y ca-certificates gpg wget
-          wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null
-          echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ jammy main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null
-          apt-get update
-          apt-get install kitware-archive-keyring
-        if: matrix.image == 'ubuntu:22.04'
-      - name: Install dependencies (Ubuntu)
-        run: |
-          apt-get update
-          apt-get install -y clang lld curl zip unzip tar git pkg-config make python3-venv cmake
-        if: matrix.family == 'ubuntu'
-      - name: Install dependencies (Enterprise Linux)
-        run: |
-          yum install -y clang lld zip unzip tar git pkg-config which findutils python312 cmake
-        if: matrix.family == 'rhel'
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Install conan
-        run: |
-          python3 -m venv .python3/
-          .python3/bin/pip install conan==2.33.0
-          .python3/bin/pip install pygit2
-          .python3/bin/conan --version
-          .python3/bin/conan config install global.conf
-      - name: Mark path as safe
-        run: git config --global --add safe.directory $(pwd)
-      - name: Check out main branch
-        run: |
-          git branch $GITHUB_BASE_REF origin/$GITHUB_BASE_REF
-          git show-ref
-        if: ${{ github.ref != 'refs/heads/main' }}
-      - name: Install gnustep-helpers
-        run: .python3/bin/conan create gnustep-helpers --profile:a=profiles/linux-clang
-      - name: Install libdispatch
-        run: .python3/bin/conan create libdispatch --profile:a=profiles/linux-clang
-      - name: Install libobjc2
-        run: .python3/bin/conan create libobjc2 --profile:a=profiles/linux-clang
-      - name: Install gnustep-make
-        run: .python3/bin/conan create gnustep-make --profile:a=profiles/linux-clang
-      - name: Install gnustep-base dependencies (Ubuntu)
-        run: |
-          apt-get update
-          apt-get install -y libffi-dev libxml2-dev libxslt-dev gnutls-dev libicu-dev libcurl4-gnutls-dev zlib1g-dev
-        if: matrix.family == 'ubuntu'
-      - name: Install gnustep-base dependencies (Enterprise Linux)
-        run: |
-          yum install -y libffi-devel libxml2-devel libxslt-devel gnutls-devel libicu-devel libcurl-devel
-        if: matrix.family == 'rhel'
-      - name: Install gnustep-base
-        run: .python3/bin/conan create gnustep-base --profile:a=profiles/linux-clang -c tools.build:skip_test=True
-      - name: Install gnustep-gui dependencies (Ubuntu)
-        run: |
-          apt-get update
-          apt-get install -y libtiff-dev libpng-dev libjpeg-dev libgif-dev
-        if: matrix.family == 'ubuntu'
-      - name: Install gnustep-gui dependencies (Enterprise Linux)
-        run: |
-          yum install --enablerepo=${{ matrix.repos}} -y libtiff-devel libpng-devel libjpeg-devel giflib-devel
-        if: matrix.family == 'rhel'
-      - name: Install gnustep-gui
-        run: .python3/bin/conan create gnustep-gui --profile:a=profiles/linux-clang
-      - name: Install gnustep-headless
-        run: .python3/bin/conan create gnustep-headless --profile:a=profiles/linux-clang
-      - name: Install gnustep-systempreferences
-        run: .python3/bin/conan create gnustep-systempreferences --profile:a=profiles/linux-clang
-      - name: Build tutorial
-        run: |
-          ../.python3/bin/conan install conanfile.txt --profile:a=../profiles/linux-clang --output-folder=build/
-          CC=clang CXX=clang++ LDFLAGS="-fuse-ld=lld" cmake -S. -B build/ -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
-          cmake --build build
-          . build/conanrun.sh
-          ./build/Tutorial
-        working-directory: tutorial/
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: conan-gnustep-${{ matrix.name }}
-          path: |
-            ~/.conan2/p
-            ./tutorial/
-
-  linux-gcc:
-    runs-on: ubuntu-latest
-    container:
-      image: ${{ matrix.image }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: ubuntu-24.04
-            image: ubuntu:24.04
-            family: ubuntu
-    steps:
-      - name: Install dependencies (Ubuntu)
-        run: |
-          apt-get update
-          apt-get install -y gobjc-13 gobjc++-13 g++-13 libstdc++-13-dev curl zip unzip tar git pkg-config make python3-venv cmake
-        if: matrix.family == 'ubuntu'
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Install conan
-        run: |
-          python3 -m venv .python3/
-          .python3/bin/pip install conan==2.33.0
-          .python3/bin/pip install pygit2
-          .python3/bin/conan --version
-          .python3/bin/conan config install global.conf
-      - name: Mark path as safe
-        run: git config --global --add safe.directory $(pwd)
-      - name: Check out main branch
-        run: |
-          git branch $GITHUB_BASE_REF origin/$GITHUB_BASE_REF
-          git show-ref
-        if: ${{ github.ref != 'refs/heads/main' }}
-      - name: Install gnustep-helpers
-        run: .python3/bin/conan create gnustep-helpers --profile:a=profiles/linux-gcc
-      - name: Install gnustep-make
-        run: .python3/bin/conan create gnustep-make --profile:a=profiles/linux-gcc
-        # Build gnustep-base with a copy of ICU with static data packaging
-      - name: Install gnustep-base
-        run: |
-          .python3/bin/conan create gnustep-base --profile:a=profiles/linux-gcc -c tools.build:skip_test=True --build=icu/* --build=gnustep-base/*
-      - name: Install gnustep-gui
-        run: .python3/bin/conan create gnustep-gui --profile:a=profiles/linux-gcc
-
-  linux-nodist:
     runs-on: ubuntu-latest
     env:
       CLANG_VERSION: 23
@@ -303,6 +132,8 @@ jobs:
         run: |
           apt-get update
           apt-get install -y gobjc-13 libstdc++-13-dev clang-${CLANG_VERSION} lld-${CLANG_VERSION} curl zip unzip tar git pkg-config make python3-venv cmake
+          # We need these packages in case we're building cairo
+          apt-get install -y libx11-xcb-dev libfontenc-dev libxaw7-dev libxcomposite-dev libxcursor-dev libxdamage-dev libxinerama-dev libxkbfile-dev libxmuu-dev libxrandr-dev libxres-dev libxss-dev libxtst-dev libxv-dev libxxf86vm-dev libxcb-glx0-dev libxcb-xkb-dev libxcb-icccm4-dev libxcb-keysyms1-dev libxcb-xinerama0-dev libxcb-dri3-dev uuid-dev libxcb-cursor-dev libxcb-dri2-0-dev libxcb-present-dev libxcb-composite0-dev libxcb-ewmh-dev libxcb-res0-dev libxcb-util-dev
           # The Conan profile expects /usr/bin/clang and /usr/bin/clang++
           update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${CLANG_VERSION} 100
           update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${CLANG_VERSION} 100
@@ -330,24 +161,8 @@ jobs:
         if: ${{ github.ref != 'refs/heads/main' }}
       - name: Install gnustep-helpers
         run: .python3/bin/conan create gnustep-helpers --profile:a=profiles/linux-clang-nodist
-      - name: Install libdispatch
-        run: .python3/bin/conan create libdispatch --profile:a=profiles/linux-clang-nodist
-      - name: Install libobjc2
-        run: .python3/bin/conan create libobjc2 --profile:a=profiles/linux-clang-nodist
-      - name: Install gnustep-make
-        run: .python3/bin/conan create gnustep-make --profile:a=profiles/linux-clang-nodist
-        # Build gnustep-base with a copy of ICU with static data packaging
-      - name: Install gnustep-base
-        run: |
-          .python3/bin/conan create gnustep-base --profile:a=profiles/linux-clang-nodist -c tools.build:skip_test=True --build=icu/* --build=gnustep-base/*
-      - name: Install gnustep-gui
-        run: .python3/bin/conan create gnustep-gui --profile:a=profiles/linux-clang-nodist
-      - name: Install gnustep-headless
-        run: .python3/bin/conan create gnustep-headless --profile:a=profiles/linux-clang-nodist
-      - name: Install gnustep-systempreferences
-        run: .python3/bin/conan create gnustep-systempreferences --profile:a=profiles/linux-clang-nodist
-      - name: Install gnustep
-        run: .python3/bin/conan create gnustep --profile:a=profiles/linux-clang-nodist
+      - name: Create gnustep
+        run: .python3/bin/conan workspace create --profile:a=profiles/linux-clang-nodist -c tools.build:skip_test=True --build=missing
       - name: Build tutorial
         run: |
           ../.python3/bin/conan install conanfile.txt --profile:a=../profiles/linux-clang-nodist --output-folder=build/
