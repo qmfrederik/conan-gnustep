@@ -47,15 +47,10 @@ pip install conan==2.33.0 pygit2
 
 conan config install global.conf
 conan create gnustep-helpers --profile:a=profiles/windows-clang-vs2026
-conan create libdispatch --profile:a=profiles/windows-clang-vs2026
-conan create libobjc2 --profile:a=profiles/windows-clang-vs2026
-conan create gnustep-make --profile:a=profiles/windows-clang-vs2026
-conan create gnustep-base --profile:a=profiles/windows-clang-vs2026 -c tools.build:skip_test=True --build=icu/* --build=gnustep-base/*
-conan create gnustep-gui --profile:a=profiles/windows-clang-vs2026
-conan create gnustep-headless --profile:a=profiles/windows-clang-vs2026
-conan create gnustep-back --profile:a=profiles/windows-clang-vs2026
+conan workspace create -pr:a=profiles/windows-clang-vs2026 -c tools.build:skip_test=True --build=missing
+
+# This is a Windows-only dependency
 conan create gnustep-winuxtheme --profile:a=profiles/windows-clang-vs2026
-conan create gnustep-systempreferences --profile:a=profiles/windows-clang-vs2026
 ```
 
 This will configure GNUstep Base and all of its dependencies.
@@ -63,7 +58,7 @@ This will configure GNUstep Base and all of its dependencies.
 ## Getting started on Linux
 
 ```bash
-apt-get install -y clang lld curl zip unzip tar git pkg-config make python3-venv cmake libffi-dev libxml2-dev libxslt-dev gnutls-dev libicu-dev libcurl4-gnutls-dev
+apt-get install -y clang lld curl zip unzip tar git pkg-config make python3-venv cmake
 
 git clone https://github.com/qmfrederik/conan-gnustep/
 cd conan-gnustep
@@ -73,12 +68,7 @@ python3 -m venv .python3/
 . .python3/bin/activate
 conan config install global.conf
 conan create gnustep-helpers --profile:a=profiles/linux-clang-nodist
-conan create libdispatch --profile:a=profiles/linux-clang-nodist
-conan create libobjc2 --profile:a=profiles/linux-clang-nodist
-conan create gnustep-make --profile:a=profiles/linux-clang-nodist
-conan create gnustep-base --profile:a=profiles/linux-clang-nodist -c tools.build:skip_test=True --build=icu/* --build=gnustep-base/*
-conan create gnustep-gui --profile:a=profiles/linux-clang-nodist
-conan create gnustep-headless --profile:a=profiles/linux-clang-nodist
+conan workspace create --profile:a=profiles/linux-clang-nodist
 ```
 
 ## Tips & Tricks
