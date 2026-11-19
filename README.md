@@ -31,7 +31,7 @@ conan remote add gnustep https://gitlab.com/api/v4/projects/72962159/packages/co
 On Windows, you'll need to download the Windows SDK and the LLVM toolchain. Optionally, you can use Visual Studio Code as an editor and Git for source code interations.
 
 - [Visual Studio 2022 Build Tools (Windows SDK)](https://visualstudio.microsoft.com/downloads/)
-- [LLVM 20.0 or later](https://releases.llvm.org/download.html)
+- [LLVM 22 or later](https://releases.llvm.org/download.html)
 - [Git for Windows](https://git-scm.com/download/win)
 - [Conan](https://conan.io/downloads)
 
