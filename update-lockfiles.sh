@@ -32,6 +32,7 @@ exclude_args=(
 # generate_lockfile <profile> <lockfile>
 generate_lockfile() {
     conan workspace super-install --profile:a="profiles/$1" -c tools.build:skip_test=True --build=never \
+        -cc core.version_ranges:resolve_prereleases=True \
         --output-folder="$work/output" --lockfile-out="$work/full.lock"
     conan lock remove --lockfile="$work/full.lock" --lockfile-out="$2" "${exclude_args[@]}"
 }
