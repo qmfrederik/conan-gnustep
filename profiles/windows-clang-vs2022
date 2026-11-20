@@ -24,16 +24,24 @@ os=Windows
 {{ ref }}:compiler.runtime_version=v144
 {% endfor %}
 
-# No prebuilt for 194 yet.
-libffi/3.4.8:compiler.version=193
-
 [options]
 *:shared=True
 
 [conf]
 tools.cmake.cmaketoolchain:generator=Ninja
-tools.build:compiler_executables = {"c": "clang", "cpp": "clang++"}
 tools.gnu:pkg_config=pkgconf
+
+# Use Clang for GNUstep-related applications, but keep MSVC for everything else.
+{% for ref in [
+    "libobjc2/*",
+    "libdispatch/*",
+    "gnustep-*/*"
+] %}
+{{ ref }}:tools.build:compiler_executables = {"c": "clang", "cpp": "clang++"}
+{% endfor %}
+
+# Also use Clang for test_package contexts (consumers)
+&:tools.build:compiler_executables = {"c": "clang", "cpp": "clang++"}
 
 # Work around a Windows build failure on Conan >= 2.19.1
 # Conan >= 2.19.1 no longer sets this; try_compile then uses Debug, leaving the
