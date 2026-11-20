@@ -80,6 +80,9 @@ jobs:
         run: |
           conan list --graph=${{ runner.temp }}/graph.json --graph-binaries=build --format=json --out-file=${{ runner.temp }}/built.json
           python -c "import json; names = sorted(json.load(open(r'${{ runner.temp }}/built.json'))['Local Cache']); print('\n'.join(names) if names else 'No external packages were built')"
+      - name: Check for outdated dependencies
+        run: conan graph outdated conanfile.txt --profile:a=../profiles/windows-clang-${{ matrix.name }} --lockfile=../conan.lock --lockfile-partial
+        working-directory: tutorial/
       - name: Upload Conan packages to Cloudsmith
         run: |
           conan remote add cloudsmith https://conan.cloudsmith.io/qmfrederik/gnustep/
@@ -194,6 +197,9 @@ jobs:
         run: |
           .python3/bin/conan list --graph=${{ runner.temp }}/graph.json --graph-binaries=build --format=json --out-file=${{ runner.temp }}/built.json
           .python3/bin/python -c "import json; names = sorted(json.load(open(r'${{ runner.temp }}/built.json'))['Local Cache']); print('\n'.join(names) if names else 'No external packages were built')"
+      - name: Check for outdated dependencies
+        run: ../.python3/bin/conan graph outdated conanfile.txt --profile:a=../profiles/linux-clang-nodist --lockfile=../conan.lock --lockfile-partial
+        working-directory: tutorial/
       - name: Upload Conan packages to Cloudsmith
         run: |
           .python3/bin/conan remote add cloudsmith https://conan.cloudsmith.io/qmfrederik/gnustep/
