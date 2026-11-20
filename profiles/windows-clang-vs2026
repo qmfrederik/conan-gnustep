@@ -28,42 +28,27 @@ os=Windows
 # Temporary workaround to get the correct prebuilt for packages
 # which don't have a 195 prebuilt yet.
 
-# GNUstep-base:
-libiconv/1.17:compiler.version=194
-libxml2/2.15.4:compiler.version=194
-openssl/3.6.5:compiler.version=194
-libxslt/1.1.45:compiler.version=194
-libffi/3.4.8:compiler.version=193
-
 # GNUstep GUI:
-libjpeg/9f:compiler.version=194
 giflib/5.2.2:compiler.version=194
-libpng/1.6.59:compiler.version=194
-xz_utils/5.8.4:compiler.version=194
-libtiff/4.7.2:compiler.version=194
-
-# GNUstep headless backend
-brotli/1.1.0:compiler.version=194
-bzip2/1.0.8:compiler.version=194
-freetype/2.14.3:compiler.version=194
-
-# GNUstep win32 backend
-cairo/1.18.4:compiler.version=194
-lzo/2.10:compiler.version=194
-expat/2.8.5:compiler.version=194
-pcre2/10.42:compiler.version=194
-pixman/0.43.4:compiler.version=194
-fontconfig/2.17.1:compiler.version=194
-libgettext/0.22:compiler.version=194
-glib/2.86.5:compiler.version=194
 
 [options]
 *:shared=True
 
 [conf]
 tools.cmake.cmaketoolchain:generator=Ninja
-tools.build:compiler_executables = {"c": "clang", "cpp": "clang++"}
 tools.gnu:pkg_config=pkgconf
+
+# Use Clang for GNUstep-related applications, but keep MSVC for everything else.
+{% for ref in [
+    "libobjc2/*",
+    "libdispatch/*",
+    "gnustep-*/*"
+] %}
+{{ ref }}:tools.build:compiler_executables = {"c": "clang", "cpp": "clang++"}
+{% endfor %}
+
+# Also use Clang for test_package contexts (consumers)
+&:tools.build:compiler_executables = {"c": "clang", "cpp": "clang++"}
 
 # Work around a Windows build failure on Conan >= 2.19.1
 # Conan >= 2.19.1 no longer sets this; try_compile then uses Debug, leaving the
