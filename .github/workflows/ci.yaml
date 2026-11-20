@@ -65,12 +65,12 @@ jobs:
       - name: Build external dependencies
         # Builds the dependencies which are not part of the workspace (and which are not available as binaries) and
         # records what was built in the graph, so we can upload exactly those packages later on.
-        run: conan workspace super-install --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }} -c tools.build:skip_test=True --build=missing --output-folder=${{ runner.temp }}/super-install --format=json --out-file=${{ runner.temp }}/graph.json
+        run: conan workspace super-install --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }} -c tools.build:skip_test=True --build=missing --lockfile=${{ github.workspace }}/conan.lock --lockfile-partial --output-folder=${{ runner.temp }}/super-install --format=json --out-file=${{ runner.temp }}/graph.json
       - name: Create gnustep
-        run: conan workspace create --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }} -c tools.build:skip_test=True --build=missing
+        run: conan workspace create --profile:a=${{ github.workspace }}/profiles/windows-clang-${{ matrix.name }} -c tools.build:skip_test=True --build=missing --lockfile=${{ github.workspace }}/conan.lock --lockfile-partial
       - name: Build tutorial
         run: |
-          conan install conanfile.txt --profile:a=../profiles/windows-clang-${{ matrix.name }} --output-folder=build/ --conf="tools.env.virtualenv:powershell=pwsh.exe"
+          conan install conanfile.txt --profile:a=../profiles/windows-clang-${{ matrix.name }} --output-folder=build/ --conf="tools.env.virtualenv:powershell=pwsh.exe" --lockfile=../conan.lock --lockfile-partial
           cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_POLICY_DEFAULT_CMP0091="NEW" -GNinja
           cmake --build build
           ./build/conanrun.ps1
@@ -179,12 +179,12 @@ jobs:
       - name: Build external dependencies
         # Builds the dependencies which are not part of the workspace (and which are not available as binaries) and
         # records what was built in the graph, so we can upload exactly those packages later on.
-        run: .python3/bin/conan workspace super-install --profile:a=profiles/linux-clang-nodist -c tools.build:skip_test=True --build=missing --output-folder=${{ runner.temp }}/super-install --format=json --out-file=${{ runner.temp }}/graph.json
+        run: .python3/bin/conan workspace super-install --profile:a=profiles/linux-clang-nodist -c tools.build:skip_test=True --build=missing --lockfile=conan.lock --lockfile-partial --output-folder=${{ runner.temp }}/super-install --format=json --out-file=${{ runner.temp }}/graph.json
       - name: Create gnustep
-        run: .python3/bin/conan workspace create --profile:a=profiles/linux-clang-nodist -c tools.build:skip_test=True --build=missing
+        run: .python3/bin/conan workspace create --profile:a=profiles/linux-clang-nodist -c tools.build:skip_test=True --build=missing --lockfile=conan.lock --lockfile-partial
       - name: Build tutorial
         run: |
-          ../.python3/bin/conan install conanfile.txt --profile:a=../profiles/linux-clang-nodist --output-folder=build/
+          ../.python3/bin/conan install conanfile.txt --profile:a=../profiles/linux-clang-nodist --output-folder=build/ --lockfile=../conan.lock --lockfile-partial
           cmake -S . -B build/ -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
           cmake --build build
           . build/conanrun.sh
