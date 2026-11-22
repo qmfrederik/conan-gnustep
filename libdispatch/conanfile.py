@@ -5,7 +5,7 @@ from conan.tools.files import get, apply_conandata_patches
 
 class LibDispatchRecipe(ConanFile):
     name = "libdispatch"
-    version = "6.4.0"
+    version = "6.4.3"
     if os.getenv("CI"):
         revision_mode = "scm"
     package_type = "library"
