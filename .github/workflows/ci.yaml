@@ -126,9 +126,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: ubuntu-26.04
-            image: ubuntu:26.04
-            family: ubuntu
+          - name: ubi-8
+            image: registry.access.redhat.com/ubi8/ubi:latest
+            family: rhel
     steps:
       - name: Add LLVM apt repository (Ubuntu)
         run: |
@@ -155,6 +155,10 @@ jobs:
           update-alternatives --install /usr/bin/clang clang /usr/bin/clang-${CLANG_VERSION} 100
           update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-${CLANG_VERSION} 100
         if: matrix.family == 'ubuntu'
+      - name: Install dependencies (Enterprise Linux)
+        run: |
+          yum install -y clang lld zip unzip tar git pkg-config which findutils python312 cmake
+        if: matrix.family == 'rhel'
       - name: Check LLVM, Cmake version
         run: |
           clang --version
