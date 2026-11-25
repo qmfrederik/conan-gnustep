@@ -23,7 +23,7 @@ class GnustepMakeRecipe(ConanFile):
     options = {"shared": [True, False], "fPIC": [True, False], "objc_runtime": ["gnu", "ng"]}
     default_options = {"shared": False, "fPIC": True, "objc_runtime": "ng"}
     exports_sources = "*.patch"
-    python_requires = "gnustep-helpers/0.2"
+    python_requires = "gnustep-helpers/0.3"
 
     def init(self):
         if not isinstance(self.python_requires, str):

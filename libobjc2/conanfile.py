@@ -18,7 +18,7 @@ class libobjc2Recipe(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": True, "fPIC": True}
-    python_requires = "gnustep-helpers/0.2"
+    python_requires = "gnustep-helpers/0.3"
 
     def init(self):
         if not isinstance(self.python_requires, str):
