@@ -1,11 +1,9 @@
 from conan import ConanFile
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
-from conan.tools.files import get, apply_conandata_patches, mkdir, replace_in_file
+from conan.tools.files import get, apply_conandata_patches
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualRunEnv
-from pathlib import Path
 import os
-import shutil
 
 class GnustepBackRecipe(ConanFile):
     name = "gnustep-back"

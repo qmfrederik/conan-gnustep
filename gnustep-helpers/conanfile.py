@@ -33,8 +33,8 @@ def configure_windows_host(pkg, autotools):
         # checking build system type... x86_64-w64-mingw32
         # checking host system type... x86_64-pc-windows
         # checking target system type... x86_64-pc-windows
-        autotools.configure_args.append(f"--host=x86_64-pc-windows")
-        autotools.configure_args.append(f"--target=x86_64-pc-windows")
+        autotools.configure_args.append("--host=x86_64-pc-windows")
+        autotools.configure_args.append("--target=x86_64-pc-windows")
 
 def configure_windows_pkgconf(pkg, env):
     if pkg.settings.os == "Windows":

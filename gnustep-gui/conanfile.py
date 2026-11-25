@@ -1,11 +1,10 @@
 from conan import ConanFile
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
-from conan.tools.files import get, apply_conandata_patches, mkdir, replace_in_file, copy, rmdir
+from conan.tools.files import get, apply_conandata_patches, replace_in_file, copy, rmdir
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualRunEnv
 from pathlib import Path
 import os
-import shutil
 
 class GnustepGuiRecipe(ConanFile):
     name = "gnustep-gui"

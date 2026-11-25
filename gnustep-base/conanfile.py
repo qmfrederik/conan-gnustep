@@ -2,7 +2,7 @@ from conan import ConanFile
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfig, PkgConfigDeps
 from conan.tools.files import get, apply_conandata_patches, copy, rmdir, mkdir, save, load
 from conan.tools.build import cross_building
-from conan.tools.env import VirtualRunEnv, Environment
+from conan.tools.env import VirtualRunEnv
 
 import os
 import yaml
