@@ -17,6 +17,9 @@
 }
 @end
 
+// Implemented in test_blocks.m
+int testBlocks(void);
+
 int main(void)
 {
 #ifndef _WIN32
@@ -99,9 +102,12 @@ int main(void)
     NSLog(@"[%@]: zlib gzip round trip (%lu -> %lu bytes)", zlibOk ? @"PASS" : @"FAIL",
           (unsigned long)[original length], (unsigned long)[compressed length]);
 
+    int blocksOk = testBlocks();
+    NSLog(@"[%@]: Blocks", blocksOk ? @"PASS" : @"FAIL");
+
     [pool release];
 
-    if (!dateFormatOk || !bundleOk || !abbreviationOk || !zlibOk)
+    if (!dateFormatOk || !bundleOk || !abbreviationOk || !zlibOk || !blocksOk)
         return EXIT_FAILURE;
 
     return EXIT_SUCCESS;

@@ -3,7 +3,7 @@ project(test_package LANGUAGES C CXX)
 
 find_package(gnustep-base REQUIRED CONFIG)
 
-add_executable(${PROJECT_NAME} test_package.m)
+add_executable(${PROJECT_NAME} test_package.m test_blocks.m)
 target_link_libraries(${PROJECT_NAME} PRIVATE gnustep-base::gnustep-base)
 
 # Objective C++ needs the same Objective C compiler flags as Objective C
