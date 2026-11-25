@@ -5,7 +5,7 @@ import os
 
 class libobjc2Recipe(ConanFile):
     name = "libobjc2"
-    version = "2.2.1"
+    version = "2.3"
     if os.getenv("CI"):
         revision_mode = "scm"
     package_type = "library"
@@ -30,9 +30,6 @@ class libobjc2Recipe(ConanFile):
     def requirements(self):
         self.requires("tsl-robin-map/1.3.0")
 
-        # Use the blocks runtime which ships with libdispatch
-        self.requires("libdispatch/[^6.4.0]")
-
     def config_options(self):
         if self.settings.os == "Windows":
             self.options.rm_safe("fPIC")
@@ -53,7 +50,6 @@ class libobjc2Recipe(ConanFile):
         # Prevent picking up a default install location through gnustep-config
         tc.variables["GNUSTEP_INSTALL_TYPE"] = "NONE"
         tc.variables["TESTS"] = yes_no(not self.conf.get("tools.build:skip_test", default=False))
-        tc.variables["EMBEDDED_BLOCKS_RUNTIME"] = "OFF"
         tc.generate()
 
     def build(self):

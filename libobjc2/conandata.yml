@@ -1,5 +1,5 @@
 sources:
-  "2.2.1":
-    url: "https://github.com/gnustep/libobjc2/archive/v2.2.1.zip"
-    sha256: "b0afc1d98a6f7208fb5ce1fc8b5848b5ba6dba1f4fcd755fbe3fc78b5e4b3308"
+  "2.3":
+    url: "https://github.com/gnustep/libobjc2/archive/v2.3.zip"
+    sha256: "34897caface25c05b4908976a886a27c2c9456636c9a6fe96d990b8f2433b157"
     strip_root: true
