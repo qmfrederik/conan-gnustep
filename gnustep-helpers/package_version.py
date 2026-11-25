@@ -25,6 +25,16 @@ from datetime import datetime
 # - Supports squash merges
 # - Works for installed packages
 
+def _last_modified(folder):
+    latest = os.path.getmtime(folder)
+
+    for root, dirs, files in os.walk(folder):
+        dirs[:] = [d for d in dirs if d not in ("build", "__pycache__")]
+        for name in files:
+            latest = max(latest, os.path.getmtime(os.path.join(root, name)))
+
+    return datetime.fromtimestamp(latest)
+
 def get_package_version(package):    
     repository = os.path.dirname(package.recipe_folder)
     conan_path = os.path.join(repository, package.name, "conandata.yml")
@@ -42,7 +52,9 @@ def get_package_version(package):
         from pygit2 import Repository, BlobIO, Commit, Object
         from pygit2.enums import SortMode
     except ImportError:
-        return f"{package_version}+l{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        # Base the build version on the last modification time of the recipe rather than the current time,
+        # so that the version is stable across evaluations (Conan evaluates it more than once per run).
+        return f"{package_version}+l{_last_modified(os.path.dirname(conan_path)):%Y%m%d%H%M%S}"
 
     revision_count = 0
 
