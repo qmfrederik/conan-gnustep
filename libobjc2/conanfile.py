@@ -28,7 +28,7 @@ class libobjc2Recipe(ConanFile):
         get(self, **sorted(self.conan_data["sources"].values())[0])
 
     def requirements(self):
-        self.requires("tsl-robin-map/1.3.0")
+        self.requires("tsl-robin-map/1.4.0")
 
     def config_options(self):
         if self.settings.os == "Windows":
