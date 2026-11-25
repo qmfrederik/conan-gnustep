@@ -7,3 +7,5 @@ sources:
 patches:
   # Backport of https://github.com/swiftlang/swift-corelibs-libdispatch/pull/952, which is not available on the 6.4.x branch.
   - patch_file: "952.patch"
+  # Use an external BlocksRuntime (such as the one built into libobjc2): https://github.com/swiftlang/swift-corelibs-libdispatch/pull/896, rebased onto 6.4.3.
+  - patch_file: "896.patch"

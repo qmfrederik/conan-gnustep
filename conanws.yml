@@ -1,6 +1,6 @@
 packages:
-  - path: libdispatch
   - path: libobjc2
+  - path: libdispatch
   - path: gnustep-make
   - path: gnustep-base
   - path: gnustep-gui
