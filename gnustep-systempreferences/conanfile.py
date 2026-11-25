@@ -53,17 +53,6 @@ class GnustepSystemPreferencesRecipe(ConanFile):
         tc = AutotoolsToolchain(self)
         env = tc.environment()
 
-        # Fix header paths
-        gnustep_base_include = os.path.join(self.dependencies["gnustep-base"].package_folder, "include/")
-        gnustep_gui_include = os.path.join(self.dependencies["gnustep-gui"].package_folder, "include/")
-        objc_include = os.path.join(self.dependencies["libobjc2"].package_folder, "include/")
-        dispatch_include = os.path.join(self.dependencies["libdispatch"].package_folder, "include/")
-
-        if self.settings.os == "Windows":
-            tc.make_args.append(f"OBJC_INCLUDE_PATH='{gnustep_base_include};{gnustep_gui_include};{objc_include};{dispatch_include}'")
-        else:
-            tc.make_args.append(f"OBJC_INCLUDE_PATH={gnustep_base_include}:{gnustep_gui_include}:{objc_include}:{dispatch_include}")
-
         # Overriding some linker flags via ALL_LDFLAGS means overriding all; so find all dependencies
         # and provider linker paths
         ldflags = ""
