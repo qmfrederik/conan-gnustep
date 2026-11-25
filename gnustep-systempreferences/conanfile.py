@@ -1,10 +1,9 @@
 from conan import ConanFile
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
-from conan.tools.files import get, copy, mkdir, apply_conandata_patches
+from conan.tools.files import get, apply_conandata_patches
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualRunEnv
 import os
-import shutil
 
 class GnustepSystemPreferencesRecipe(ConanFile):
     name = "gnustep-systempreferences"

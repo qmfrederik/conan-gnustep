@@ -48,10 +48,6 @@ class GnustepMakeRecipe(ConanFile):
         if self.settings.os == "Windows":
             self.options.rm_safe("fPIC")
 
-    @property
-    def _settings_build(self):
-        return getattr(self, "settings_build", self.settings)
-
     def build_requirements(self):
         # Require a MSYS2 shell on Windows (for Autotools support)
         self.python_requires["gnustep-helpers"].module.windows_build_requirements(self)

@@ -43,13 +43,10 @@ def get_package_version(package):
     if not os.path.exists(conan_path):
         return None
     
-    with open(conan_path) as stream:
-        version_data = yaml.safe_load(stream)
-
     package_version = package.version
 
     try:
-        from pygit2 import Repository, BlobIO, Commit, Object
+        from pygit2 import Repository, BlobIO
         from pygit2.enums import SortMode
     except ImportError:
         # Base the build version on the last modification time of the recipe rather than the current time,
@@ -95,11 +92,6 @@ def get_package_version(package):
     previous_recipe_tree_id = None
 
     for commit in repo.walk(repo.head.target, SortMode.TOPOLOGICAL):
-        if len(commit.parents) > 0:
-            parent_commit = commit.parents[0]
-        else:
-            parent_commit = None
-
         if commit.tree.__contains__(package.name):
             recipe_tree = commit.tree / package.name
             commit_package_version = None

@@ -1,11 +1,10 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.gnu import Autotools, AutotoolsDeps, AutotoolsToolchain, PkgConfigDeps
-from conan.tools.files import get, copy, mkdir
+from conan.tools.files import get, copy
 from conan.tools.build import cross_building
 from conan.tools.env import VirtualRunEnv
 import os
-import shutil
 
 class GnustepWinUXThemeRecipe(ConanFile):
     name = "gnustep-winuxtheme"
