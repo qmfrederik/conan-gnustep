@@ -1,3 +1,7 @@
+{# All gnustep packages are built with clang; "&" is the a "consumer" package (the package being built), which also covers test_package contexts (consumers). #}
+{% set gnustep_refs = ["libobjc2/*", "libdispatch/*", "gnustep-*/*", "&"] %}
+{% set clang_version=22 %}
+
 [settings]
 arch=x86_64
 build_type=Release
@@ -7,16 +11,15 @@ compiler.cppstd=20
 compiler.libcxx=libstdc++11
 os=Linux
 
-libdispatch/*:compiler=clang
-libdispatch/*:compiler.version=22
-
-libobjc2/*:compiler=clang
-libobjc2/*:compiler.version=22
-
-gnustep-*/*:compiler=clang
-gnustep-*/*:compiler.version=22
+{% for ref in gnustep_refs %}
+{{ ref }}:compiler=clang
+{{ ref }}:compiler.version={{ clang_version }}
+{% endfor %}
 
 os=Linux
 
 [conf]
-tools.build:compiler_executables={"c": "/usr/bin/clang", "cpp": "/usr/bin/clang++"}
+
+{% for ref in gnustep_refs %}
+{{ ref }}:tools.build:compiler_executables={"c": "/usr/bin/clang-{{ clang_version }}", "cpp": "/usr/bin/clang++-{{ clang_version }}"}
+{% endfor %}
