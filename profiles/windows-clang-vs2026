@@ -16,7 +16,9 @@ os=Windows
 {% for ref in [
     "libobjc2/*",
     "libdispatch/*",
-    "gnustep-*/*"
+    "gnustep-*/*",
+    {# Include test_package contexts (consumers) #}
+    "&"
 ] %}
 {{ ref }}:compiler=clang
 {{ ref }}:compiler.cppstd=17
@@ -42,7 +44,9 @@ tools.gnu:pkg_config=pkgconf
 {% for ref in [
     "libobjc2/*",
     "libdispatch/*",
-    "gnustep-*/*"
+    "gnustep-*/*",
+    {# Include test_package contexts (consumers) #}
+    "&"
 ] %}
 {{ ref }}:tools.build:compiler_executables = {"c": "clang", "cpp": "clang++"}
 {% endfor %}

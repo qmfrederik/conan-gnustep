@@ -15,7 +15,9 @@ os=Windows
 {% for ref in [
     "libobjc2/*",
     "libdispatch/*",
-    "gnustep-*/*"
+    "gnustep-*/*",
+    {# Include test_package contexts (consumers) #}
+    "&"
 ] %}
 {{ ref }}:compiler=clang
 {{ ref }}:compiler.cppstd=17
@@ -35,13 +37,12 @@ tools.gnu:pkg_config=pkgconf
 {% for ref in [
     "libobjc2/*",
     "libdispatch/*",
-    "gnustep-*/*"
+    "gnustep-*/*",
+    {# Include test_package contexts (consumers) #}
+    "&"
 ] %}
 {{ ref }}:tools.build:compiler_executables = {"c": "clang", "cpp": "clang++"}
 {% endfor %}
-
-# Also use Clang for test_package contexts (consumers)
-&:tools.build:compiler_executables = {"c": "clang", "cpp": "clang++"}
 
 # Work around a Windows build failure on Conan >= 2.19.1
 # Conan >= 2.19.1 no longer sets this; try_compile then uses Debug, leaving the
