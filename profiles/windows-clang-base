@@ -1,0 +1,46 @@
+{# Shared by the windows-clang-vs* profiles. Expects msvc_version and clang_runtime_version to be set; extra_settings is optional. #}
+{# All gnustep packages are built with clang; "&" is the a "consumer" package (the package being built), which also covers test_package contexts (consumers). #}
+{% set gnustep_refs = ["libobjc2/*", "libdispatch/*", "gnustep-*/*", "&"] %}
+[buildenv]
+PATH=+(path)C:\Program Files\LLVM\bin
+
+[settings]
+arch=x86_64
+build_type=Release
+
+compiler=msvc
+compiler.cppstd=14
+compiler.version={{ msvc_version }}
+compiler.runtime=dynamic
+compiler.runtime_type=Release
+os=Windows
+
+{% for ref in gnustep_refs %}
+{{ ref }}:compiler=clang
+{{ ref }}:compiler.cppstd=17
+{{ ref }}:compiler.version=20
+{{ ref }}:compiler.runtime=dynamic
+{{ ref }}:compiler.runtime_version={{ clang_runtime_version }}
+{% endfor %}
+{{ extra_settings | default("") }}
+
+[options]
+*:shared=True
+
+[conf]
+tools.cmake.cmaketoolchain:generator=Ninja
+tools.gnu:pkg_config=pkgconf
+
+# Use Clang for GNUstep-related applications, but keep MSVC for everything else.
+{% for ref in gnustep_refs %}
+{{ ref }}:tools.build:compiler_executables = {"c": "clang", "cpp": "clang++"}
+{% endfor %}
+
+# Work around a Windows build failure on Conan >= 2.19.1
+# Conan >= 2.19.1 no longer sets this; try_compile then uses Debug, leaving the
+# Release-only CMAKE_MSVC_RUNTIME_LIBRARY genex empty so clang can't link.
+# See https://github.com/conan-io/conan/issues/18593
+tools.cmake.cmaketoolchain:extra_variables={"CMAKE_TRY_COMPILE_CONFIGURATION": "Release"}
+
+[platform_requires]
+icu/78.2
